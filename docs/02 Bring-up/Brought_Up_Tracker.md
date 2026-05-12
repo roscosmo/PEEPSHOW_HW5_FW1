@@ -1,0 +1,64 @@
+# Brought-Up Tracker
+
+Use this as the live progress tracker for HW5 hardware and firmware bring-up.
+
+---
+
+## Metadata
+
+- Last updated: `YYYY-MM-DD`
+- Board revision: `TBD`
+- Firmware commit: `TBD`
+- Maintainer: `TBD`
+
+---
+
+## Bring-Up Phase Status
+
+| Phase | Status | Primary Runbooks | Notes |
+|---|---|---|---|
+| 0 - Power and clock stability | Not started | [[ADP5360_Power_Bring-up_Runbook]], [[HW5_Clock_Tree_Contract]] | validate safe power, clocks, PMIC, reset causes |
+| 1 - Display validation | Not started | [[LS013B7DH05_Display_Bring-up_Runbook]] | static image, EXTCOMIN, full/partial update |
+| 2 - Storage validation | Not started | [[AT25SL128A_External_Flash_Bring-up_Runbook]] | ID, erase/program/readback, deep power-down |
+| 3 - Audio validation | Not started | [[Audio_Output_Bring-up_Runbook]] | speaker, BBB, shutdown, DMA/mixer when available |
+| 4 - Input and sensors | Not started | [[Button_Input_Bring-up_Runbook]], [[Rotary_Encoder_Bring-up_Runbook]], [[TEMT6000_Light_Sensor_Bring-up_Runbook]], [[LIS2DUX12_IMU_Bring-up_Runbook]], [[TMAG3001_Joystick_Bring-up_Runbook]] | validate physical input and normalized events |
+| 5 - RTOS owner integration | Not started | [[RTOS_Ownership_and_Queue_Topology]], [[Subsystem_State_Machines]] | owner threads and queues match contracts |
+| 6 - Sleep and wake validation | Not started | [[Sleep_Wake_Integration_Bring-up_Runbook]] | wake reason classification and measured current |
+| 7 - Installer and transport mode | Not started | [[USB_MSC_Bring-up_and_Recovery_Runbook]], [[NINA_B112_BLE_Bring-up_Runbook]] | USB staging first; BLE after comm owner exists |
+| 8 - Runtime host lifecycle | Not started | [[Runtime_Host_Contract]], [[Package_Contract]] | only after hardware owners are stable |
+| 9 - Platform freeze checks | Not started | [[Platform_Freeze_Charter]], [[HW5_Hardware_Documentation_Readiness]] | authority docs and measured evidence agree |
+
+---
+
+## Evidence Ledger
+
+For each evidence entry record:
+
+- date/time
+- test case ID
+- mode/runtime class
+- result
+- artifacts
+- notes
+
+Template row:
+
+| Date | Test Case | Mode/Host | Result | Artifact | Notes |
+|---|---|---|---|---|---|
+| YYYY-MM-DD | T-XXX | SHELL | PASS | path/to/log | |
+
+---
+
+## Temporary Measures Register
+
+| ID | Introduced | Scope | Exit Criteria | Owner | Status |
+|---|---|---|---|---|---|
+| TMP-XXX | YYYY-MM-DD | TBD | TBD | TBD | active |
+
+---
+
+## Open Issues Blocking Completion
+
+| ID | Blocking Phase | Summary | Owner | Next Action |
+|---|---|---|---|---|
+| BUG-XXX | Phase X | TBD | TBD | TBD |
