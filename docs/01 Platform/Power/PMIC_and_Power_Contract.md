@@ -25,7 +25,7 @@ Confirmed connections:
 - VBUS can be detected through ADP5360 status and through the MCU USB VBUS sense path.
 - `USB_OTG_FS_VBUS` is on `PA9`.
 
-Implementation must explicitly document whether `0x46` is used as a 7-bit address or shifted HAL address representation before writing the driver.
+Per [[Platform_Hardware_Abstraction_Contract]], the PMIC driver uses the public 7-bit address `0x46`; STM32 HAL shifted-address handling is hidden inside the `ps_hw_i2c3` layer.
 
 ---
 

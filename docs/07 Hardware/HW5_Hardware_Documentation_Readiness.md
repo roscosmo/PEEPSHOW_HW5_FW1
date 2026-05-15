@@ -55,7 +55,7 @@ Active CubeMX file:
 - Fill measured LPBAM display experiment results during display/sleep bring-up.
 - Record LS013B7DH05 pixel polarity, line address format, row order, byte order, dirty granularity, and full-frame fallback threshold from measured pattern tests.
 - Record AT25SL128A JEDEC/device ID bytes, status/config register meanings used by the driver, scratch test range, and deep-power-down wake timing from measured HW5 tests.
-- Record ADP5360 I2C address representation, threshold constants, PMIC interrupt polarity/clear behavior, VBUS cross-check behavior, and safe evidence for low/critical battery policy.
+- Confirm ADP5360 uses the public 7-bit I2C address convention from [[Platform_Hardware_Abstraction_Contract]], then record threshold constants, PMIC interrupt polarity/clear behavior, VBUS cross-check behavior, and safe evidence for low/critical battery policy.
 - Record speaker DMA buffer sizing, MAX98357A enable settle timing, BBB frequency/duration bounds, and measured music plus 5 SFX mixer budget.
 - Record sleep-class current, wake latency, resume latency, owner quiesce timeouts, and unknown-wake evidence for every supported runtime class.
 - Complete the LIS2DUX12 post-baseline optimization pass so step counting is proven in the lowest-power polling mode, not only the ST 25 Hz/+/-4 g bring-up configuration.

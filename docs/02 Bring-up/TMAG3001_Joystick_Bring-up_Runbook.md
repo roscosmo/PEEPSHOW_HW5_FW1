@@ -80,7 +80,7 @@ Record exact transactions here once measured.
 
 | Step | Operation | Register / Address | Value | Delay | Expected Readback | Notes |
 |---|---|---|---|---|---|---|
-| 1 | probe | `0x34` | I2C address transaction | TBD | ACK | use 7-bit/shifted HAL representation consistently |
+| 1 | probe | `0x34` | I2C address transaction | TBD | ACK | use public 7-bit address through `ps_hw_i2c3` |
 | 2 | identity read | `Device_ID` / `0x0D` | read | TBD | version bits consistent with A1 device | record exact value |
 | 3 | manufacturer ID read | `0x0E`, `0x0F` | read | TBD | `0x49`, `0x54` | confirms TI device family |
 | 4 | status read/clear | `Conv_Status` / `0x18`, `Device_Status` / `0x1C` | read, clear W1C bits as needed | TBD | no unexpected faults | record POR, INT error, OTP CRC error |

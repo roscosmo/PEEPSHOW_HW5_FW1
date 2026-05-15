@@ -13,6 +13,7 @@ The Platform is game-agnostic.
 - [[Platform_Freeze_Charter]]
 - [[Repository_Structure]]
 - [[Interface_Control_Document]]
+- [[Platform_Hardware_Abstraction_Contract]]
 - [[Subsystem_State_Machines]]
 - [[Peripheral_Robustness_Contract]]
 - [[Memory_and_Budgeting_Contract]]

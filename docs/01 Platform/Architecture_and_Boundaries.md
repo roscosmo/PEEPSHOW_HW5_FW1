@@ -119,7 +119,7 @@ It owns:
 - world design
 - mechanics
 - lore
-- emotional design
+- creature behavior design
 - balancing
 - encounters
 - progression

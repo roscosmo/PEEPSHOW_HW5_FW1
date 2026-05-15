@@ -11,12 +11,14 @@
             "id": "1f0c9402597c6e72",
             "type": "leaf",
             "state": {
-              "type": "image",
+              "type": "markdown",
               "state": {
-                "file": "assets/hardware/hw5/schematic/peepshowv5.svg"
+                "file": "05 Reference Game/01 Mechanics/Core_Loop.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-image",
-              "title": "peepshowv5"
+              "icon": "lucide-file",
+              "title": "Core_Loop"
             }
           }
         ]
@@ -180,22 +182,41 @@
   },
   "active": "1f0c9402597c6e72",
   "lastOpenFiles": [
-    "assets/hardware/hw5/schematic/Peepshow HW5.canvas",
+    "05 Reference Game/01 Mechanics/Combat.md",
+    "assets/hardware/hw5/Hardware_Asset_Export_Guide.md",
+    "06 Assets Pipeline/Assets_Pipeline_Index.md",
+    "06 Assets Pipeline/Asset_Pipeline_and_Package_Tooling_Contract.md",
+    "05 Reference Game/Reference_Game_Index.md",
+    "05 Reference Game/04 Notes/Open_Questions.md",
+    "05 Reference Game/03 Maps/Map_Notes.md",
+    "05 Reference Game/01 Mechanics/Time_And_Schedules.md",
+    "05 Reference Game/01 Mechanics/Microgames.md",
+    "05 Reference Game/01 Mechanics/Input_Verbs.md",
+    "05 Reference Game/01 Mechanics/Game_State.md",
+    "05 Reference Game/01 Mechanics/Forms.md",
+    "05 Reference Game/01 Mechanics/Core_Loop.md",
+    "05 Reference Game/00 Scratch/Scratchpad.md",
+    "05 Reference Game/02 Content/Rituals.md",
+    "05 Reference Game/02 Content/Items.md",
+    "05 Reference Game/02 Content/Places.md",
+    "05 Reference Game/02 Content/Enemies.md",
+    "05 Reference Game/02 Content/NPCs.md",
+    "05 Reference Game/02 Content/Slime.md",
+    "05 Reference Game/02 Content/Content_Index.md",
+    "05 Reference Game/00 Vision/Living_Artifact_and_Persistence.md",
+    "05 Reference Game/04 Notes",
+    "05 Reference Game/03 Maps",
+    "05 Reference Game/02 Content",
+    "05 Reference Game/01 Mechanics",
+    "05 Reference Game/00 Scratch",
+    "05 Reference Game/00 Vision/Reference_Game_Mechanics_Goals.md",
+    "05 Reference Game/08 Content Bible/Enemies_Index.md",
+    "05 Reference Game/08 Content Bible/Content_Bible_Index.md",
+    "05 Reference Game/08 Content Bible/Rituals_Index.md",
     "assets/hardware/hw5/schematic/peepshowv5.svg",
+    "assets/hardware/hw5/schematic/Peepshow HW5.canvas",
     "assets/peepshowv5 1.svg",
     "assets/peepshowv5.svg",
-    "assets/hardware/hw5/schematic/README.md",
-    "09 Canvases/Hardware/HW5_Hardware_Visual_Map.canvas",
-    "05 Reference Game/00 Vision/Living_Artifact_and_Persistence.md",
-    "05 Reference Game/00 Vision/Reference_Game_Structural_Overview.md",
-    "05 Reference Game/00 Vision/Reference_Game_Emotional_Goals.md",
-    "05 Reference Game/00 Vision/Reference_Game_Design_Pillars.md",
-    "05 Reference Game/00 Vision/Observation_and_Temporal_Ecology.md",
-    "01 Platform/Interface_Control_Document.md",
-    "01 Platform/Input/Button_Input_Contract.md",
-    "05 Reference Game/Reference_Game_Index.md",
-    "Home.md",
-    "01 Platform/Audio/Audio_Contract.md",
-    "01 Platform/Audio/Audio_Index.md"
+    "09 Canvases/Hardware/HW5_Hardware_Visual_Map.canvas"
   ]
 }

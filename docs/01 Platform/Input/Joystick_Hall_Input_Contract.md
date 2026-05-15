@@ -24,7 +24,7 @@ Confirmed configuration:
 - threshold interrupt: `JOY_INT` on `PC11` / `EXTI11`
 - default low-power interrupt policy: absolute magnetic threshold detection through TMAG `INT`
 
-Implementation must explicitly document whether `0x34` is used as a 7-bit address or shifted HAL address representation before writing the driver.
+Per [[Platform_Hardware_Abstraction_Contract]], the joystick driver uses the public 7-bit address `0x34`; STM32 HAL shifted-address handling is hidden inside the `ps_hw_i2c3` layer.
 
 ---
 

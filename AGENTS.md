@@ -9,7 +9,7 @@ The repository root is not the vault.
 Use this model:
 
 ```text
-Platform -> Engine -> Reference Game
+Platform -> Engine -> (Reference) Game
 ```
 
 The Platform owns hardware behavior and must remain game-agnostic.

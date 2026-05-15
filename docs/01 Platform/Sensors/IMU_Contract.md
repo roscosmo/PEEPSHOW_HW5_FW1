@@ -25,7 +25,7 @@ Confirmed configuration:
 - supports embedded smart functions
 - step counter is an important low-power function
 
-Implementation must explicitly document whether `0x18` is used as a 7-bit address or shifted HAL address representation before writing the driver.
+Per [[Platform_Hardware_Abstraction_Contract]], the IMU driver uses the public 7-bit address `0x18`; STM32 HAL shifted-address handling is hidden inside the `ps_hw_i2c3` layer.
 
 ---
 

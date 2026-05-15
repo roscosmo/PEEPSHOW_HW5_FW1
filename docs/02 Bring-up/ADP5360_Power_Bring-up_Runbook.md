@@ -36,7 +36,7 @@ This runbook covers:
 | USB VBUS sense | `PA9` `USB_OTG_FS_VBUS` | alternate VBUS classification path |
 | Start / MR path | `BTN_START` through ADP5360 `MR` path | firmware-visible active-low Start before hardware shipping threshold |
 
-The driver must explicitly document whether `0x46` is passed as a 7-bit address or as the shifted HAL address representation. Bring-up evidence should include the representation used.
+Per [[Platform_Hardware_Abstraction_Contract]], the driver-facing address is the public 7-bit address `0x46`; STM32 HAL shifted-address handling is hidden inside the `ps_hw_i2c3` layer. Bring-up evidence should confirm the convention used by the firmware under test.
 
 ---
 
@@ -61,7 +61,7 @@ This sequence proves the PMIC monitor path before full sleep policy depends on i
 
 1. Boot from a known-good power source with START released.
 2. Initialize I2C3 and probe the ADP5360 at `0x46`.
-3. Record the exact I2C address representation used by the firmware driver.
+3. Confirm the firmware driver uses public 7-bit I2C address `0x46` through `ps_hw_i2c3`.
 4. Read PMIC identity/status, charger/input status, battery/fuel state, interrupt status, and fault status registers.
 5. Configure only the minimum required PMIC settings for safe monitor operation.
 6. Validate `PMIC_INT` by reading/clearing a known pending condition or producing a safe charger/input event.
@@ -102,7 +102,7 @@ Thresholds are Platform tuning constants, not Reference Game policy.
 | Step | Configuration | Expected result | Measured result | Status |
 | --- | --- | --- | --- | --- |
 | I2C probe | address `0x46` | ADP5360 ACKs | TBD | open |
-| address representation | 7-bit or shifted HAL | driver convention recorded | TBD | open |
+| address representation | public 7-bit `0x46` through `ps_hw_i2c3` | convention confirmed | TBD | open |
 | status read | PMIC status registers | charger/battery/fault state readable | TBD | open |
 | PMIC_INT | safe event or pending clear | EXTI15 event and owner handling | TBD | open |
 | VBUS cross-check | USB attach/detach | ADP5360 and `PA9` agree or log diagnostic | TBD | open |
