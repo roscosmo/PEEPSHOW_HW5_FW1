@@ -8,6 +8,10 @@ This document defines how external tools produce package content for runtime hos
 
 Keep tooling output stable and host-oriented so tools never depend on RTOS or hardware internals.
 
+Tool-side validation is a required pre-compilation gate. Install-time firmware validation remains mandatory, but it is not a substitute for validating content before package compilation or export.
+
+Normal game-authoring validation must use PeepOS concepts. Low-level forbidden-token checks are internal verifier guardrails for toolchain defects, corrupted artifacts, malicious packages, or future advanced tooling.
+
 ---
 
 ## Package Build Inputs
@@ -37,18 +41,25 @@ Output format must be deterministic from identical inputs.
 
 - all package schemas are versioned
 - breaking schema changes require major version increment
-- tooling must validate schema before package generation
+- tooling must validate schema before package compilation or export
 - firmware must reject incompatible schema versions cleanly
 
 ---
 
-## Runtime Class Compatibility
+## Runtime Unit Compatibility
 
-Packages must declare target runtime class.
-Tooling must validate declared class against available host capabilities:
+Packages must declare one or more runtime units.
+
+Each runtime unit must declare a runtime class.
+
+Tooling must validate declared runtime units against available host capabilities:
 - `LP_GRAPH`
-- `LP_TEMPLATE`
+- `LP_MODULE`
 - `RT_SCENE`
+
+Capability names and target profiles are defined in [[PeepOS_Capability_Registry]].
+
+Tooling must validate package output against the selected target profile.
 
 ---
 
@@ -65,8 +76,18 @@ Tooling must validate declared class against available host capabilities:
 1. schema validation
 2. asset bounds and format validation
 3. manifest consistency checks
-4. integrity/checksum generation
-5. final package compatibility report
+4. runtime class and capability validation
+5. scene/state graph validation where present
+6. internal forbidden hardware, RTOS, filesystem, and Platform-internal API scan
+7. deterministic build checks
+8. integrity/checksum generation
+9. final package compatibility report
+
+Validation failures block package compilation or export.
+
+Warnings that affect runtime safety, determinism, storage integrity, power policy, or capability availability must be treated as errors.
+
+Development profiles may allow placeholders, mocks, warnings, and explicit runtime-safe waivers as defined in [[Game_Authoring_API_Contract]]. They must still block incoherent graphs, unbounded behavior, invalid save schemas, package integrity failures, and unknown runtime classes.
 
 ---
 
@@ -90,4 +111,3 @@ For each package build retain:
 - tool version
 - generated package checksum
 - compatibility report
-

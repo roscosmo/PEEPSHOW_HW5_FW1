@@ -101,7 +101,7 @@ Populate one row per tested sleep/runtime class.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `SHELL` | TBD | TBD | TBD | TBD | TBD | TBD | open |
 | `LP_GRAPH` | TBD | TBD | TBD | TBD | TBD | TBD | open |
-| `LP_TEMPLATE` | TBD | TBD | TBD | TBD | TBD | TBD | open |
+| `LP_MODULE` | TBD | TBD | TBD | TBD | TBD | TBD | open |
 | `RT_SCENE` idle fallback | TBD | TBD | TBD | TBD | TBD | TBD | open |
 | `INSTALLER` idle | TBD | USB/VBUS, B exit policy | TBD | TBD | TBD | TBD | open |
 | IMU step counter active | TBD | RTC/poll cadence plus optional IMU policy | TBD | TBD | TBD | TBD | open |

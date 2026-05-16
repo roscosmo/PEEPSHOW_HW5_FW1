@@ -9,7 +9,7 @@ These FSMs sit under the external host lifecycle contract and keep host behavior
 ## Scope
 
 Defines:
-- host-internal state models for `SHELL`, `LP_GRAPH`, `LP_TEMPLATE`, `RT_SCENE`, `INSTALLER`
+- host-internal state models for `SHELL`, `LP_GRAPH`, `LP_MODULE`, `RT_SCENE`, `INSTALLER`
 - mapping rules between internal states and external lifecycle
 
 Does not define:
@@ -25,6 +25,7 @@ Does not define:
 
 Lifecycle mapping requirement:
 - `mount/start/suspend/resume/stop/unmount` operations must be valid from internal state context and reject illegal calls.
+- runtime unit transitions must pass through the runtime manager and target declared package runtime units.
 
 ---
 
@@ -68,16 +69,16 @@ Key events:
 
 ---
 
-## 3) LP_TEMPLATE Host Internal FSM
+## 3) LP_MODULE Host Internal FSM
 
 States:
-- `LPT_INT_IDLE`
-- `LPT_INT_LOAD_MODULE`
-- `LPT_INT_PREPARE`
-- `LPT_INT_RUNNING`
-- `LPT_INT_PAUSED`
-- `LPT_INT_COMPLETE`
-- `LPT_INT_ERROR`
+- `LPM_INT_IDLE`
+- `LPM_INT_LOAD_MODULE`
+- `LPM_INT_PREPARE`
+- `LPM_INT_RUNNING`
+- `LPM_INT_PAUSED`
+- `LPM_INT_COMPLETE`
+- `LPM_INT_ERROR`
 
 Key events:
 - module load/prepare complete
@@ -138,3 +139,5 @@ Key events:
 2. suspend/resume behavior preserves internal state consistency
 3. host errors map cleanly to lifecycle-safe return path
 4. host transition traces reconstruct full internal execution sequence
+5. runtime unit transition to undeclared target is rejected
+6. realtime unit without declared low-power fallback is rejected by package validation

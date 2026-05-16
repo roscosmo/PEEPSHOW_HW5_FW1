@@ -131,7 +131,7 @@ Invalid transitions must be rejected and logged.
 |---|---|
 | `SHELL` | enabled when interactive UI expects rotary navigation |
 | `LP_GRAPH` | off unless Engine capability request or wake policy explicitly arms it |
-| `LP_TEMPLATE` | policy-defined by Engine focus request; wake-armed only by explicit policy |
+| `LP_MODULE` | policy-defined by Engine focus request; wake-armed only by explicit policy |
 | `RT_SCENE` | enabled only while active scene requests encoder focus |
 | `INSTALLER` | disabled unless installer UI explicitly requires local navigation |
 

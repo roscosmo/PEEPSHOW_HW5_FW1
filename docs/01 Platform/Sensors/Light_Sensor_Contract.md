@@ -168,7 +168,7 @@ Invalid transitions must be rejected and logged.
 |---|---|
 | `SHELL` | low-cadence system sampling allowed for display refresh policy and diagnostics |
 | `LP_GRAPH` | latest snapshot or low-rate periodic only unless explicitly requested while awake |
-| `LP_TEMPLATE` | one-shot, periodic, or clamped streaming based on Engine capability request |
+| `LP_MODULE` | one-shot, periodic, or clamped streaming based on Engine capability request |
 | `RT_SCENE` | clamped streaming allowed for active gameplay if it does not disturb frame/audio timing |
 | `INSTALLER` | disabled unless diagnostics explicitly request it |
 

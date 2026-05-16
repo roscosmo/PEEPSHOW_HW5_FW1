@@ -8,6 +8,9 @@ The Engine may understand gameplay concepts abstractly, but it must not depend o
 
 ## Core Notes
 
+- [[Game_Authoring_API_Contract]]
+- [[PeepOS_Capability_Registry]]
+- [[Digital_Twin_Host_Runtime_Contract]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Host_Internal_State_Machines]]
 - [[Package_Contract]]
@@ -21,4 +24,3 @@ The Engine consumes Platform capabilities.
 The Reference Game consumes Engine APIs.
 
 The Engine must remain reusable for games other than the Reference Game.
-

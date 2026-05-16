@@ -34,3 +34,9 @@ This section is operational and historical. It tracks validation sequences, fail
 Do not mark a phase complete from assumption.
 
 A phase is complete only when the expected behavior is measured on HW5 hardware and evidence is linked from [[Brought_Up_Tracker]].
+
+## Digital Twin Rule
+
+The [[Digital_Twin_Host_Runtime_Contract]] is post-validation work.
+
+The host digital twin is implemented from measured PeepShow Platform behavior after HW5 Platform validation is complete. It can validate Engine, package, game-logic, replay, and contract-parity behavior, but it cannot provide hardware bring-up evidence.

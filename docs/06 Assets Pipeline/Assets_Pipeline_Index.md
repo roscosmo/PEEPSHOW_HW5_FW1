@@ -5,6 +5,8 @@ This section defines game-agnostic asset production, package generation, validat
 ## Core Notes
 
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
+- [[Game_Authoring_API_Contract]]
+- [[PeepOS_Capability_Registry]]
 - [[Package_Contract]]
 - [[Runtime_Host_Contract]]
 
@@ -12,5 +14,6 @@ This section defines game-agnostic asset production, package generation, validat
 
 Tools target Engine and package contracts.
 
-Tools must not encode HW5-specific HAL, RTOS, DMA, clock, or peripheral assumptions.
+Tools must validate all content before package compilation or export.
 
+Tools must not encode HW5-specific HAL, RTOS, DMA, clock, or peripheral assumptions.

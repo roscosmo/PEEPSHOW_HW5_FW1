@@ -60,7 +60,7 @@ When [[IMU_Contract|IMU]] step counting is active, power policy must select the 
 - RTC and event-driven
 - maximize STOP residency
 
-`LP_TEMPLATE`
+`LP_MODULE`
 - low-power preferred, bounded awake windows
 
 `RT_SCENE`

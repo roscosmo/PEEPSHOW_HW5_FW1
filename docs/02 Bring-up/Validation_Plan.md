@@ -12,12 +12,15 @@ This document defines what must be proven before platform freeze and before pack
 4. Low-power and wake validation
 5. Installer/storage ownership validation
 6. Long-run stability validation
+7. Digital twin parity validation, only after HW5 Platform hardware validation is complete
+
+The digital twin stage is blocked until the Platform hardware backend and relevant owner behavior have measured evidence in [[Brought_Up_Tracker]].
 
 ---
 
 ## Minimum Test Matrix
 
-Per mode (`SHELL`, `LP_GRAPH`, `LP_TEMPLATE`, `RT_SCENE`, `INSTALLER`):
+Per mode (`SHELL`, `LP_GRAPH`, `LP_MODULE`, `RT_SCENE`, `INSTALLER`):
 - mode entry/exit
 - owner-thread health
 - display/audio/input behavior
@@ -57,6 +60,24 @@ For each host:
 
 ---
 
+## Digital Twin Parity Cases
+
+Digital twin validation begins only after the corresponding Platform behavior is proven on HW5 hardware.
+
+Required cases:
+
+1. host twin exposes the same contract-visible state vector as the hardware backend.
+2. same package runs through the same Engine lifecycle on host and hardware backends.
+3. host twin simulates `SHELL`, `LP_GRAPH`, `LP_MODULE`, `RT_SCENE`, and `INSTALLER` contract behavior.
+4. host twin enforces measured inactivity timeout and cadence clamp policy.
+5. host twin simulates hold/static/realtime display behavior from measured Platform profile.
+6. LPBAM/autonomous display capability appears only when measured HW5 evidence supports it.
+7. host twin provides deterministic input, sensor, communication, and fault-injection traces.
+8. host twin deterministic replay produces stable state-vector and output artifacts.
+9. host twin evidence is recorded separately from hardware bring-up evidence.
+
+---
+
 ## Exit Criteria For Platform Freeze
 
 Platform freeze can be approved only when:
@@ -76,3 +97,9 @@ Every test run record must include:
 - artifact links (logs, captures, traces)
 - issue IDs for failures
 
+Evidence classes:
+
+- HW5 hardware evidence: measured on physical HW5 hardware; may satisfy bring-up and hardware known-good requirements.
+- Digital twin evidence: produced by the host runtime after hardware validation; may satisfy package, Engine, lifecycle, replay, and contract-parity requirements.
+
+Digital twin evidence must not be used to mark physical wake, current, peripheral, storage-media, display-electrical, sensor-electrical, or BLE-module behavior known-good.

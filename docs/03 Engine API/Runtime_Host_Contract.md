@@ -8,7 +8,7 @@ This document defines platform-provided runtime hosts and their lifecycle API.
 
 - `SHELL`: built-in OS shell
 - `LP_GRAPH`: low-power event/state driven runtime
-- `LP_TEMPLATE`: hosted template modules/minigames
+- `LP_MODULE`: Engine-hosted low-power module with a predefined bounded loop shape
 - `RT_SCENE`: higher activity runtime for richer scenes
 - `INSTALLER`: package staging and install workflow
 
@@ -43,6 +43,7 @@ typedef enum {
 
 typedef struct {
     uint32_t package_id;
+    uint32_t runtime_unit_id;
     uint32_t runtime_flags;
     const void *manifest;
 } host_mount_args_t;
@@ -68,6 +69,7 @@ Hosts may request:
 - wake intent hints
 - timer cadence hints
 - storage reads through package API
+- transition to another declared runtime unit through the runtime manager
 
 Hosts may not:
 - touch HAL handles directly
@@ -104,6 +106,8 @@ Runtime expresses intent only:
 - tolerance for latency
 - active/idle hints
 
+Runtime unit transitions must preserve this model. A realtime unit must return to a declared low-power unit or shell/system route according to its package manifest and power policy.
+
 Power manager maps intent to hardware policy.
 
 ---
@@ -116,4 +120,3 @@ A runtime host is compliant only if:
 3. suspend/resume tests pass
 4. power intent is explicit
 5. install/update interactions are safe
-

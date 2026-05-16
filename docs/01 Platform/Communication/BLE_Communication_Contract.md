@@ -232,7 +232,7 @@ Invalid transitions must be rejected and logged.
 |---|---|
 | `SHELL` | off by default; allowed for pairing, settings, diagnostics, or companion-app flow when explicitly requested |
 | `LP_GRAPH` | off |
-| `LP_TEMPLATE` | off unless an Engine capability request explicitly owns a communication session while awake |
+| `LP_MODULE` | off unless an Engine capability request explicitly owns a communication session while awake |
 | `RT_SCENE` | allowed for multiplayer only when transfer latency will not break real-time budgets |
 | `INSTALLER` | disabled unless explicitly used for diagnostics; USB/storage ownership remains primary |
 

@@ -213,7 +213,7 @@ Exact payload shape belongs in [[Interface_Control_Document]].
 |---|---|
 | `SHELL` | normal Start/A/B/L/R input; maintenance handling for application-visible `BTN_BOOT` |
 | `LP_GRAPH` | `BTN_START` wake primary; other buttons armed only if declared by policy |
-| `LP_TEMPLATE` | focus-controlled button set and repeat policy |
+| `LP_MODULE` | focus-controlled button set and repeat policy |
 | `RT_SCENE` | focus-controlled button set; repeats/chords allowed if requested |
 | `INSTALLER` | local navigation subset only; Start power intent remains active |
 

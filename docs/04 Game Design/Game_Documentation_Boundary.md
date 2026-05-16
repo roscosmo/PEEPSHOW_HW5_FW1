@@ -21,6 +21,8 @@ Game notes may reference:
 
 - [[Display_and_Rendering_Contract]]
 - [[Power_and_Sleep_Policy]]
+- [[Game_Authoring_API_Contract]]
+- [[PeepOS_Capability_Registry]]
 - [[Runtime_Host_Contract]]
 - [[Package_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
@@ -55,3 +57,4 @@ The Engine defines reusable APIs.
 
 The Platform owns hardware behavior.
 
+The Reference Game is not authoritative over PeepOS content style, genre, mechanics, or API semantics. It is a showcase and proof-of-capability package built from public PeepOS primitives.

@@ -64,7 +64,7 @@ Use these exact runtime class tokens until explicitly replaced by a newer Engine
 
 - `SHELL`
 - `LP_GRAPH`
-- `LP_TEMPLATE`
+- `LP_MODULE`
 - `RT_SCENE`
 - `INSTALLER`
 

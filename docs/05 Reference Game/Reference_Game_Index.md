@@ -55,3 +55,11 @@ No fake certainty.
 Game docs can request Engine or Platform capabilities.
 
 Game docs do not define hardware behavior.
+
+The Reference Game is a proof-of-capability package for PeepOS.
+
+It must be built from the same public primitives, package contracts, and authoring tools available to other packages.
+
+It may request new capabilities, but accepted capabilities must be reusable beyond the Reference Game and documented through [[Game_Authoring_API_Contract]] and [[PeepOS_Capability_Registry]].
+
+No Reference Game-only hidden API path is allowed.

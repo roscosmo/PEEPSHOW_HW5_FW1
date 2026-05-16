@@ -27,6 +27,21 @@ Use this as the live progress tracker for HW5 hardware and firmware bring-up.
 | 7 - Installer and transport mode | Not started | [[USB_MSC_Bring-up_and_Recovery_Runbook]], [[NINA_B112_BLE_Bring-up_Runbook]] | USB staging first; BLE after comm owner exists |
 | 8 - Runtime host lifecycle | Not started | [[Runtime_Host_Contract]], [[Package_Contract]] | only after hardware owners are stable |
 | 9 - Platform freeze checks | Not started | [[Platform_Freeze_Charter]], [[HW5_Hardware_Documentation_Readiness]] | authority docs and measured evidence agree |
+| 10 - Digital twin parity | Blocked | [[Digital_Twin_Host_Runtime_Contract]], [[Validation_Plan]] | blocked until HW5 Platform hardware validation and Platform contract behavior are proven |
+
+---
+
+## Digital Twin Sequencing Rule
+
+The digital twin is not a bring-up substitute.
+
+Do not implement or validate the host digital twin as a source of hardware truth before HW5 Platform hardware validation is complete.
+
+Digital twin work may begin only after measured Platform behavior is recorded for the hardware/backend contracts it mirrors.
+
+Digital twin evidence can validate package, Engine, runtime lifecycle, state graph, input, save, cadence, and cross-mode contract behavior.
+
+Digital twin evidence cannot mark hardware behavior known-good. Hardware behavior is known-good only when measured on HW5 hardware and linked from this tracker.
 
 ---
 
