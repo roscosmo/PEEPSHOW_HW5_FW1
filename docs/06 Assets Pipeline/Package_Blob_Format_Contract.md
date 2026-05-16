@@ -144,13 +144,15 @@ Initial chunk types:
 | `manifest` | normalized package manifest |
 | `asset_table` | asset IDs, metadata, and chunk references |
 | `runtime_unit_table` | runtime unit records, entries, transitions, and budgets |
-| `state_graph` | bounded low-power graph/module data |
+| `time_power_profile` | calendar requirements, schedule table metadata, wake intents, cadence hints, and catch-up policy |
+| `state_graph` | bounded runtime logic, graph, event, action, and scene/module state data |
 | `input_map` | logical input bindings and focus scopes |
 | `audio_profile` | symbolic cue tables, BBB pattern metadata, audio contexts, and timeline markers |
 | `sensor_profile` | PeepOS sensor contexts, event interests, step sessions, and wake intents |
 | `save_schema` | save records, package-owned settings, defaults, migration policy, reset policy, and write budget |
 | `communication_profile` | session contexts, roles, message schema references, rate limits, and routing behavior |
 | `message_schema` | communication message types, payload schemas, limits, and compatibility policy |
+| `diagnostics_profile` | package marker, counter, timing, warning, and package fault code metadata |
 | `masked_1bpp_sprite_bank` | crisp masked 1bpp sprite/image data |
 | `tone5_sprite_bank` | tone5 masked sprite/image data |
 | `tileset_bank` | bounded tile graphics and tile metadata |
@@ -345,6 +347,7 @@ The report must include:
 - target profile
 - capability compatibility/admission summary
 - runtime unit inventory
+- runtime logic budget summary
 - asset inventory
 - chunk inventory
 - memory/decode/render budget summary
@@ -359,6 +362,7 @@ Related:
 
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
 - [[Package_Contract]]
+- [[Runtime_Logic_State_API_Contract]]
 - [[Rendering_API_Contract]]
 - [[PeepOS_Capability_Registry]]
 - [[Storage_and_Installer_Contract]]

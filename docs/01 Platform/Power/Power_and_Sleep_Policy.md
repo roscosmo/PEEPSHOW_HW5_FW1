@@ -2,6 +2,8 @@
 
 This document defines how the PeepShow Platform translates Engine and runtime intent into power behavior.
 
+The package-facing time, cadence, lifecycle, wake, and power-intent API is defined in [[Time_And_Power_Intent_API_Contract]].
+
 ---
 
 ## Core Policy
@@ -23,7 +25,7 @@ Packages and runtime hosts may publish:
 - requested cadence
 - latency tolerance
 - required wake intents
-- temporary capability lease requests
+- temporary capability context declarations
 - declared low-power fallback route
 
 Packages and runtime hosts must not publish or control:
@@ -119,7 +121,7 @@ Package-visible concepts must not expose `STOP2`, `STOP3`, PLL settings, LPDMA, 
 
 User inactivity timeout is mandatory for game/runtime packages.
 
-After the timeout expires, Platform policy may force the active runtime unit toward its declared low-power route even if the package requested realtime cadence or temporary capability leases.
+After the timeout expires, Platform policy may force the active runtime unit toward its declared low-power route even if the package requested realtime cadence or temporary capability contexts.
 
 Cadence requests are requests only:
 

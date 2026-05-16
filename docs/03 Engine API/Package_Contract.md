@@ -7,10 +7,13 @@ Related:
 - [[Game_Authoring_API_Contract]]
 - [[PeepOS_Capability_Registry]]
 - [[Runtime_Host_Contract]]
+- [[Runtime_Logic_State_API_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
 - [[Audio_API_Contract]]
 - [[Communication_API_Contract]]
 - [[Sensor_API_Contract]]
+- [[Time_And_Power_Intent_API_Contract]]
+- [[Diagnostics_API_Contract]]
 
 ---
 
@@ -50,6 +53,8 @@ Every package must declare:
 - `audio_profile`
 - `sensor_profile`
 - `communication_profile`
+- `time_power_profile`
+- `diagnostics_profile`
 - `save_schema_version`
 - `storage_write_budget`
 - `compatibility_constraints`
@@ -85,6 +90,8 @@ package_manifest:
   audio_profile_ref
   sensor_profile_ref
   communication_profile_ref
+  time_power_profile_ref
+  diagnostics_profile_ref
   save_schema_ref
   message_schema_ref
   package_blob_ref
@@ -127,6 +134,7 @@ runtime_unit:
   runtime_class
   entry_point
   module_type
+  runtime_logic_refs[]
   required_capabilities[]
   optional_capabilities[]
   asset_refs[]
@@ -149,6 +157,7 @@ Rules:
 - `unit_id` must be unique within the package.
 - `runtime_class` must be one of `LP_GRAPH`, `LP_MODULE`, or `RT_SCENE`.
 - `entry_point` must resolve to a state graph, module config, scene, or host entry accepted by that runtime class.
+- `runtime_logic_refs` must resolve to validated state graph, action table, module, or scene logic data accepted by [[Runtime_Logic_State_API_Contract]].
 - `allowed_transitions` must target valid runtime units in the same package or an approved system route such as shell return.
 - runtime unit transitions must use declared transition edges.
 - arbitrary runtime jumps to undeclared unit IDs are invalid.
@@ -256,7 +265,16 @@ Rules:
 
 Packages express power intent only.
 
+Detailed time and power intent API behavior is defined in [[Time_And_Power_Intent_API_Contract]].
+
 ```text
+time_power_profile:
+  calendar_requirements
+  schedule_table_ref
+  lifecycle_policy
+  wake_intents[]
+  catch_up_policy
+
 power_policy:
   idle_behavior
   inactivity_timeout_behavior
@@ -286,6 +304,10 @@ Rules:
 - packages requiring autonomous low-power playback must target a profile that grants `display.autonomous_sequence`.
 - packages targeting `display.autonomous_sequence` should declare a fallback unless the package explicitly requires that capability.
 - packages must not implement polling loops to approximate low-power cadence.
+- packages may read PeepOS calendar time where the selected target profile grants `time.calendar`.
+- packages must not set, correct, resync, or directly access RTC hardware.
+- calendar-dependent package runtime may assume valid PeepOS time after system setup/admission.
+- missed scheduled events must use a bounded catch-up policy.
 
 Cadence request semantics:
 
@@ -354,7 +376,9 @@ Rules:
 
 ## State Graph Schema Outline
 
-State graphs are bounded runtime data.
+State graphs are bounded runtime logic data.
+
+Detailed runtime logic behavior is defined in [[Runtime_Logic_State_API_Contract]].
 
 ```text
 state_graph:
@@ -362,9 +386,11 @@ state_graph:
   entry_node
   nodes[]
   transitions[]
+  event_bindings[]
   timers[]
   local_variables[]
   action_tables[]
+  persistence_policy
   bounds
 ```
 
@@ -376,6 +402,8 @@ Rules:
 - expression/instruction cost is bounded.
 - timers declare timebase and maximum duration.
 - graph-local variables declare type, size, reset behavior, and persistence behavior.
+- event bindings must use package-visible Engine event classes.
+- action tables must use symbolic Engine requests and must be non-blocking.
 - graph validation failures block package compilation/export.
 
 ---
@@ -584,6 +612,37 @@ Rules:
 - HW5 profiles must reject communication wake behavior.
 - peer disconnects and session timeouts are package-visible events.
 - hardware/module faults are Platform/Engine diagnostics, not normal gameplay branches.
+
+---
+
+## Diagnostics Profile Schema Outline
+
+Diagnostics profiles declare bounded package observability.
+
+Detailed diagnostics API behavior is defined in [[Diagnostics_API_Contract]].
+
+```text
+diagnostics_profile:
+  marker_table[]
+  counter_table[]
+  timing_scope_table[]
+  trace_value_table[]
+  warning_code_table[]
+  package_fault_code_table[]
+  profile_gates
+  rate_limits
+  export_policy
+```
+
+Rules:
+
+- package diagnostics explain package behavior, not Platform hardware behavior.
+- diagnostic IDs must be package-local and stable.
+- diagnostic payload types must be declared and bounded.
+- shipping diagnostics must be explicitly marked as shipping-allowed.
+- package fault codes must map to Engine lifecycle policy.
+- diagnostics profiles must not name SWD, SWO, UART, USB, BLE, protected storage, hardware registers, RTOS objects, or filesystem paths.
+- Platform owns debug transport, persistent fault logs, and diagnostic export.
 
 ---
 

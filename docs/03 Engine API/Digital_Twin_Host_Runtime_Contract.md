@@ -10,6 +10,7 @@ Related:
 - [[PeepOS_Capability_Registry]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Host_Internal_State_Machines]]
+- [[Runtime_Logic_State_API_Contract]]
 - [[Package_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
 - [[Validation_Plan]]
@@ -53,6 +54,7 @@ The digital twin exists to run and test:
 - the same Engine runtime hosts
 - the same package assets
 - the same state graph data
+- the same runtime logic/action table data
 - the same map data
 - the same input event model
 - the same runtime lifecycle
@@ -146,6 +148,7 @@ The twin must match:
 
 - runtime class semantics
 - mount/start/suspend/resume/stop/unmount lifecycle
+- runtime logic state, event, guard, action, and transition semantics
 - package validation and capability admission behavior
 - logical display model
 - input event model
@@ -172,6 +175,8 @@ The twin must not claim to prove:
 ## Runtime Mode Simulation
 
 The twin simulates mode behavior visible to packages and Engine hosts.
+
+Runtime logic execution follows [[Runtime_Logic_State_API_Contract]].
 
 | Mode / Class | Twin Behavior |
 |---|---|
@@ -388,6 +393,8 @@ Rules:
 
 ## Time Models
 
+The twin time model follows [[Time_And_Power_Intent_API_Contract]].
+
 The twin must support at least two time models.
 
 | Time Model | Purpose |
@@ -402,6 +409,10 @@ Optional time models:
 - recorded timeline replay
 
 All time models must preserve the runtime class and lifecycle contracts.
+
+Calendar time must be controllable in deterministic tests. The twin must replay package-visible local time, elapsed suspend time, schedule delivery, wake reasons, cadence clamps, and inactivity timeout behavior from the selected target profile.
+
+The host time model must not be used as HW5 RTC hardware, wake-latency, current, or physical sleep evidence.
 
 ---
 
@@ -423,11 +434,14 @@ Replay inputs may include:
 Replay outputs may include:
 
 - final state vector
+- final package runtime logic state
 - frame checksums or screenshots
 - save changes
-- emitted diagnostics
+- emitted diagnostics through [[Diagnostics_API_Contract]]
 - compatibility report
 - rejected or clamped request list
+
+Digital twin diagnostics may be more verbose than shipping hardware diagnostics, but must remain deterministic for a fixed trace. Twin diagnostic output is not hardware bring-up evidence.
 
 ---
 
@@ -459,7 +473,7 @@ Digital twin evidence can prove:
 
 - package validation behavior
 - runtime lifecycle behavior
-- state graph behavior
+- state graph, action table, and runtime logic behavior
 - input/action routing
 - save schema behavior
 - deterministic replay behavior

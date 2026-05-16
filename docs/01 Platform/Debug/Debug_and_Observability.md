@@ -2,6 +2,8 @@
 
 This document defines what must be observable in bring-up and runtime without destabilizing low-power behavior.
 
+Package-facing diagnostics are defined in [[Diagnostics_API_Contract]]. Packages do not own debug transports or persistent fault storage.
+
 ---
 
 ## Allowed Debug Channels
@@ -60,4 +62,3 @@ Release builds must:
 - compile out verbose debug paths
 - keep structured fault capture
 - preserve deterministic timing behavior
-

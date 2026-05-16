@@ -63,6 +63,27 @@ For each host:
 
 ---
 
+## Runtime Logic And State Validation Cases
+
+Package-facing runtime logic validation must prove the boundary defined by [[Runtime_Logic_State_API_Contract]].
+
+Required cases:
+
+1. valid `LP_GRAPH` state graph validates and runs from its declared entry node.
+2. missing entry state fails package validation.
+3. transition to undeclared state or undeclared runtime unit fails package validation.
+4. unbounded action loop fails validation in every build profile.
+5. `LP_GRAPH` high-frequency polling timer fails validation.
+6. bounded local-calendar schedule and catch-up policy validate through the time contract.
+7. `LP_MODULE` without approved `module_type` fails validation.
+8. `RT_SCENE` without frame budget, idle detection, suspend/resume policy, or fallback route fails validation.
+9. `RT_SCENE` frame overrun emits package diagnostics where profile allows and follows lifecycle policy.
+10. package runtime logic cannot receive hardware owner faults as normal gameplay branches.
+11. suspend/resume preserves or reconstructs package state according to declared persistence classes.
+12. digital twin replay of a fixed input/time/sensor trace produces identical runtime logic state and diagnostics output.
+
+---
+
 ## Input And Focus Validation Cases
 
 Package-facing input validation must prove the boundary defined by [[Input_Focus_API_Contract]].
@@ -135,6 +156,46 @@ Required cases:
 8. BLE owner fault is logged as Platform/Engine diagnostic and not exposed as UART/NINA error to package gameplay code.
 9. digital twin multi-instance communication replay is deterministic for a fixed trace.
 10. digital twin delayed/drop/disconnect/fault injection validates package session behavior without acting as HW5 BLE bring-up evidence.
+
+---
+
+## Time And Power Intent Validation Cases
+
+Package-facing time and power-intent validation must prove the boundary defined by [[Time_And_Power_Intent_API_Contract]].
+
+Required cases:
+
+1. package reads valid PeepOS local calendar time without RTC register or hardware timer access.
+2. package cannot set, correct, resync, or directly program RTC/calendar time.
+3. first-setup or recovery flow establishes valid system time before launching calendar-dependent packages.
+4. delayed and local-calendar schedules produce bounded package events.
+5. long sleep resumes package with elapsed suspended/calendar time and bounded missed-event summary.
+6. unbounded catch-up policy fails validation.
+7. low-power polling cadence above target profile limits fails validation.
+8. `RT_SCENE` without idle fallback fails validation.
+9. user inactivity timeout forces declared low-power route despite active cadence request.
+10. HW5 communication wake intent fails validation.
+11. digital twin deterministic replay produces the same time, schedule, wake, and lifecycle event sequence for a fixed trace.
+12. digital twin accelerated sleep simulation is not used as HW5 current, wake-latency, RTC, or physical sleep evidence.
+
+---
+
+## Diagnostics API Validation Cases
+
+Package-facing diagnostics validation must prove the boundary defined by [[Diagnostics_API_Contract]].
+
+Required cases:
+
+1. package marker emits a bounded timeline record in dev/twin profile.
+2. package counter emits fixed-schema numeric value within rate limits.
+3. package timing scope reports bounded package/runtime timing without hardware callbacks.
+4. shipping profile preserves minimal package fault code and runtime-unit evidence.
+5. verbose trace values are rejected or stripped in shipping profile unless release policy allows them.
+6. package diagnostics cannot reference SWD, SWO, UART, USB, BLE, storage regions, hardware registers, RTOS objects, raw pointers, memory dumps, or filesystem paths.
+7. package fault routes through Engine lifecycle policy.
+8. Platform fault remains Platform diagnostic and is not exposed as normal package diagnostic API.
+9. digital twin replay produces deterministic diagnostics for a fixed trace.
+10. exported diagnostic summary copies bounded package records without exposing protected storage directly.
 
 ---
 

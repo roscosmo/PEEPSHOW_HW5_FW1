@@ -5,6 +5,7 @@ This section defines observability requirements, fault capture, SWD/SWO discipli
 ## Core Notes
 
 - [[Debug_and_Observability]]
+- [[Diagnostics_API_Contract]]
 - [[Debug_Workflows]]
 - [[Boot_and_Fault_Supervisor_State_Machine]]
 - [[Brought_Up_Tracker]]
@@ -15,3 +16,4 @@ Bring-up claims require evidence.
 
 Unknown wake causes, intermittent storage failures, and unexplained faults remain open defects until trace, fault, or measurement evidence explains them.
 
+The package-facing diagnostics API boundary is defined in [[Diagnostics_API_Contract]].

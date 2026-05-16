@@ -61,22 +61,33 @@ typedef struct {
 
 ---
 
+## Runtime Logic Execution
+
+Runtime hosts execute validated package logic through [[Runtime_Logic_State_API_Contract]].
+
+Hosts may dispatch package-visible events, evaluate bounded state/action tables, and run approved realtime frame ticks for the active runtime unit.
+
+Runtime logic execution must not expose RTOS threads, queues, timers, interrupts, or Platform hardware APIs to packages.
+
+---
+
 ## Host To Platform Requests
 
 Hosts may request:
 - present scene or frame updates
 - input focus scope activation through [[Input_Focus_API_Contract]]
 - symbolic audio cue playback through [[Audio_API_Contract]]
-- wake intent hints
-- timer cadence hints
+- wake, lifecycle, timer, cadence, and power-intent hints through [[Time_And_Power_Intent_API_Contract]]
 - package asset reads/views through [[Package_Asset_Loading_API_Contract]]
 - communication sessions and bounded messages through [[Communication_API_Contract]]
+- bounded package diagnostics through [[Diagnostics_API_Contract]]
 - transition to another declared runtime unit through the runtime manager
 
 Hosts may not:
 - touch HAL handles directly
 - change clocks or sleep mode directly
 - mount/unmount storage volumes directly
+- expose RTOS threads, queues, timers, or interrupts to packages
 - transition to undeclared runtime units directly
 - store package asset chunk offsets or storage addresses directly
 - consume raw GPIO, EXTI, timer, I2C, joystick register, or debounce state directly
@@ -104,6 +115,8 @@ Do not leave runtime manager in partial state.
 ---
 
 ## Power Intent Interface
+
+Detailed package-facing rules are defined in [[Time_And_Power_Intent_API_Contract]].
 
 Runtime expresses intent only:
 - desired update cadence

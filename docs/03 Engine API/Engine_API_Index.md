@@ -9,10 +9,14 @@ The Engine may understand gameplay concepts abstractly, but it must not depend o
 ## Core Notes
 
 - [[Game_Authoring_API_Contract]]
+- [[Runtime_Logic_State_API_Contract]]
 - [[Audio_API_Contract]]
 - [[Input_Focus_API_Contract]]
 - [[Rendering_API_Contract]]
 - [[Sensor_API_Contract]]
+- [[Communication_API_Contract]]
+- [[Time_And_Power_Intent_API_Contract]]
+- [[Diagnostics_API_Contract]]
 - [[PeepOS_Capability_Registry]]
 - [[Digital_Twin_Host_Runtime_Contract]]
 - [[Runtime_Host_Contract]]
@@ -23,7 +27,6 @@ The Engine may understand gameplay concepts abstractly, but it must not depend o
 - [[Package_Save_Settings_API_Contract]]
 - [[Package_Blob_Format_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
-- [[Communication_API_Contract]]
 
 ## Boundary
 

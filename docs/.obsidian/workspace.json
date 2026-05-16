@@ -11,14 +11,10 @@
             "id": "1f0c9402597c6e72",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "05 Reference Game/01 Mechanics/Core_Loop.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Core_Loop"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -182,6 +178,15 @@
   },
   "active": "1f0c9402597c6e72",
   "lastOpenFiles": [
+    "03 Engine API/Runtime_Logic_State_API_Contract.md",
+    "03 Engine API/Diagnostics_API_Contract.md",
+    "03 Engine API/Time_And_Power_Intent_API_Contract.md",
+    "assets/hardware/hw5/schematic/README.md",
+    "03 Engine API/Input_Focus_API_Contract.md",
+    "03 Engine API/Game_Authoring_API_Contract.md",
+    "03 Engine API/Communication_API_Contract.md",
+    "03 Engine API/Audio_API_Contract.md",
+    "05 Reference Game/01 Mechanics/Core_Loop.md",
     "05 Reference Game/01 Mechanics/Combat.md",
     "assets/hardware/hw5/Hardware_Asset_Export_Guide.md",
     "06 Assets Pipeline/Assets_Pipeline_Index.md",
@@ -194,25 +199,16 @@
     "05 Reference Game/01 Mechanics/Input_Verbs.md",
     "05 Reference Game/01 Mechanics/Game_State.md",
     "05 Reference Game/01 Mechanics/Forms.md",
-    "05 Reference Game/01 Mechanics/Core_Loop.md",
     "05 Reference Game/00 Scratch/Scratchpad.md",
     "05 Reference Game/02 Content/Rituals.md",
     "05 Reference Game/02 Content/Items.md",
     "05 Reference Game/02 Content/Places.md",
     "05 Reference Game/02 Content/Enemies.md",
-    "05 Reference Game/02 Content/NPCs.md",
-    "05 Reference Game/02 Content/Slime.md",
-    "05 Reference Game/02 Content/Content_Index.md",
-    "05 Reference Game/00 Vision/Living_Artifact_and_Persistence.md",
     "05 Reference Game/04 Notes",
     "05 Reference Game/03 Maps",
     "05 Reference Game/02 Content",
     "05 Reference Game/01 Mechanics",
     "05 Reference Game/00 Scratch",
-    "05 Reference Game/00 Vision/Reference_Game_Mechanics_Goals.md",
-    "05 Reference Game/08 Content Bible/Enemies_Index.md",
-    "05 Reference Game/08 Content Bible/Content_Bible_Index.md",
-    "05 Reference Game/08 Content Bible/Rituals_Index.md",
     "assets/hardware/hw5/schematic/peepshowv5.svg",
     "assets/hardware/hw5/schematic/Peepshow HW5.canvas",
     "assets/peepshowv5 1.svg",

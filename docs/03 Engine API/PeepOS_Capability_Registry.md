@@ -9,6 +9,7 @@ Related:
 - [[Game_Authoring_API_Contract]]
 - [[Digital_Twin_Host_Runtime_Contract]]
 - [[Runtime_Host_Contract]]
+- [[Runtime_Logic_State_API_Contract]]
 - [[Package_Contract]]
 - [[Power_and_Sleep_Policy]]
 - [[Display_and_Rendering_Contract]]
@@ -19,6 +20,8 @@ Related:
 - [[Sensor_API_Contract]]
 - [[Communication_Index]]
 - [[Communication_API_Contract]]
+- [[Time_And_Power_Intent_API_Contract]]
+- [[Diagnostics_API_Contract]]
 - [[Brought_Up_Tracker]]
 
 ---
@@ -70,6 +73,22 @@ Runtime class is primarily declared in the manifest, but tools may still use the
 | `runtime.rt_scene` | `CONTRACTED` | frame-paced realtime scene execution |
 
 `SHELL` and `INSTALLER` are Platform-owned runtime classes, not normal package target capabilities.
+
+---
+
+## Runtime Logic Capabilities
+
+| Capability | Status | Meaning | Fallback Required If Optional |
+|---|---|---|---|
+| `logic.state_graph` | `CONTRACTED` | bounded state/substate graph execution | no |
+| `logic.action_table` | `CONTRACTED` | bounded symbolic action tables | no |
+| `logic.guards` | `CONTRACTED` | bounded guard/expression evaluation | no |
+| `logic.lifecycle_events` | `CONTRACTED` | package-visible lifecycle event delivery | no |
+| `logic.calendar_events` | `CONTRACTED` | local-calendar schedule events through time contract | yes if optional |
+| `logic.realtime_frame_tick` | `CONTRACTED` | `RT_SCENE` frame-paced update event with declared budget | yes outside realtime units |
+| `logic.deterministic_replay` | `CONTRACTED` | deterministic replay of runtime logic in host/digital twin profiles | yes |
+
+Runtime logic capabilities are defined by [[Runtime_Logic_State_API_Contract]]. They do not imply threads, RTOS timers, hardware callbacks, dynamic code loading, or direct Platform access.
 
 ---
 
@@ -183,7 +202,12 @@ Platform settings, calibration, BLE bonding, install metadata, and fault logs ar
 | Capability | Status | Meaning |
 |---|---|---|
 | `time.delayed_event` | `CONTRACTED` | bounded delayed event requests |
-| `time.rtc_wake_intent` | `CONTRACTED` | RTC-backed wake/cadence intent |
+| `time.calendar` | `CONTRACTED` | valid PeepOS local date/time read access for packages |
+| `time.calendar_schedule` | `CONTRACTED` | bounded package schedules against local date/time rules |
+| `time.frame_delta` | `CONTRACTED` | realtime host frame delta for active realtime units |
+| `time.wake_reason` | `CONTRACTED` | normalized package-visible wake reason through lifecycle |
+| `time.catch_up_policy` | `CONTRACTED` | bounded missed-event reconciliation policy |
+| `time.rtc_wake_intent` | `CONTRACTED` | RTC-backed wake/cadence intent without RTC hardware control |
 | `power.idle_intent` | `CONTRACTED` | package can report idle/active state |
 | `power.low_power_ready` | `CONTRACTED` | package can declare it is ready for low-power hold/suspend behavior |
 | `power.latency_hint` | `CONTRACTED` | package declares acceptable response latency |
@@ -191,7 +215,9 @@ Platform settings, calibration, BLE bonding, install metadata, and fault logs ar
 | `power.activity_hint` | `CONTRACTED` | package can report meaningful active work without owning sleep policy |
 | `power.idle_fallback` | `CONTRACTED` | package can declare fallback routing from high-duty work to low-power behavior |
 
-These capabilities express intent only. Platform chooses sleep class, clocks, wake-source arming, and resume policy.
+Packages may read PeepOS calendar time where granted, but may not set, correct, resync, or directly access RTC hardware.
+
+These capabilities express intent only. Platform chooses RTC setup, sleep class, clocks, wake-source arming, and resume policy.
 
 ---
 
@@ -234,10 +260,15 @@ For HW5 profiles, communication is not a wake source.
 
 | Capability | Status | Meaning |
 |---|---|---|
-| `diag.package_events` | `CONTRACTED` | package event markers and package fault codes |
+| `diag.markers` | `CONTRACTED` | package may emit lightweight bounded markers |
+| `diag.counters` | `CONTRACTED` | package may emit bounded counters |
+| `diag.timing` | `CONTRACTED` | package may emit bounded timing scopes in approved profiles |
+| `diag.trace_values` | `CONTRACTED` | package may emit bounded structured values in dev/twin profiles |
+| `diag.package_fault` | `CONTRACTED` | package may emit package fault codes routed through Engine lifecycle |
 | `diag.replay_markers` | `CONTRACTED` | deterministic replay markers for host/digital-twin tests |
+| `diag.shipping_minimal` | `CONTRACTED` | shipping package may retain minimal bounded diagnostic evidence |
 
-Diagnostics are rate-limited and do not own debug transports.
+Diagnostics are rate-limited and do not own debug transports. Package diagnostics are defined by [[Diagnostics_API_Contract]].
 
 ---
 
@@ -260,6 +291,9 @@ Profiles must record:
 - capability grant list
 - capability status list
 - runtime classes
+- runtime logic limits
+- event queue and transition stack limits
+- time/calendar profile
 - display profile
 - rendering profile
 - cadence limits

@@ -19,10 +19,13 @@ Normal game-authoring validation must use PeepOS concepts. Low-level forbidden-t
 Tooling inputs may include:
 - package manifest JSON
 - state graph JSON/GraphML
+- runtime logic graph/action/scene definitions
+- time/power profile and schedule definitions
 - input map and focus scope definitions
 - audio profile/cue/context definitions
 - sensor profile/context definitions
 - communication profile/message schema definitions
+- diagnostics profile definitions
 - asset metadata tables
 - image/audio source assets
 - Aseprite/PNG sprite and tile sources
@@ -70,6 +73,34 @@ Tooling must validate declared runtime units against available host capabilities
 Capability names and target profiles are defined in [[PeepOS_Capability_Registry]].
 
 Tooling must validate package output against the selected target profile.
+
+---
+
+## Runtime Logic Pipeline
+
+Runtime logic output must target [[Runtime_Logic_State_API_Contract]], not RTOS, Platform, or hardware internals.
+
+Required package-facing runtime logic artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `runtime_unit_table` | runtime units, entries, declared transitions, budgets, and lifecycle policy |
+| `state_graph_table` | state/substate nodes, edges, timers, and event bindings |
+| `logic_action_table` | bounded symbolic Engine requests |
+| `logic_guard_expression_table` | bounded transition/action guard expressions |
+| `logic_variable_table` | transient, unit-local, fast-resume, save-backed, and package-setting variables |
+| `scene_logic_table` | `RT_SCENE` frame budget, tick behavior, idle fallback, and suspend/resume policy |
+
+Rules:
+
+- package authors express events, states, guards, actions, variables, and frame budgets.
+- authored hierarchy, visual scripting, dialogue trees, or scene timelines must compile to bounded runtime logic tables.
+- `RT_SCENE` output must declare frame budget, input focus, asset preparation, idle detection, suspend/resume behavior, and fallback runtime unit.
+- low-power graph logic must not use polling loops to approximate realtime behavior.
+- action tables must use symbolic Engine APIs and must be non-blocking.
+- event queues, timers, variable storage, action cost, expression cost, and transition stack depth must be bounded.
+
+Tooling must reject runtime logic that references RTOS objects, threads, interrupts, hardware timers, HAL/LL APIs, Platform internals, filesystem paths, raw pointers, function pointers, dynamic code loading, or unbounded loops.
 
 ---
 
@@ -186,6 +217,63 @@ Tooling must reject communication profiles that reference BLE, NINA, UART, GAP, 
 
 ---
 
+## Time And Power Intent Pipeline
+
+Time/power profile output must target [[Time_And_Power_Intent_API_Contract]], not RTC, clock, STOP, timer, or PMIC internals.
+
+Required package-facing time/power artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `time_power_profile` | calendar requirements, lifecycle policy, wake intents, and cadence hints |
+| `schedule_table` | bounded delayed and local-calendar schedule rules |
+| `catch_up_policy_table` | bounded missed-event reconciliation behavior |
+| `wake_intent_table` | normalized wake intent declarations |
+| `runtime_cadence_table` | runtime-unit cadence, frame, and latency declarations |
+| `activity_policy_table` | active/idle hints and low-power fallback routes |
+
+Rules:
+
+- package authors use PeepOS local calendar/logical time, not RTC hardware.
+- calendar-dependent packages require a target profile that grants `time.calendar`.
+- schedules must have bounded table size, bounded catch-up, and declared stale-event behavior.
+- realtime units must declare frame budget and idle fallback.
+- low-power units must not use polling loops to approximate cadence.
+- HW5 target profiles must reject communication wake behavior.
+
+Tooling must reject time/power profiles that reference RTC registers, SysTick, hardware timers, STOP modes, PLL/clocks, PMIC registers, wake pins, RTOS scheduler internals, or unbounded catch-up behavior.
+
+---
+
+## Diagnostics Profile Pipeline
+
+Diagnostics profile output must target [[Diagnostics_API_Contract]], not Platform debug transports.
+
+Required package-facing diagnostics artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `marker_table` | package-local timeline marker IDs |
+| `counter_table` | bounded numeric counters |
+| `timing_scope_table` | bounded package/runtime timing scopes |
+| `trace_value_table` | fixed-schema trace values for dev/twin profiles |
+| `warning_code_table` | package/tool warning codes |
+| `package_fault_code_table` | package fault codes and lifecycle routes |
+| `diagnostic_profile_gates` | build-profile availability and shipping-minimal policy |
+
+Rules:
+
+- package diagnostics explain package behavior, not Platform hardware behavior.
+- shipping diagnostics must be explicitly marked and minimal.
+- verbose diagnostics are limited to authoring, dev, or digital twin profiles unless release policy allows them.
+- diagnostic IDs must be stable and package-local.
+- diagnostic payloads and rates must be bounded.
+- package fault codes must map to Engine lifecycle policy.
+
+Tooling must reject diagnostics profiles that reference SWD, SWO, UART, USB, BLE, protected storage, hardware registers, RTOS objects, filesystem paths, raw pointers, memory dumps, or unbounded string logging.
+
+---
+
 ## Rendering Asset Pipeline
 
 Rendering asset output must target [[Rendering_API_Contract]], not the HW5 display driver.
@@ -296,11 +384,13 @@ Tooling must reject any asset whose decode time, expanded size, or memory requir
 6. audio profile and context validation
 7. sensor profile and context validation
 8. communication profile and message schema validation
-9. scene/state graph validation where present
-10. internal forbidden hardware, RTOS, filesystem, and Platform-internal API scan
-11. deterministic build checks
-12. integrity/checksum generation
-13. final package compatibility report
+9. time/power profile and schedule validation
+10. diagnostics profile validation
+11. runtime logic, state graph, action table, and scene-frame validation where present
+12. internal forbidden hardware, RTOS, filesystem, and Platform-internal API scan
+13. deterministic build checks
+14. integrity/checksum generation
+15. final package compatibility report
 
 Validation failures block package compilation or export.
 

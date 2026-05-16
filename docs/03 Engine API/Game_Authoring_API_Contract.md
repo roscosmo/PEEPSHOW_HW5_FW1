@@ -9,6 +9,7 @@ Related:
 - [[Engine_API_Index]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Host_Internal_State_Machines]]
+- [[Runtime_Logic_State_API_Contract]]
 - [[Digital_Twin_Host_Runtime_Contract]]
 - [[PeepOS_Capability_Registry]]
 - [[Package_Contract]]
@@ -29,6 +30,7 @@ Defines:
 - package validation requirements before compilation/export
 - required capability declaration model
 - safe hooks for rendering, input, audio, assets, saves, time, sensors, communication, power intent, and diagnostics
+- safe hooks for runtime logic, state graphs, action tables, and realtime scene logic
 
 Does not define:
 
@@ -524,7 +526,10 @@ Examples:
 | `comm.session_required` | can declare runtime units that require an active communication session |
 | `comm.message_schema` | can declare bounded versioned message schemas |
 | `save.records` | can read/write package save records through Engine APIs |
-| `time.rtc` | can request RTC-backed delayed events or low-power cadence hints |
+| `time.calendar` | can read valid PeepOS local date/time where the target profile grants it |
+| `time.delayed_event` | can schedule bounded package events after a duration |
+| `time.calendar_schedule` | can schedule bounded package events against local calendar rules |
+| `time.frame_delta` | can consume runtime host frame delta in realtime units |
 
 Capability names are not hardware names. They must not include pin numbers, DMA channels, HAL handles, or device register names.
 
@@ -581,6 +586,8 @@ For example, Tiled maps may be imported, but the compiler must produce bounded P
 
 ## Scene And State Graph Hooks
 
+Detailed runtime logic behavior is defined in [[Runtime_Logic_State_API_Contract]].
+
 Tools may author:
 
 - scenes
@@ -605,9 +612,13 @@ Runtime rules:
 
 State graphs may express game logic. They may not express hardware policy.
 
+`RT_SCENE` logic may be more expressive than low-power graph logic, but it must declare frame budget, idle detection, suspend/resume behavior, and fallback routing before validation can accept it.
+
 ---
 
 ## Script And Action Table Rules
+
+Script and action table behavior is governed by [[Runtime_Logic_State_API_Contract]].
 
 If a runtime host supports scripted logic, the script system must be explicitly bounded.
 
@@ -837,32 +848,43 @@ Rules:
 
 ## Time, Cadence, And Wake Intent Hooks
 
-Games express timing intent. Platform owns timing policy.
+Detailed time and power intent API behavior is defined in [[Time_And_Power_Intent_API_Contract]].
+
+Games express timing intent and consume PeepOS calendar/logical time. Platform owns physical timing policy.
 
 Tools may author:
 
+- calendar-time requirements
 - desired tick cadence
 - delayed event requests
-- RTC-backed wake intent
+- local calendar schedule requests
+- wake intent
 - idle cadence hints
 - latency tolerance
 - deadline class
+- catch-up policy
 
 Runtime may request:
 
 - schedule event after bounded delay
+- schedule event against local calendar rule
 - request next low-power tick
 - request realtime frame pacing
 - publish idle/active hint
 - declare temporary wake-source need
+- read PeepOS local calendar time
+- consume elapsed suspend/resume time
 
 Rules:
 
 - Platform may clamp, coalesce, delay, or reject cadence requests
 - no package may directly program RTC, SysTick, timers, STOP mode, or clocks
+- no package may set, correct, or resync RTC/calendar time
 - timing knobs must use documented timebase domains
 - realtime scenes must have explicit frame budget and idle fallback
 - low-power graph/module content must tolerate missed or delayed wake where policy requires it
+- calendar-dependent packages may assume valid PeepOS time after system setup/admission
+- missed schedule catch-up must be bounded
 
 ---
 
@@ -942,6 +964,8 @@ Rules:
 
 ## Power Intent Hooks
 
+Detailed time and power intent API behavior is defined in [[Time_And_Power_Intent_API_Contract]].
+
 Games and tools express power intent only.
 
 Tools may author:
@@ -1001,6 +1025,8 @@ Rules:
 
 ## Diagnostics Hooks
 
+Detailed diagnostics API behavior is defined in [[Diagnostics_API_Contract]].
+
 Game-facing diagnostics are bounded and optional.
 
 Runtime may emit:
@@ -1010,12 +1036,15 @@ Runtime may emit:
 - counters
 - lightweight timing markers
 - compatibility report references
+- bounded trace values in dev/twin profiles
 
 Rules:
 
 - diagnostic output is rate-limited
 - diagnostics do not own SWD, SWO, USB, UART, storage, or BLE
 - package diagnostics must not expose protected Platform storage
+- package diagnostics explain package behavior, not Platform hardware behavior
+- shipping packages may retain minimal package fault codes and selected bounded counters
 - production builds may compile out verbose package diagnostics while preserving fault classification
 
 ---
