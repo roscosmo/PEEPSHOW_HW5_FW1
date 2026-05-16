@@ -14,6 +14,33 @@ This document defines how the PeepShow Platform translates Engine and runtime in
 
 ---
 
+## Package Intent Boundary
+
+Packages and runtime hosts may publish:
+
+- runtime unit and runtime class
+- activity and idle intent
+- requested cadence
+- latency tolerance
+- required wake intents
+- temporary capability lease requests
+- declared low-power fallback route
+
+Packages and runtime hosts must not publish or control:
+
+- STOP level
+- clock profile
+- RTC programming
+- LPBAM setup
+- DMA/display transfer method
+- peripheral power state
+- PMIC policy
+- wake-source electrical configuration
+
+`thPower` may grant, clamp, delay, reject, shorten, or revoke any runtime request when Platform policy, battery state, sleep policy, or validated target profile requires it.
+
+---
+
 ## Wake Reason Classification
 
 All wakes must be classified as one of:
@@ -68,6 +95,58 @@ When [[IMU_Contract|IMU]] step counting is active, power policy must select the 
 
 `INSTALLER`
 - USB/staging ownership mode with strict subsystem isolation
+
+---
+
+## Game-Facing Power Concepts
+
+The Engine exposes power behavior as authoring concepts, not hardware states.
+
+| Concept | Platform Meaning |
+|---|---|
+| `HOLD` | last display frame remains visible; no package logic runs; approved wake sources and cadence policy remain armed |
+| `ULP_ANIM` | optional prevalidated autonomous low-power display sequence; available only when the target profile grants it |
+| `STATIC` | low-cadence event/state-machine behavior; input-triggered updates may be immediate where policy allows |
+| `REALTIME` | frame-paced active behavior with declared idle detection and fallback |
+
+The Platform maps these concepts onto actual clock, sleep, display, input, and sensor policy.
+
+Package-visible concepts must not expose `STOP2`, `STOP3`, PLL settings, LPDMA, LPBAM, EXTCOMIN, PMIC registers, or wake pin configuration.
+
+---
+
+## Inactivity And Cadence Policy
+
+User inactivity timeout is mandatory for game/runtime packages.
+
+After the timeout expires, Platform policy may force the active runtime unit toward its declared low-power route even if the package requested realtime cadence or temporary capability leases.
+
+Cadence requests are requests only:
+
+- `REALTIME` frame cadence is granted only while realtime activity is valid.
+- `STATIC` cadence is low-rate and event driven.
+- input-triggered `STATIC` updates may be serviced promptly, then returned to idle policy.
+- `HOLD` runs no package logic.
+- `ULP_ANIM` runs no arbitrary package logic and is profile-gated.
+
+Target profiles must define:
+
+- inactivity timeout
+- static display cadence cap
+- low-power display cadence cap
+- realtime frame budget
+- realtime target frame rate
+- autonomous display sequence availability
+- autonomous sequence frame/cadence caps, if available
+
+Current design expectations are an inactivity timeout in the 10-15 second range, static updates around 2 Hz, baseline low-power display updates around 1 Hz when each update wakes the MCU, and a 30 fps realtime target. These are design targets only until HW5 evidence freezes target profile values.
+
+Profile-dependent STOP display behavior:
+
+| Target Profile | STOP Display Behavior |
+|---|---|
+| `HW5_VALIDATED_BASELINE` | display updates from low power require wake/update/return behavior and are capped by measured Platform policy |
+| `HW5_VALIDATED_LPBAM` | prevalidated autonomous frame sequences may run without arbitrary package logic, capped by measured Platform policy |
 
 ---
 

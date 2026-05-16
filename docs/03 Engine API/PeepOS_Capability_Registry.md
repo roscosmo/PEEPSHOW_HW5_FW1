@@ -13,9 +13,12 @@ Related:
 - [[Power_and_Sleep_Policy]]
 - [[Display_and_Rendering_Contract]]
 - [[Audio_Contract]]
+- [[Audio_API_Contract]]
 - [[Input_Index]]
 - [[Sensors_Index]]
+- [[Sensor_API_Contract]]
 - [[Communication_Index]]
+- [[Communication_API_Contract]]
 - [[Brought_Up_Tracker]]
 
 ---
@@ -50,7 +53,7 @@ Fallback behavior may include:
 - use a simpler input path
 - use silent audio behavior
 - run local-only instead of multiplayer
-- use a default sensor value or last valid snapshot
+- use a default/resolved sensor value for optional content behavior
 
 Fallbacks must be validated before package compilation/export.
 
@@ -78,10 +81,28 @@ Runtime class is primarily declared in the manifest, but tools may still use the
 | `display.static_hold` | `CONTRACTED` | last frame remains visible while package is idle or suspended | no |
 | `display.static_update` | `CONTRACTED` | low-cadence event-driven display updates in static mode | no |
 | `display.realtime_frame` | `CONTRACTED` | frame-paced display requests for active realtime scenes | yes for non-realtime packages |
-| `display.dirty_region_hint` | `CONTRACTED` | package may provide invalidation hints; Platform chooses transfer method | no |
 | `display.autonomous_sequence` | `EXPERIMENTAL` | prevalidated autonomous low-power display sequence, expected to depend on LPBAM evidence | yes |
 
+Display changed-region tracking, transfer selection, DMA, and LPBAM setup are Engine/Platform internals and are not package capabilities.
+
 `display.autonomous_sequence` must remain unavailable for shipping packages until LPBAM display behavior is measured and recorded as supported.
+
+---
+
+## Rendering Capabilities
+
+| Capability | Status | Meaning | Fallback Required If Optional |
+|---|---|---|---|
+| `render.layered_compositor` | `CONTRACTED` | bounded `UI -> GAME -> BG` layer compositing | no |
+| `render.masked_1bpp` | `CONTRACTED` | black/white sprite or image assets with opacity mask | no |
+| `render.tone5_coverage` | `CONTRACTED` | semantic tone5 assets resolved to 1-bit coverage patterns | yes if optional |
+| `render.integer_scale` | `CONTRACTED` | integer-scaled sprite/tone rendering within target profile limits | yes if optional |
+| `render.tilemap_viewport` | `CONTRACTED` | bounded tilemap region/viewport rendering | yes if optional |
+| `render.precomposed_low_power_sequence` | `CONTRACTED` | package may contain precomposed low-power sequence assets | yes |
+
+`render.precomposed_low_power_sequence` means the package can carry validated sequence data. Autonomous low-power playback still requires `display.autonomous_sequence`.
+
+`tone5` is a semantic coverage model. It is not native display color and must not be described as a color-depth format.
 
 ---
 
@@ -94,10 +115,15 @@ Runtime class is primarily declared in the manifest, but tools may still use the
 | `input.joystick_vector` | `CONTRACTED` | normalized joystick vector/action data | yes if optional |
 | `input.joystick_direction` | `CONTRACTED` | normalized cardinal/diagonal direction data | yes if optional |
 | `input.focus` | `CONTRACTED` | Engine focus scopes and action routing | no |
+| `input.chords` | `CONTRACTED` | logical button chord bindings through focus policy | yes if optional |
+| `input.hold_repeat` | `CONTRACTED` | logical hold and repeat action delivery where policy allows | yes if optional |
+| `input.low_power_wake_intent` | `CONTRACTED` | package may declare logical input wake intent | yes if optional |
 
 `BTN_BOOT` is not a game capability.
 
 Start shipping intent is not a game capability.
+
+Input capabilities are logical. GPIO, EXTI, timer counters, I2C registers, raw joystick magnetic data, debounce state, and wake-pin configuration are not package capabilities.
 
 ---
 
@@ -109,8 +135,11 @@ Start shipping intent is not a game capability.
 | `audio.sfx` | `CONTRACTED` | symbolic SFX cue requests | yes if optional |
 | `audio.bbb` | `CONTRACTED` | bounded BBB tone, sweep, and pattern requests | yes if optional |
 | `audio.volume_intent` | `CONTRACTED` | package may request volume/mute intent through Engine policy | no |
+| `audio.timeline` | `CONTRACTED` | symbolic cue timeline events for diagnostics, replay, or package logic where supported | yes if optional |
 
-Audio requests may be rejected or degraded when Platform policy requires silence, sleep, or audio quarantine.
+Audio is a creative package primitive. PeepOS does not require packages to remain semantically complete when muted.
+
+Physical output may be muted, suppressed, degraded, or quarantined by Platform policy. Packages consume symbolic audio APIs through [[Audio_API_Contract]] and must not control audio hardware directly.
 
 ---
 
@@ -119,10 +148,15 @@ Audio requests may be rejected or degraded when Platform policy requires silence
 | Capability | Status | Meaning |
 |---|---|---|
 | `asset.sprites` | `CONTRACTED` | sprite/image assets addressed by ID |
+| `asset.masked_1bpp_sprites` | `CONTRACTED` | black/white masked sprite assets addressed by ID |
+| `asset.tone5_sprites` | `CONTRACTED` | tone5 masked sprite assets addressed by ID |
 | `asset.tilemaps` | `CONTRACTED` | bounded tilemap/map assets addressed by ID |
+| `asset.tilesets` | `CONTRACTED` | bounded tileset assets addressed by ID |
 | `asset.animations` | `CONTRACTED` | bounded animation tables |
+| `asset.fonts` | `CONTRACTED` | bounded font assets and text layout metadata |
 | `asset.text` | `CONTRACTED` | text/localization tables |
 | `asset.data_tables` | `CONTRACTED` | bounded package data tables |
+| `asset.low_power_sequences` | `CONTRACTED` | precomposed low-power sequence assets |
 
 Asset capabilities are package-data capabilities. They do not imply filesystem access.
 
@@ -135,8 +169,12 @@ Asset capabilities are package-data capabilities. They do not imply filesystem a
 | `save.records` | `CONTRACTED` | schema-versioned save record read/write |
 | `save.migration` | `CONTRACTED` | approved save migration path |
 | `save.reset` | `CONTRACTED` | explicit package-owned save reset flow |
+| `save.package_settings` | `CONTRACTED` | schema-defined package-owned settings |
+| `save.write_budget` | `CONTRACTED` | package declares bounded write policy and frequency assumptions |
 
-Saves are not files. Packages access saves only through Engine save APIs.
+Saves and package settings are not files. Packages access them only through [[Package_Save_Settings_API_Contract]].
+
+Platform settings, calibration, BLE bonding, install metadata, and fault logs are not package save capabilities.
 
 ---
 
@@ -149,6 +187,9 @@ Saves are not files. Packages access saves only through Engine save APIs.
 | `power.idle_intent` | `CONTRACTED` | package can report idle/active state |
 | `power.low_power_ready` | `CONTRACTED` | package can declare it is ready for low-power hold/suspend behavior |
 | `power.latency_hint` | `CONTRACTED` | package declares acceptable response latency |
+| `power.cadence_request` | `CONTRACTED` | package can request bounded static, low-power, or realtime cadence |
+| `power.activity_hint` | `CONTRACTED` | package can report meaningful active work without owning sleep policy |
+| `power.idle_fallback` | `CONTRACTED` | package can declare fallback routing from high-duty work to low-power behavior |
 
 These capabilities express intent only. Platform chooses sleep class, clocks, wake-source arming, and resume policy.
 
@@ -158,11 +199,16 @@ These capabilities express intent only. Platform chooses sleep class, clocks, wa
 
 | Capability | Status | Meaning | Fallback Required If Optional |
 |---|---|---|---|
-| `sensor.light` | `CONTRACTED` | normalized ambient-light snapshot and band | yes if optional |
-| `sensor.imu_steps` | `CONTRACTED` | step count snapshot or delta | yes if optional |
+| `sensor.light` | `CONTRACTED` | resolved ambient-light value and band | yes if optional |
+| `sensor.light_stream` | `CONTRACTED` | bounded active light sampling context where supported | yes if optional |
+| `sensor.imu_steps` | `CONTRACTED` | step session, step count snapshot, or delta | yes if optional |
 | `sensor.imu_events` | `CONTRACTED` | motion, tap, shake, tilt, or orientation events where supported | yes if optional |
+| `sensor.imu_motion_snapshot` | `CONTRACTED` | normalized low-rate motion/orientation snapshot | yes if optional |
+| `sensor.imu_motion_stream` | `CONTRACTED` | bounded higher-rate motion context for realtime gameplay | yes if optional |
 
-Sensor raw values are diagnostics/calibration only. Packages consume normalized snapshots/events.
+Sensor raw values are diagnostics/calibration only. Packages consume resolved PeepOS values, sessions, contexts, and events through [[Sensor_API_Contract]].
+
+For validated HW5 profiles, the normal assumption is that HW5 sensor primitives exist as fixed Platform capabilities. Physical sensor failure is handled through Platform/Engine fault lifecycle and diagnostics, not normal package gameplay logic.
 
 ---
 
@@ -170,11 +216,17 @@ Sensor raw values are diagnostics/calibration only. Packages consume normalized 
 
 | Capability | Status | Meaning | Fallback Required If Optional |
 |---|---|---|---|
-| `comm.multiplayer` | `CONTRACTED` | generic multiplayer session and bounded messages | yes unless package is communication-required |
-| `comm.companion` | `CONTRACTED` | generic companion-app session and bounded messages | yes unless package is communication-required |
+| `comm.multiplayer` | `CONTRACTED` | generic multiplayer session and bounded messages | yes if optional |
+| `comm.companion` | `CONTRACTED` | generic companion-app session and bounded messages | yes if optional |
 | `comm.local_loopback` | `PROFILE_OPTIONAL` | host/digital-twin or diagnostic loopback capability | yes |
+| `comm.session_required` | `CONTRACTED` | runtime unit may require an active communication session for admission | no if declared as required |
+| `comm.message_schema` | `CONTRACTED` | bounded versioned package communication message schemas | no |
 
-Communication packages must declare offline or unavailable behavior unless the package is explicitly communication-required.
+Communication contexts are transport-agnostic. Packages consume abstract sessions, peers, and bounded messages through [[Communication_API_Contract]].
+
+Each communication runtime unit must declare either fallback/route behavior or session-required admission behavior.
+
+For HW5 profiles, communication is not a wake source.
 
 ---
 
@@ -209,10 +261,17 @@ Profiles must record:
 - capability status list
 - runtime classes
 - display profile
+- rendering profile
 - cadence limits
 - idle timeout
+- static display cadence cap
+- low-power display cadence cap
+- realtime frame budget
+- realtime target frame rate
+- autonomous display sequence availability
+- autonomous sequence frame/cadence caps, if available
 - input availability
-- sensor availability
+- sensor primitives and context limits
 - audio limits
 - communication limits
 - save/storage limits

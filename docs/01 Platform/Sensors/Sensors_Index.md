@@ -17,3 +17,5 @@ This section defines sensor ownership, sensor snapshots, wake events, recovery b
 The Platform owns sensor buses, IRQs, configuration, power state, and recovery.
 
 The Engine and Reference Game request sensor capabilities or consume snapshots through approved APIs.
+
+The package-facing API boundary is defined in [[Sensor_API_Contract]].

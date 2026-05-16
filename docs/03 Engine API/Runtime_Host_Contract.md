@@ -64,17 +64,22 @@ typedef struct {
 ## Host To Platform Requests
 
 Hosts may request:
-- present/invalidate regions
-- audio cue playback
+- present scene or frame updates
+- input focus scope activation through [[Input_Focus_API_Contract]]
+- symbolic audio cue playback through [[Audio_API_Contract]]
 - wake intent hints
 - timer cadence hints
-- storage reads through package API
+- package asset reads/views through [[Package_Asset_Loading_API_Contract]]
+- communication sessions and bounded messages through [[Communication_API_Contract]]
 - transition to another declared runtime unit through the runtime manager
 
 Hosts may not:
 - touch HAL handles directly
 - change clocks or sleep mode directly
 - mount/unmount storage volumes directly
+- transition to undeclared runtime units directly
+- store package asset chunk offsets or storage addresses directly
+- consume raw GPIO, EXTI, timer, I2C, joystick register, or debounce state directly
 
 ---
 
@@ -107,6 +112,8 @@ Runtime expresses intent only:
 - active/idle hints
 
 Runtime unit transitions must preserve this model. A realtime unit must return to a declared low-power unit or shell/system route according to its package manifest and power policy.
+
+`RT_SCENE` has no fixed maximum active duration at this contract level. Platform inactivity timeout always applies, and realtime units must declare idle detection, suspend/resume behavior, and fallback routing.
 
 Power manager maps intent to hardware policy.
 

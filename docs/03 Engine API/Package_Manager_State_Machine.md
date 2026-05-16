@@ -10,9 +10,11 @@ Defines:
 - package catalog and index readiness FSM
 - install transaction FSM
 - package activation FSM
+- package asset request FSM summary
 
 Does not define:
 - installer transport ownership details (see [[Storage_and_Installer_Contract]])
+- detailed asset handle/view API (see [[Package_Asset_Loading_API_Contract]])
 
 ---
 
@@ -98,11 +100,36 @@ Rules:
 
 ---
 
+## 4) Asset Request FSM Summary
+
+Detailed asset API rules are defined in [[Package_Asset_Loading_API_Contract]].
+
+States:
+- `ASSET_REQ_IDLE`
+- `ASSET_REQ_VALIDATE`
+- `ASSET_REQ_RESOLVE_CHUNK`
+- `ASSET_REQ_CHECK_INTEGRITY`
+- `ASSET_REQ_READ`
+- `ASSET_REQ_DECODE_PREPARE`
+- `ASSET_REQ_READY`
+- `ASSET_REQ_RELEASE`
+- `ASSET_REQ_ERROR`
+
+Rules:
+- asset requests are legal only for the active package/runtime-unit context.
+- required runtime-unit assets must be validated/prepared before runtime start.
+- runtime hosts receive handles/views, not chunk offsets or storage addresses.
+- storage reads are issued through the storage owner.
+- asset faults propagate to runtime fallback, safe return, or package quarantine according to fault class.
+
+---
+
 ## Required Integration
 
 - Package manager transitions are owned by runtime/storage coordination layer.
 - Storage owner performs data operations; package manager tracks logical transaction state.
 - Index writes and commits must emit auditable transition logs.
+- Asset loading uses [[Package_Asset_Loading_API_Contract]] and must remain aligned with package activation state.
 
 ---
 
@@ -113,3 +140,5 @@ Rules:
 3. index rebuild and recovery path correctness
 4. runtime launch and return synchronization
 5. invalid transitions rejected with explicit errors
+6. asset request from inactive package/runtime unit is rejected
+7. package quarantine invalidates outstanding asset handles

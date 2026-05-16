@@ -1,8 +1,8 @@
 # Display and Rendering Contract
 
-This document defines HW5 display ownership, Sharp Memory LCD behavior, framebuffer semantics, flush behavior, low-power display behavior, and the planned LPBAM display-animation path.
+This document defines HW5 display ownership, Sharp Memory LCD behavior, framebuffer semantics, flush behavior, DMA-safe buffer placement, low-power display behavior, and the planned LPBAM display-animation path.
 
-Display is Platform-owned. Engine and Reference Game code request invalidation, presentation, or animation capabilities; they must not control SPI, DMA, LPBAM, level translation, or EXTCOMIN directly.
+Display is Platform-owned. Engine and Reference Game code request scene/frame presentation or animation capabilities; they must not control SPI, DMA, LPBAM, level translation, EXTCOMIN, SRAM4 placement, or panel-native row payloads directly.
 
 ## Hardware Path
 
@@ -59,6 +59,30 @@ The display contract must define before implementation:
 - framebuffer packing
 - dirty granularity
 - DMA alignment and buffer region
+
+## DMA-Safe Buffer Placement
+
+HW5 design requires display DMA/LPDMA source buffers to live in a DMA-safe memory region.
+
+Design target:
+
+| Buffer | Purpose | Expected Size |
+|---|---|---|
+| final panel framebuffer | composed native `144 x 168` 1bpp panel image | `3024` bytes |
+| display transmit payload buffer | Sharp LCD command/row payload stream | about `3362` bytes for full screen, pending final command-format validation |
+| precomposed low-power sequence payloads | validated ULP/LPBAM sequence content | profile and SRAM4 budget limited |
+
+SRAM4 is the intended HW5 region for:
+
+- DMA-safe display framebuffer/payload buffers
+- precomposed low-power sequence payloads used by LPDMA/LPBAM scenarios
+- small retained fast-resume state owned by the runtime/power policy
+
+This is a placement and budgeting requirement, not game-facing API.
+
+Packages and tools do not name SRAM4, buffer addresses, row payload formats, or LPBAM descriptors. They provide validated rendering assets and `precomposed_low_power_sequence` assets through [[Rendering_API_Contract]] and [[Asset_Pipeline_and_Package_Tooling_Contract]].
+
+Exact linker sections, alignment, SRAM4 budget split, and retention behavior must be validated on HW5 and recorded in [[Memory_and_Budgeting_Contract]], [[HW5_DMA_Map]], and [[Brought_Up_Tracker]].
 
 ## Update Classes
 
@@ -188,6 +212,7 @@ LPBAM rules:
 - LPBAM may only run prevalidated frame/row sequences.
 - LPBAM cannot own arbitrary game rendering.
 - LPBAM is intended for low-power idle animations, such as pet idle loops.
+- LPBAM sequence payloads must be precomposed and placed in the approved DMA-safe/retained display buffer region before low-power playback.
 - CPU wakes when animation class changes, input arrives, storage/power event occurs, or LPBAM faults.
 - Normal display owner must reclaim SPI3/LPDMA/LPBAM resources cleanly after exit.
 - LPBAM does not replace the normal renderer; it is a low-power idle-animation accelerator.

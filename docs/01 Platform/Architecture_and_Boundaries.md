@@ -151,7 +151,7 @@ The Reference Game and Engine may request:
 
 - cadence hints
 - wake intents
-- rendering invalidation or presentation
+- scene/frame rendering presentation
 - symbolic audio cues
 - asset reads
 - save reads/writes through approved APIs

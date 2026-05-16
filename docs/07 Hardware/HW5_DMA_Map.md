@@ -4,7 +4,7 @@ This note records the HW5 DMA paths, buffer placement rules, alignment requireme
 
 | Path | DMA | Buffer Region | Alignment | STOP-safe | Owner |
 |---|---|---|---|---|---|
-| Display flush | `LPDMA1_CH0`, `LPDMA1_REQUEST_SPI3_TX`, memory-to-peripheral | display line/full-frame payload buffers, region TBD | source incremented, final alignment TBD | No normal active transfer across STOP; LPBAM scenarios are separately validated | `thDisplay` |
+| Display flush | `LPDMA1_CH0`, `LPDMA1_REQUEST_SPI3_TX`, memory-to-peripheral | SRAM4 display line/full-frame payload buffers; exact section/budget TBD | source incremented, final alignment TBD | No normal active transfer across STOP; LPBAM scenarios are separately validated | `thDisplay` |
 | Speaker audio TX | `GPDMA1_CH3`, `GPDMA1_REQUEST_SAI1_A`, memory-to-peripheral, circular enabled | PCM mix buffer, region TBD | source/dest halfword, 16-bit PCM | No active transfer across STOP | `thAudio` |
 | AT25SL128A external flash read | `GPDMA1_CH4`, `GPDMA1_REQUEST_OCTOSPI1`, peripheral-to-memory | storage buffers, region TBD | destination incremented; data exchange configured by CubeMX | No active transfer across STOP | `thStorage` |
 | AT25SL128A external flash program | `GPDMA1_CH5`, `GPDMA1_REQUEST_OCTOSPI1`, memory-to-peripheral | storage buffers, region TBD | source incremented; data exchange configured by CubeMX | No active transfer across STOP | `thStorage` |
@@ -17,6 +17,7 @@ Rules:
 - no clock changes during active DMA
 - no STOP entry while critical DMA paths are active
 - owner threads must quiesce DMA before low-power transitions
+- display DMA source buffers and LPBAM display sequence payloads must use the approved DMA-safe SRAM4 placement once validated
 - BLE UART DMA is deferred until interrupt-driven static rings are proven insufficient by measurement
 
 Related:

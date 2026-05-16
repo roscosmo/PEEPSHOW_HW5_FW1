@@ -24,6 +24,7 @@ This runbook covers:
 - `PC13` `LCD_1HZ` RTC calibration output for EXTCOMIN/VCOM
 - full-frame updates
 - partial updates
+- SRAM4 DMA-safe display buffer placement
 - low-power static hold behavior
 - LPBAM display experiment evidence after baseline display validation
 
@@ -58,8 +59,9 @@ This sequence proves the normal renderer path before any LPBAM experiment.
 8. Perform a partial update on a single line or small row range.
 9. Perform a dirty-region update from framebuffer change tracking.
 10. Confirm full-frame fallback triggers when dirty coverage exceeds the chosen threshold.
-11. Enter low-power/static hold with the image visible and `LCD_1HZ` maintained.
-12. Resume and perform another partial update without stale transfer state.
+11. Confirm display payload DMA reads from the approved SRAM4 display buffer region.
+12. Enter low-power/static hold with the image visible and `LCD_1HZ` maintained.
+13. Resume and perform another partial update without stale transfer state.
 
 If any of these fail, LPBAM display animation remains out of scope until the normal path is stable.
 
@@ -79,6 +81,7 @@ Populate this table during bring-up. The current values are placeholders until m
 | vertical line | x-axis mapping | straight vertical line in landscape space | TBD | open |
 | horizontal line | y-axis mapping | straight horizontal line in landscape space | TBD | open |
 | small dirty row range | partial update | only target rows change | TBD | open |
+| SRAM4 DMA source | buffer placement and DMA reachability | payload read from approved SRAM4 display buffer | TBD | open |
 | static hold | low-power hold behavior | image remains visible; EXTCOMIN remains valid | TBD | open |
 
 ---
@@ -91,10 +94,11 @@ Required LPBAM experiment flow:
 
 1. Build a tiny prevalidated sequence of two or more static idle-animation frames.
 2. Convert the sequence into bounded SPI3/LPDMA/LPBAM payloads using the same verified row format as the normal renderer.
-3. Confirm the scenario can run for a fixed window without CPU intervention.
-4. Trigger wake/exit through input or RTC policy and prove `thDisplay` reclaims SPI3/LPDMA/LPBAM ownership.
-5. Compare current draw against the normal RTC wake/partial-update idle strategy.
-6. Record whether `VLT_LCD` must remain enabled continuously during the scenario.
+3. Place the sequence payloads in the approved SRAM4 display/LPBAM buffer region.
+4. Confirm the scenario can run for a fixed window without CPU intervention.
+5. Trigger wake/exit through input or RTC policy and prove `thDisplay` reclaims SPI3/LPDMA/LPBAM ownership.
+6. Compare current draw against the normal RTC wake/partial-update idle strategy.
+7. Record whether `VLT_LCD` must remain enabled continuously during the scenario.
 
 Acceptance requires correct image output, clean ownership reclaim, correct EXTCOMIN behavior, and measured current benefit or a clearly documented reason to keep the path disabled.
 
@@ -111,9 +115,10 @@ Acceptance requires correct image output, clean ownership reclaim, correct EXTCO
 | full frame | clear/fill patterns | correct full-screen image | TBD | open |
 | orientation | mapping patterns | logical `168 x 144` landscape confirmed | TBD | open |
 | partial update | row/range payload | only target rows change | TBD | open |
+| SRAM4 display buffer | approved SRAM4 DMA source | LPDMA reads correct payload without corruption/fault | TBD | open |
 | static hold | low-power hold | image remains visible | TBD | open |
 | suspend/resume | quiesce then update | no stale DMA/SPI state | TBD | open |
-| LPBAM experiment | prevalidated animation | autonomous sequence and clean exit | TBD | open |
+| LPBAM experiment | prevalidated SRAM4 animation payload | autonomous sequence and clean exit | TBD | open |
 | fault injection | transfer/init fault | fatal display fault path entered | TBD | open |
 
 ---
@@ -127,10 +132,11 @@ Acceptance requires correct image output, clean ownership reclaim, correct EXTCO
 5. Validate logical landscape orientation and row/column mapping.
 6. Validate clear, checkerboard, border, and single-pixel/line patterns.
 7. Validate partial update of a small dirty rectangle or line range.
-8. Validate static hold after MCU idle/sleep entry with `VLT_LCD` low/enabled and `LCD_1HZ` maintained.
-9. Validate fault behavior when display init/transfer fails.
-10. Attempt the LPBAM idle-animation experiment after full/partial/static-hold validation and before final sleep/wake integration closure.
-11. Record whether optional `VLT_LCD` duty-cycling saves measurable current without harming image hold or EXTCOMIN behavior.
+8. Validate display payload transfer from the approved SRAM4 display buffer region.
+9. Validate static hold after MCU idle/sleep entry with `VLT_LCD` low/enabled and `LCD_1HZ` maintained.
+10. Validate fault behavior when display init/transfer fails.
+11. Attempt the LPBAM idle-animation experiment after full/partial/static-hold validation and before final sleep/wake integration closure.
+12. Record whether optional `VLT_LCD` duty-cycling saves measurable current without harming image hold or EXTCOMIN behavior.
 
 ---
 
@@ -142,8 +148,9 @@ Record in [[Brought_Up_Tracker]]:
 - photos of known display patterns
 - orientation verification notes
 - partial-update verification notes
+- SRAM4 display buffer DMA reachability evidence
 - low-power static-hold observation
 - measured current for display hold if available
-- LPBAM evidence: prevalidated sequence correctness, autonomous transfer window, wake/exit behavior, ownership reclaim, image correctness, and current comparison
+- LPBAM evidence: prevalidated SRAM4 sequence correctness, autonomous transfer window, wake/exit behavior, ownership reclaim, image correctness, and current comparison
 
 Do not mark LPBAM display animation supported without measured scenario evidence. If it fails, normal display bring-up may still pass, but LPBAM remains unavailable.

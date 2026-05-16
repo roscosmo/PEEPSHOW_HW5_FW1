@@ -254,18 +254,36 @@ The twin should report:
 
 ---
 
+## Rendering Simulation
+
+The twin must use the same package-facing rendering semantics as [[Rendering_API_Contract]].
+
+Required behavior:
+
+- logical `168 x 144` canvas semantics match the active target profile
+- `UI -> GAME -> BG` layer order is preserved
+- `masked_1bpp` and `tone5_masked` assets render through the same semantic rules as device runtime
+- integer scaling uses deterministic coverage patterns
+- `ULP_ANIM` uses precomposed low-power sequence assets only
+- frame checksums and screenshots derive from the logical rendered result
+
+The twin must not treat host renderer behavior as hardware evidence for Sharp LCD row order, SPI payload correctness, SRAM4 retention, LPDMA reachability, LPBAM behavior, or EXTCOMIN correctness.
+
+---
+
 ## Sensor Simulation
 
-Sensors are simulated as contract-level data sources.
+Sensors are simulated as contract-level data sources through [[Sensor_API_Contract]].
 
 Allowed twin sensor sources:
 
 - scripted ambient-light tracks
 - step-count tracks
 - motion/tap/shake/tilt/orientation events
+- deterministic motion stream traces
 - joystick vector traces
 - button and encoder input traces
-- unavailable or invalid sensor states for fallback testing
+- explicit sensor fault-injection traces for lifecycle and diagnostics testing
 
 Rules:
 
@@ -274,12 +292,14 @@ Rules:
 - mock sensor use is not hardware bring-up evidence
 - sensor timing is deterministic in test/replay mode
 - sensor capability availability is declared by the twin profile
+- normal `HOST_DIGITAL_TWIN_HW5` profiles assume nominal sensor owner health unless fault injection is enabled
+- injected sensor faults test Platform/Engine lifecycle and diagnostics, not ordinary gameplay error branches
 
 ---
 
 ## Input Simulation
 
-The twin maps host input into PeepOS logical input events.
+The twin maps host input into PeepOS logical input events through [[Input_Focus_API_Contract]].
 
 Allowed host sources:
 
@@ -292,7 +312,9 @@ Allowed host sources:
 Rules:
 
 - mappings produce logical button, encoder, joystick, focus, and action events
+- focus scopes, bindings, fallbacks, and runtime-unit input admission use the same rules as device runtime
 - no raw GPIO or EXTI behavior is exposed
+- host keyboard, gamepad, and mouse inputs are editor/twin adapters only, not package input sources
 - `BTN_BOOT` remains unavailable as normal game input
 - Start power/shipping behavior is modeled only through Platform power-intent paths
 
@@ -300,7 +322,7 @@ Rules:
 
 ## Audio Simulation
 
-The twin may either play audio or validate audio silently.
+The twin may either play audio or validate audio silently through [[Audio_API_Contract]].
 
 Supported behavior:
 
@@ -308,33 +330,43 @@ Supported behavior:
 - SFX cue requests
 - BBB pattern/tone/sweep requests
 - volume and mute intent
-- unavailable-audio fault injection
+- symbolic audio timeline recording
+- muted/suppressed output simulation
+- audio fault injection
 
 Rules:
 
-- cue admission and rejection should match Engine/Platform contracts
+- cue admission, priority, preemption, loops, fades, markers, and suppression should match Engine/Platform contracts
+- PeepOS does not require packages to remain semantically complete when muted
+- host audio output is optional for deterministic tests
 - audio hardware details are not modeled
 - timing-sensitive audio behavior is contract-level only unless explicitly measured and mapped into the host profile
+- twin audio evidence is not HW5 audio bring-up evidence
 
 ---
 
 ## Communication Simulation
 
-The twin may simulate communication through host loopback or multi-instance sessions.
+The twin may simulate communication through host loopback or multi-instance sessions using [[Communication_API_Contract]].
 
 Supported behavior:
 
 - session advertise/join/leave
+- peer join/leave
 - bounded message send/receive
+- delayed, dropped, or reordered messages where schema policy allows
 - disconnects
 - timeouts
-- unavailable communication capability
+- communication fault injection
+- session-required admission behavior
 
 Rules:
 
 - BLE/NINA commands are not exposed
 - bonding and pairing internals are not modeled as hardware behavior
 - message schema and size limits must match package contracts
+- HW5 twin profiles must preserve the no-BLE-wake rule unless a future target profile grants communication wake
+- twin communication evidence is not HW5 BLE bring-up evidence
 
 ---
 
@@ -344,9 +376,11 @@ The twin uses sandboxed host storage to emulate Engine save/package behavior.
 
 Rules:
 
+- saves and package-owned settings use [[Package_Save_Settings_API_Contract]]
 - saves use the same schema and versioning rules as packages
-- package assets are loaded from compiled package data, not arbitrary runtime paths
+- package assets are loaded through [[Package_Asset_Loading_API_Contract]] from compiled `PeepPkg` package data, not arbitrary runtime paths
 - save write failure and interrupted write behavior must be injectable
+- package setting read/write, migration, reset, and write-budget behavior must be injectable
 - host storage paths must not become package runtime APIs
 - twin storage evidence is not flash or filesystem bring-up evidence
 
@@ -403,11 +437,11 @@ The twin assumes nominal Platform hardware owner health unless fault injection i
 
 Injectable contract-level faults should include:
 
-- sensor unavailable
+- sensor fault / degraded sensor primitive
 - stale sensor sample
 - save read failure
 - save write failure
-- audio unavailable
+- audio fault / suppression
 - communication disconnect
 - communication timeout
 - display present rejected
@@ -481,7 +515,7 @@ Profiles must be versioned and tied to the Platform contract revision they mirro
 6. static display update requests are clamped by the measured profile.
 7. realtime scene reports frame budget violations.
 8. LPBAM/autonomous display capability is available only when measured evidence supports it.
-9. package handles simulated unavailable optional sensor capability through declared fallback.
+9. sensor fault injection triggers Platform/Engine diagnostics and lifecycle policy outside normal gameplay logic.
 10. deterministic replay produces stable frame checksums and final state vector.
 11. injected save write failure preserves package logic safety.
 12. twin evidence is recorded separately from hardware bring-up evidence.

@@ -90,7 +90,7 @@ Only after the baseline flash path passes:
 6. Confirm protected regions are not host-visible or host-writable.
 7. Confirm fault-log export is firmware-copy into staging/export, never direct exposure.
 
-The installed game/package raw blob storage is not the FAT/FileX staging volume. Runtime reads must use installed raw blob APIs or bounded caches.
+The installed game/package raw blob storage is not the FAT/FileX staging volume. Runtime reads must use [[Package_Asset_Loading_API_Contract]] or bounded package-managed caches.
 
 ---
 

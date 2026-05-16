@@ -248,7 +248,7 @@ Examples:
 | save variable without schema | `error` |
 | action graph may loop without a bounded exit or tick budget | `error` |
 | unused asset | `advisory` |
-| optional sensor has no unavailable fallback | `error` |
+| optional sensor feature has no content fallback | `error` |
 
 ---
 
@@ -288,7 +288,7 @@ Rules:
 Valid waiver examples:
 
 - placeholder art accepted for a dev package
-- optional SFX missing while audio fallback is present
+- optional SFX missing while silent cue fallback is declared
 - temporary text warning accepted for a release candidate
 
 Invalid waiver examples:
@@ -347,9 +347,9 @@ Rules:
 - no transient pointer ownership across API boundaries
 - no function pointers in package data
 - no blocking calls without an explicit timeout
-- all capability requests must have failure paths
+- all dynamic capability contexts must have declared lifecycle and fallback policy
 
-The Engine or Platform may clamp or reject any request that exceeds declared bounds, current mode policy, or available resources.
+The Engine or Platform may reject invalid package output during validation when it exceeds declared bounds, current mode policy, or available resources.
 
 ---
 
@@ -388,6 +388,15 @@ Transitions between units are Engine-managed and must be declared and validated.
 
 This keeps high-power or realtime behavior scoped to the unit that needs it. A package may spend most of its life in `LP_GRAPH`, briefly enter `RT_SCENE`, then return to a low-power unit.
 
+Runtime unit transition forms:
+
+- replace current unit with a declared target
+- push a declared unit onto a bounded return stack
+- pop back to the previous unit
+- exit to PeepOS shell through an approved system route
+
+Tools must not expose arbitrary jumps to undeclared unit IDs.
+
 ---
 
 ## PeepOS Power Compliance
@@ -403,6 +412,7 @@ Rules:
 - every package must tolerate Platform cadence clamping
 - every package must have a valid low-power route unless it is a Platform-owned installer/diagnostic flow
 - realtime work must be declared, bounded, and able to fall back to idle/static behavior
+- realtime units have no fixed maximum active duration at this contract level, but user inactivity timeout always applies
 - packages do not keep hardware awake directly
 - packages express activity, latency, wake, and cadence intent only
 - Platform may force low-power behavior after the idle timeout
@@ -423,13 +433,41 @@ Power compliance validation must check:
 - idle timeout behavior is declared
 - static/low-power update cadence is within the selected target profile
 - realtime scene has an idle fallback
+- realtime scene declares idle detection, suspend behavior, and resume behavior
 - transitions from realtime units back to low-power units exist where required
 - package does not request background realtime updates after inactivity
 - input-triggered updates are bounded and return to static/hold policy
 - wake intents are declared and supported by target profile
-- optional sensor/communication wake behavior has fallback paths
+- optional sensor wake behavior has fallback paths
+- HW5 target profiles reject communication wake behavior
 
 LPBAM-dependent `ULP_ANIM` behavior is profile-gated. It remains unavailable for shipping packages unless measured HW5 evidence grants `display.autonomous_sequence` through [[PeepOS_Capability_Registry]].
+
+Power-facing authoring primitives:
+
+| Primitive | Purpose | Notes |
+|---|---|---|
+| `idle_behavior` | declares what the package should do when inactive | `HOLD`, `ULP_ANIM`, `STATIC`, shell exit, or declared low-power unit |
+| `activity_hint` | reports meaningful active work | may be expired or ignored by Platform policy |
+| `cadence_request` | requests display/update cadence | Platform grants, clamps, coalesces, delays, or rejects |
+| `wake_intent` | declares desired wake/event sources | must be supported by target profile |
+| `latency_tolerance` | declares acceptable response delay | used by Platform when choosing sleep and cadence |
+| `fallback_unit` | declares route from realtime/high-duty work back to low power | required for `RT_SCENE` |
+| `capability_context` | declares bounded temporary high-duty behavior | not a settings write or hardware command |
+
+Authoring tools should make `STATIC -> HOLD` and `STATIC -> ULP_ANIM` flows the easiest path for long-running packages.
+
+Tools must not expose STOP level, clocks, LPBAM setup, RTC programming, DMA, display transfer internals, peripheral power state, or wake-pin configuration.
+
+Profile-dependent behavior:
+
+| Target Profile | Tool Behavior |
+|---|---|
+| `HW5_PENDING_VALIDATION` | allow design-time modeling but report hardware-dependent limits as provisional |
+| `HW5_VALIDATED_BASELINE` | reject autonomous display sequence requirements; model low-power display updates as wake/update/return |
+| `HW5_VALIDATED_LPBAM` | allow prevalidated autonomous display sequence output where sequence caps are met |
+| `HOST_AUTHORING_PREVIEW` | allow mocks/placeholders with explicit compatibility warnings |
+| `HOST_DIGITAL_TWIN_HW5` | mirror measured HW5 profile after hardware validation |
 
 ---
 
@@ -471,14 +509,20 @@ Examples:
 | `input.buttons` | can receive logical button actions |
 | `input.encoder` | can receive logical encoder deltas |
 | `input.joystick_vector` | can receive normalized joystick vector/action data |
-| `audio.music` | can request symbolic music cues |
-| `audio.sfx` | can request symbolic SFX cues |
-| `audio.bbb` | can request bounded BBB tone/pattern cues |
-| `sensor.light` | can request normalized ambient-light snapshots |
-| `sensor.imu_steps` | can request step-count snapshots or deltas |
-| `sensor.imu_events` | can request motion, tap, shake, tilt, or orientation events where supported |
-| `comm.multiplayer` | can request generic multiplayer session capability |
-| `comm.companion` | can request generic companion-app capability |
+| `audio.music` | can use symbolic music cues |
+| `audio.sfx` | can use symbolic SFX cues |
+| `audio.bbb` | can use bounded BBB tone/pattern cues |
+| `audio.timeline` | can use symbolic audio timeline events for diagnostics, replay, or package logic where supported |
+| `sensor.light` | can consume resolved ambient-light value and band |
+| `sensor.light_stream` | can use bounded active light sampling contexts where supported |
+| `sensor.imu_steps` | can consume step session totals and deltas |
+| `sensor.imu_events` | can consume motion, tap, shake, tilt, or orientation events where supported |
+| `sensor.imu_motion_snapshot` | can consume normalized motion/orientation snapshots |
+| `sensor.imu_motion_stream` | can use bounded higher-rate motion contexts for realtime gameplay |
+| `comm.multiplayer` | can use generic multiplayer sessions and bounded messages |
+| `comm.companion` | can use companion-app sessions and bounded messages |
+| `comm.session_required` | can declare runtime units that require an active communication session |
+| `comm.message_schema` | can declare bounded versioned message schemas |
 | `save.records` | can read/write package save records through Engine APIs |
 | `time.rtc` | can request RTC-backed delayed events or low-power cadence hints |
 
@@ -592,21 +636,28 @@ Script validation must run before package compilation/export.
 
 Game-facing rendering is through Engine drawing abstractions.
 
+The detailed rendering contract lives in [[Rendering_API_Contract]].
+
 Tools may author:
 
-- monochrome sprites
+- masked 1bpp sprites
+- tone5 masked sprites
 - tilemaps
+- tilesets
 - frame animations
 - text labels
+- fonts
 - UI panels
 - simple shape primitives where supported
-- dirty/invalidation hints
+- integer scale factors
+- precomposed low-power sequence candidates
 - scene-local draw ordering
 
 Runtime may request:
 
-- invalidate region
-- draw sprite or frame
+- draw masked 1bpp sprite or frame
+- draw tone5 sprite or frame
+- draw integer-scaled sprite
 - draw tile region
 - draw text from validated text table
 - play animation by ID
@@ -617,8 +668,14 @@ Rules:
 - assets are referenced by ID, not filesystem path
 - draw command count is bounded per frame/event
 - target canvas profile must be declared by capability, not hardware peripheral name
-- invalidation is a hint; Platform display owner chooses transfer method
+- Engine and Platform detect changed display regions internally where useful
 - no package may control SPI, DMA, EXTCOMIN, display voltage translation, or display sleep policy
+- `tone5` is a semantic coverage model, not native display color
+- integer scaling is the v1 scaling model for package-facing scaled sprites
+- visual layer order is `UI -> GAME -> BG`
+- authoring tools may expose more logical layers only if the compiler can flatten them into the bounded runtime compositor model
+- system UI is reserved and may use baked crisp 1bpp assets outside the package surface
+- `ULP_ANIM` uses precomposed low-power sequence assets only; it does not run arbitrary rendering logic while low-power playback is active
 
 For the HW5 target profile, the expected primary display capability is a logical monochrome canvas matching the Platform display contract.
 
@@ -627,6 +684,8 @@ For the HW5 target profile, the expected primary display capability is a logical
 ## Input Hooks
 
 Game-facing input is logical and focus-routed.
+
+The detailed input/focus contract lives in [[Input_Focus_API_Contract]].
 
 Tools may author:
 
@@ -639,6 +698,8 @@ Tools may author:
 - repeat behavior requests
 - encoder delta bindings
 - joystick vector or direction bindings
+- low-power wake input intents
+- fallback bindings for unavailable optional inputs
 
 Runtime may consume:
 
@@ -658,12 +719,17 @@ Rules:
 - `BTN_BOOT` is never normal game input.
 - Start shipping intent is power policy, not game input.
 - raw GPIO, EXTI, timer counter, or ADC input is forbidden.
+- raw joystick magnetic readings and encoder hardware counters are forbidden.
+- input focus must be released or transferred during runtime-unit transitions.
+- wake input is delivered through normal resume/lifecycle flow before package actions.
 
 ---
 
 ## Audio Hooks
 
-Game-facing audio is symbolic.
+Detailed audio API behavior is defined in [[Audio_API_Contract]].
+
+Game-facing audio is symbolic and creatively open. PeepOS does not require packages to remain semantically complete when muted.
 
 Tools may author:
 
@@ -673,9 +739,12 @@ Tools may author:
 - BBB tones
 - BBB sweeps
 - cue priorities
+- cue groups
 - volume defaults
 - loop flags
 - fade hints
+- audio contexts
+- symbolic timeline markers
 
 Runtime may request:
 
@@ -687,15 +756,18 @@ Runtime may request:
 - play bounded BBB sweep
 - set bus volume intent
 - set mute intent
+- consume symbolic cue timeline events where supported
 
 Rules:
 
 - audio assets must be prevalidated and package-contained
 - SFX and music formats must match Engine/Platform accepted formats
 - BBB sequence duration, step count, frequency range, and repeat count are bounded
-- requests may be rejected if the audio owner is unavailable or resource limits are exceeded
+- physical output may be muted, suppressed, faded, ducked, stopped, or quarantined by PeepOS policy
+- audio-centric gameplay is allowed
 - no game code may control SAI, DMA, LPTIM, `SD_MODE`, or amplifier state
 - no FileX/FAT streaming in active runtime loops
+- package logic must not depend on DMA callbacks, buffer refill timing, SAI completion, or LPTIM interrupts
 
 ---
 
@@ -729,6 +801,8 @@ Rules:
 
 Save data is schema-driven and package-owned through Engine save APIs.
 
+The detailed save/settings contract lives in [[Package_Save_Settings_API_Contract]].
+
 Tools may author:
 
 - save schema version
@@ -755,6 +829,9 @@ Rules:
 - schema changes require versioning
 - failed write must preserve the previous valid record where possible
 - high-frequency writes may be clamped or rejected
+- package settings use the same package-owned schema discipline
+- package code must handle save/settings API failure
+- no save/settings API may mutate Platform settings, calibration, BLE bonding, install metadata, or fault logs
 
 ---
 
@@ -791,38 +868,44 @@ Rules:
 
 ## Sensor Hooks
 
-Game-facing sensor data is normalized and capability-gated.
+Detailed sensor API behavior is defined in [[Sensor_API_Contract]].
+
+Game-facing sensor data is normalized, resolved, and capability-gated.
 
 Tools may author:
 
 - sensor capability requirements
-- sample cadence requests
+- sensor context declarations
+- sample cadence hints
 - event interests
 - calibration dependency declarations
-- fallback behavior if sensor data is unavailable
+- optional content fallback behavior for target-profile portability
 
 Runtime may consume:
 
-- normalized ambient-light snapshot
+- resolved ambient-light value
 - ambient-light band
-- sample age and validity
-- IMU step count delta or total snapshot
+- IMU step session delta or total snapshot
 - motion/tap/shake/tilt/orientation events where supported
+- normalized motion/orientation snapshots or streams where supported
 - normalized joystick vector through input APIs
 
 Rules:
 
 - raw ADC, raw I2C registers, raw magnetic diagnostic values, and raw IMU configuration are not normal game APIs
-- Platform may clamp sensor rate and duration
-- missing calibration or unavailable sensor capability must be handled by package fallback path
-- sensor streaming leases are bounded
-- sensor capability requests must not change Platform sleep policy directly
+- Platform may internally clamp sensor rate and duration while preserving the package-facing contract
+- required sensor primitive failure is handled by Platform/Engine fault logging and lifecycle policy
+- optional sensor features require declared content fallback behavior
+- sensor streaming contexts are bounded
+- sensor contexts must not change Platform sleep policy directly
 
 ---
 
 ## Communication Hooks
 
-Communication is generic and capability-gated.
+Detailed communication API behavior is defined in [[Communication_API_Contract]].
+
+Communication is generic, transport-agnostic, and capability-gated.
 
 Tools may author:
 
@@ -832,7 +915,8 @@ Tools may author:
 - message schema
 - maximum message size
 - rate limits
-- connection-required or offline-capable behavior
+- `optional` or `session_required` context behavior
+- timeout and session-end route behavior
 
 Runtime may request:
 
@@ -847,9 +931,12 @@ Rules:
 
 - no package may control BLE hardware, NINA pins, UART, bonding storage, or BLE command protocol
 - messages must have fixed maximum size and schema version
-- offline and communication-failure behavior must be defined
+- each communication runtime unit must declare either fallback/route behavior or session-required admission behavior
+- peer disconnects, session closes, and message timeouts are package-visible session events
+- BLE/NINA/UART faults are Platform/Engine diagnostics, not normal gameplay branches
 - pairing/bonding is Platform-owned
-- Platform may reject communication in modes where it would violate power, storage, or realtime policy
+- HW5 communication cannot wake the device
+- Platform may reject invalid communication use during validation or admission where it would violate power, storage, or realtime policy
 
 ---
 
@@ -874,13 +961,41 @@ Runtime may publish:
 - low-power work acceptable
 - temporary capability need
 
+Runtime units may declare temporary capability contexts through Engine APIs, such as high-rate sensor sampling, step-counter session behavior, audio activity, communication session activity, or realtime activity. These are validated PeepOS contexts, not direct hardware control.
+
 Rules:
 
 - Platform chooses sleep class and clock profile
 - Platform arms wake sources
 - Platform owns quiesce/resume sequencing
-- packages must tolerate capability rejection or delayed wake within declared policy
+- invalid context use is caught before package compilation/export where possible
+- if a required context cannot be maintained at runtime, Platform/Engine handles fault logging and lifecycle policy
+- packages must tolerate delayed wake within declared policy
 - no package may enter sleep, change clocks, or keep hardware awake directly
+
+---
+
+## Package Settings Hooks
+
+Packages may define package-owned settings through schemas.
+
+The detailed save/settings contract lives in [[Package_Save_Settings_API_Contract]].
+
+Allowed package settings examples:
+
+- difficulty
+- text speed
+- package-local sound preference
+- package-local input preference
+- accessibility preference local to the package
+
+Rules:
+
+- package settings are not Platform settings
+- PeepOS may render and edit package settings through system UI
+- package settings are stored through package save/settings APIs
+- packages may not directly mutate Platform settings, hardware policy, sleep policy, storage policy, sensor policy, PMIC policy, or communication policy
+- hardware-affecting behavior is expressed through bounded capability contexts, not direct settings mutation
 
 ---
 
@@ -955,6 +1070,7 @@ Every package build must produce:
 
 - validation report
 - compatibility report
+- `PeepPkg` package blob
 - selected build profile
 - selected target profile
 - waiver list
@@ -996,13 +1112,16 @@ The package compiler must refuse to emit installable output when:
 8. package with oversized audio, BBB, save, communication, or render command data fails validation.
 9. runtime class mismatch fails validation before package compilation/export.
 10. install-time validation rejects a package whose manifest/checksum was corrupted after tool validation.
-11. package handles unavailable optional sensor or communication capability through declared fallback behavior.
+11. optional sensor or communication feature validates only when declared fallback behavior exists.
 12. suspend/resume during active package behavior preserves host and package state consistency.
 13. save write failure preserves previous valid save record where possible.
-14. Platform clamps cadence or sensor streaming request and package continues through the declared fallback path.
+14. sensor streaming context above the target profile limit fails validation before package compilation/export.
 15. waived warning appears in the compatibility report with reason and removal condition.
 16. `RT_SCENE` package without idle fallback fails power compliance validation.
 17. package requiring `display.autonomous_sequence` fails shipping validation unless the selected target profile grants it.
+18. package that attempts to keep realtime cadence after inactivity timeout fails power compliance validation.
+19. package that requires `ULP_ANIM` validates only against a target profile that grants autonomous display sequence support.
+20. package that exposes or requires display transfer/internal update-region control fails internal safety verification.
 
 ---
 

@@ -7,6 +7,7 @@ The HW5 communication path currently covers the BLE/NINA module over `LPUART1` w
 ## Core Notes
 
 - [[BLE_Communication_Contract]]
+- [[Communication_API_Contract]]
 - [[RTOS_Ownership_and_Queue_Topology]]
 - [[Power_and_Sleep_Policy]]
 - [[HW5_CubeMX_Pin_Map]]
@@ -20,3 +21,4 @@ The Engine may request generic communication capabilities.
 
 The Reference Game may consume approved Engine communication APIs, but it must not configure BLE hardware directly.
 
+The package-facing API boundary is defined in [[Communication_API_Contract]].

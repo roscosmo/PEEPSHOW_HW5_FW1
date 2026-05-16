@@ -5,6 +5,8 @@ This section defines game-agnostic asset production, package generation, validat
 ## Core Notes
 
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
+- [[Package_Blob_Format_Contract]]
+- [[Rendering_API_Contract]]
 - [[Game_Authoring_API_Contract]]
 - [[PeepOS_Capability_Registry]]
 - [[Package_Contract]]

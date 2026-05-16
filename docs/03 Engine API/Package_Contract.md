@@ -8,6 +8,9 @@ Related:
 - [[PeepOS_Capability_Registry]]
 - [[Runtime_Host_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
+- [[Audio_API_Contract]]
+- [[Communication_API_Contract]]
+- [[Sensor_API_Contract]]
 
 ---
 
@@ -44,6 +47,9 @@ Every package must declare:
 - `cadence_hints`
 - `latency_tolerance`
 - `asset_table`
+- `audio_profile`
+- `sensor_profile`
+- `communication_profile`
 - `save_schema_version`
 - `storage_write_budget`
 - `compatibility_constraints`
@@ -55,6 +61,8 @@ Capability names are defined in [[PeepOS_Capability_Registry]].
 ## Manifest Schema Outline
 
 Final serialized schemas live in the package tooling schema files. This outline defines the required conceptual fields.
+
+The installable package container is defined by [[Package_Blob_Format_Contract]].
 
 ```text
 package_manifest:
@@ -74,8 +82,12 @@ package_manifest:
   latency_tolerance
   power_policy
   asset_table_ref
+  audio_profile_ref
+  sensor_profile_ref
+  communication_profile_ref
   save_schema_ref
   message_schema_ref
+  package_blob_ref
   compatibility_constraints
   package_checksum
 ```
@@ -88,6 +100,7 @@ Rules:
 - each runtime unit declares its own `runtime_class`.
 - required capabilities must be granted by the target profile.
 - optional capabilities must include fallback behavior.
+- `package_blob_ref` must resolve to the installable `PeepPkg` container metadata.
 
 ---
 
@@ -117,12 +130,16 @@ runtime_unit:
   required_capabilities[]
   optional_capabilities[]
   asset_refs[]
+  audio_context_refs[]
+  sensor_context_refs[]
+  communication_context_refs[]
   save_refs[]
   cadence_hints
   wake_intents[]
   latency_tolerance
   idle_behavior
   allowed_transitions[]
+  unit_stack_policy
   suspend_resume_policy
   failure_fallback
 ```
@@ -133,9 +150,11 @@ Rules:
 - `runtime_class` must be one of `LP_GRAPH`, `LP_MODULE`, or `RT_SCENE`.
 - `entry_point` must resolve to a state graph, module config, scene, or host entry accepted by that runtime class.
 - `allowed_transitions` must target valid runtime units in the same package or an approved system route such as shell return.
+- runtime unit transitions must use declared transition edges.
+- arbitrary runtime jumps to undeclared unit IDs are invalid.
 - unit-specific required capabilities must be granted by the selected target profile.
 - unit-specific optional capabilities must include fallback behavior.
-- assets and save records used by the unit must be declared.
+- assets, audio contexts, sensor contexts, communication contexts, and save records used by the unit must be declared.
 - lifecycle handlers and unit transition actions must be bounded.
 
 Runtime class requirements:
@@ -148,7 +167,88 @@ Runtime class requirements:
 
 `RT_SCENE` units must declare an idle fallback to an `LP_GRAPH` or `LP_MODULE` unit unless the selected target profile explicitly allows another route.
 
+`RT_SCENE` units do not have a fixed maximum active duration at the package contract level. The Platform inactivity timeout always applies. A realtime unit may remain active while meaningful user activity or Platform-approved active work continues, but it must declare idle detection, suspend behavior, resume behavior, and fallback routing.
+
 `LP_MODULE` units must name an approved Engine module type. They are not arbitrary low-power code blobs.
+
+---
+
+## Runtime Unit Transition Model
+
+Runtime unit transitions are declared, bounded, and Engine-managed.
+
+Allowed transition forms:
+
+```text
+transition_to(unit_id)
+push_unit(unit_id)
+pop_unit()
+exit_to_shell(reason)
+```
+
+Rules:
+
+- `transition_to` replaces the current runtime unit with a declared target.
+- `push_unit` enters a declared target while preserving a bounded return path.
+- `pop_unit` returns to the previous runtime unit if the stack is non-empty.
+- stack depth is bounded by target profile and package validation.
+- recursive push loops are invalid unless statically bounded and approved by validation.
+- transition actions must be bounded.
+- transition targets must be declared in `allowed_transitions`.
+- `exit_to_shell` is an approved system route, not a package-defined shell implementation.
+
+Typical use:
+
+```text
+map -> push dialogue -> pop map
+idle -> push modal microgame -> pop idle
+realtime microgame -> transition idle fallback
+```
+
+---
+
+## Package Settings And Capability Contexts
+
+Package settings and Platform settings are separate.
+
+Detailed package save/settings API rules are defined in [[Package_Save_Settings_API_Contract]].
+
+Package settings:
+
+- are declared by package schema
+- have defaults
+- may be rendered or edited through PeepOS UI
+- are stored through package save/settings APIs
+- may include package preferences such as difficulty, text speed, package-local sound preference, or package-local input preferences
+
+Platform settings:
+
+- are owned by PeepOS
+- are not mutated directly by packages
+- include hardware, sleep, storage, power, sensor, communication, and system policy
+
+Packages may declare temporary capability contexts.
+
+Examples:
+
+```text
+sensor_context.motion_stream_20hz_for_microgame
+sensor_context.step_session_for_walk_goal
+sensor_context.light_band_for_scene_logic
+communication_context.multiplayer_session
+audio_context.active_music_or_sfx
+runtime_context.realtime_activity_for_minigame
+```
+
+Rules:
+
+- contexts are declarations, not settings writes.
+- tool-side validation must prove each context is valid for the selected target profile and runtime unit.
+- Platform may internally clamp, coalesce, substitute, or degrade hardware behavior while preserving the package-facing contract.
+- package gameplay code does not handle hardware-level grant/reject/revoke paths for required HW5 primitives.
+- if a required context cannot be maintained at runtime, Platform/Engine handles fault logging and lifecycle policy.
+- contexts must have bounded duration, declared runtime-unit scope, or explicit release behavior.
+- packages must not directly write Platform settings, hardware registers, or storage policy.
 
 ---
 
@@ -159,13 +259,18 @@ Packages express power intent only.
 ```text
 power_policy:
   idle_behavior
-  idle_timeout_policy
-  static_update_max_hz_request
-  low_power_update_max_hz_request
-  realtime_frame_rate_request
+  inactivity_timeout_behavior
+  activity_hints[]
+  cadence_requests:
+    static_update_max_hz
+    low_power_update_max_hz
+    realtime_target_fps
+  input_update_policy
+  low_power_sequence_ref
   realtime_idle_fallback
   wake_intents[]
   latency_tolerance_ms
+  capability_contexts[]
 ```
 
 Rules:
@@ -174,12 +279,36 @@ Rules:
 - `realtime_idle_fallback` is required for `RT_SCENE`.
 - low-power and static update rates must fit the target profile.
 - packages must tolerate forced low-power behavior after Platform idle timeout.
+- `idle_behavior` must resolve to `HOLD`, `ULP_ANIM`, `STATIC`, `exit_to_shell`, or another approved low-power route.
+- activity hints are not exemptions from inactivity timeout.
+- input-triggered updates must be bounded and return to the declared idle behavior.
+- `low_power_sequence_ref` may reference portable precomposed sequence assets for preview, static fallback, or autonomous playback candidates.
+- packages requiring autonomous low-power playback must target a profile that grants `display.autonomous_sequence`.
+- packages targeting `display.autonomous_sequence` should declare a fallback unless the package explicitly requires that capability.
+- packages must not implement polling loops to approximate low-power cadence.
+
+Cadence request semantics:
+
+| Request | Meaning | Platform Response |
+|---|---|---|
+| `static_update_max_hz` | preferred maximum event/state update cadence while awake-low-power | grant or clamp to target profile |
+| `low_power_update_max_hz` | preferred low-power display/event cadence | grant, clamp, coalesce, or reject |
+| `realtime_target_fps` | requested frame cadence for realtime unit | grant or clamp while realtime activity is valid |
+
+Profile behavior:
+
+| Target Profile | Package Implication |
+|---|---|
+| `HW5_VALIDATED_BASELINE` | low-power display updates are wake/update/return operations; packages must tolerate strict cadence caps |
+| `HW5_VALIDATED_LPBAM` | prevalidated autonomous low-power sequences may be used through `display.autonomous_sequence` |
 
 ---
 
 ## Asset Table Schema Outline
 
 Assets are referenced by ID, not filesystem path.
+
+Asset records resolve to package chunks in [[Package_Blob_Format_Contract]].
 
 ```text
 asset_table:
@@ -189,6 +318,7 @@ asset_table:
     format_version
     byte_size
     bounds
+    chunk_id
     checksum
     runtime_class_limits
     required_capability
@@ -196,14 +326,18 @@ asset_table:
 
 Allowed asset classes include:
 
-- sprites/images
+- masked 1bpp sprites/images
+- tone5 masked sprites/images
+- tilesets
 - tilemaps
 - animation tables
+- fonts
 - audio/music/SFX
 - BBB patterns
 - text/localization tables
 - state graph tables
 - data tables
+- precomposed low-power sequences
 
 Rules:
 
@@ -211,6 +345,10 @@ Rules:
 - all asset references must resolve at validation time.
 - external editor files are import sources only and are not runtime assets unless compiled into PeepOS package formats.
 - package runtime must not use arbitrary host or FAT paths.
+- tone5 assets are semantic coverage assets and must not be described as a color-depth format.
+- precomposed low-power sequences are package assets, but autonomous playback requires the target profile to grant `display.autonomous_sequence`.
+- runtime assets are loaded by package/asset APIs from installed raw package storage or bounded caches, not by filesystem path.
+- package chunks must not contain SRAM4 addresses, SPI payloads, DMA descriptors, LPBAM descriptors, or hardware row formats.
 
 ---
 
@@ -246,6 +384,8 @@ Rules:
 
 Input maps bind logical input to package actions.
 
+Detailed input/focus API behavior is defined in [[Input_Focus_API_Contract]].
+
 ```text
 input_map:
   focus_scopes[]
@@ -253,6 +393,9 @@ input_map:
   bindings[]
   repeat_policy
   chord_policy
+  joystick_policy
+  encoder_policy
+  wake_intents[]
   fallback_bindings[]
 ```
 
@@ -261,6 +404,93 @@ Rules:
 - bindings use logical PeepOS input concepts only.
 - Platform-reserved inputs may be rejected or overridden by shell/system policy.
 - `BTN_BOOT` and Start shipping intent are not package inputs.
+- bindings must target package-local actions.
+- focus scope stack depth must be bounded.
+- optional input capabilities require fallback bindings or fallback behavior.
+- runtime unit transitions must release or transfer input focus explicitly.
+
+---
+
+## Audio Profile Schema Outline
+
+Audio profiles declare symbolic package audio behavior.
+
+Detailed audio API behavior is defined in [[Audio_API_Contract]].
+
+```text
+audio_profile:
+  cues[]:
+    cue_id
+    cue_type
+    asset_ref
+    bus
+    group
+    priority
+    default_volume
+    loop_policy
+    fade_policy
+    ducking_policy
+    max_duration_ms
+    preload_policy
+  bbb_patterns[]:
+    pattern_id
+    steps[]
+    priority
+    max_duration_ms
+  audio_contexts[]:
+    context_id
+    runtime_unit_refs[]
+    active_cue_refs[]
+    bbb_pattern_refs[]
+    volume_defaults
+    preload_refs[]
+    power_behavior_hint
+    diagnostic_label
+```
+
+Rules:
+
+- audio cue IDs are symbolic package-local IDs.
+- audio profiles must not name SAI, DMA, LPTIM, GPIO, `SD_MODE`, amplifier state, mixer buffers, decoder internals, or filesystem paths.
+- sampled audio assets and BBB patterns must resolve to package assets.
+- BBB pattern frequency, duration, step count, repeat count, curve, and envelope must be bounded.
+- runtime unit audio contexts must be valid for the selected runtime class and target profile.
+- PeepOS does not require packages to remain semantically complete when muted.
+- audio-centric package behavior is valid when it remains within bounded package/runtime rules.
+
+---
+
+## Sensor Profile Schema Outline
+
+Sensor profiles declare package use of PeepOS sensor primitives.
+
+Detailed sensor API behavior is defined in [[Sensor_API_Contract]].
+
+```text
+sensor_profile:
+  contexts[]:
+    context_id
+    runtime_unit_refs[]
+    required_capabilities[]
+    optional_capabilities[]
+    mode
+    cadence_hint
+    max_duration_ms
+    event_interests[]
+    wake_intents[]
+    fallback_policy
+    diagnostic_label
+```
+
+Rules:
+
+- sensor contexts use PeepOS capability names only.
+- sensor contexts must not name hardware parts, pins, ADC channels, I2C addresses, EXTI lines, registers, or HAL handles.
+- each sensor context must be referenced by at least one runtime unit.
+- high-rate motion or light streaming must be bounded and valid for the runtime class.
+- step sessions use package baselines and must not reset the hardware step counter.
+- optional sensor features require declared content fallback behavior.
+- required sensor primitive failure at runtime is handled by Platform/Engine lifecycle and diagnostics, not normal gameplay logic.
 
 ---
 
@@ -268,16 +498,31 @@ Rules:
 
 Save writes require a schema.
 
+Detailed save/settings API behavior is defined in [[Package_Save_Settings_API_Contract]].
+
 ```text
 save_schema:
   save_schema_id
   save_schema_version
   records[]:
     record_id
+    record_type
     fields[]
     max_size_bytes
     default_value
     migration_policy
+    reset_policy
+    write_policy
+    durability_class
+  package_settings[]:
+    setting_id
+    value_type
+    default_value
+    allowed_values
+    ui_metadata
+    storage_record_ref
+    migration_policy
+    reset_policy
   write_budget
   reset_policy
 ```
@@ -289,12 +534,34 @@ Rules:
 - migrations must be explicit.
 - write frequency assumptions must be declared.
 - failed writes should preserve the previous valid record where possible.
+- package settings are package-owned schema records, not Platform settings.
+- package writes use Engine save/settings APIs only.
 
 ---
 
 ## Message Schema Outline
 
 Communication messages are bounded and versioned.
+
+Detailed communication API behavior is defined in [[Communication_API_Contract]].
+
+```text
+communication_profile:
+  contexts[]:
+    context_id
+    runtime_unit_refs[]
+    mode
+    role_intent
+    session_type
+    max_peers
+    message_schema_ref
+    rate_limits
+    timeout_policy
+    ordering_policy
+    session_end_route
+    fallback_route
+    diagnostic_label
+```
 
 ```text
 message_schema:
@@ -303,13 +570,20 @@ message_schema:
   max_message_bytes
   message_types[]
   rate_limits
-  offline_behavior
+  session_behavior
 ```
 
 Rules:
 
+- communication profiles must not name BLE, NINA, UART, GAP, GATT, module commands, pins, or bonding storage.
 - messages must fit communication capability limits.
-- offline or unavailable communication behavior must be declared unless communication is a hard package requirement.
+- message schemas must be versioned and bounded.
+- each communication context must declare `none`, `optional`, or `session_required` behavior.
+- optional communication contexts require fallback/route behavior.
+- session-required runtime units require admission/session routes when no session exists.
+- HW5 profiles must reject communication wake behavior.
+- peer disconnects and session timeouts are package-visible events.
+- hardware/module faults are Platform/Engine diagnostics, not normal gameplay branches.
 
 ---
 
@@ -327,7 +601,7 @@ Platform decides exact hardware behavior.
 
 ## Storage and Save Rules
 
-- Package saves go through package storage APIs only.
+- Package saves and package-owned settings go through [[Package_Save_Settings_API_Contract]] only.
 - Save schema version must support migration handlers.
 - Package writes must be bounded and power-safe.
 - Package data cannot bypass installer validation path.
@@ -336,7 +610,7 @@ Platform decides exact hardware behavior.
 
 ## Versioning and Compatibility
 
-Use semantic versioning for package format:
+Use semantic versioning for package-facing schemas and package container compatibility:
 - `pkg_format_major`
 - `pkg_format_minor`
 
@@ -344,6 +618,7 @@ Rules:
 - Major mismatch: reject install.
 - Minor mismatch: allow if backward-compatible.
 - Validation output must include exact rejection reason.
+- The `PeepPkg` container format and individual chunk schemas carry explicit versions.
 
 ---
 
@@ -361,11 +636,12 @@ Before package compilation/export, tooling must validate:
 
 At install time, firmware must validate:
 
-1. validate manifest schema and signatures/checksums
-2. validate runtime class compatibility
-3. validate asset table bounds
-4. validate save schema declaration
-5. stage package before commit
+1. validate `PeepPkg` header, chunk table, ranges, and integrity metadata
+2. validate manifest schema and signatures/checksums
+3. validate runtime class compatibility
+4. validate asset table bounds
+5. validate save schema declaration
+6. stage package before commit
 
 ---
 
@@ -373,9 +649,14 @@ At install time, firmware must validate:
 
 Expose package-safe APIs only:
 - metadata query
-- asset read by ID
-- save read/write by key/schema
+- asset metadata query by ID
+- asset open/close by ID
+- typed asset views/handles through [[Package_Asset_Loading_API_Contract]]
+- bounded asset read windows for approved large assets
+- save/settings read/write by declared schema through [[Package_Save_Settings_API_Contract]]
 - capability query
 - host event submission
 
 No HAL or RTOS internals are exposed to packages.
+
+Packages must not receive raw chunk offsets, storage addresses, filesystem paths, SRAM4 addresses, DMA descriptors, LPBAM descriptors, or display payload pointers.

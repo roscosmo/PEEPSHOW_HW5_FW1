@@ -23,7 +23,7 @@ External flash is the only persistent storage besides internal MCU flash.
 - `thStorage` is the sole owner of external flash, OCTOSPI1, storage DMA, FileX, LevelX, USB MSC media, mount state, and host-export state.
 - Other threads use `qStorageReq` only.
 - No direct filesystem or flash operations are allowed outside `thStorage`.
-- Engine and Reference Game code consume package/save APIs only.
+- Engine and Reference Game code consume package, asset, save, and settings APIs only.
 
 ## Region Model
 
@@ -67,7 +67,8 @@ Exact offset and size are assigned during the flash-layout pass.
 
 ## Data Source Rules
 
-- Runtime/package assets are read from installed raw blob storage or bounded cached RAM.
+- Runtime/package assets are read through [[Package_Asset_Loading_API_Contract]] from installed raw blob storage or bounded cached RAM.
+- Installed package blobs use the `PeepPkg` container defined in [[Package_Blob_Format_Contract]].
 - FAT/FileX is staging/debug export only.
 - No FileX/FAT reads are allowed during active gameplay/audio runtime loops.
 - No mount/unmount churn is allowed inside active runtime loops.
@@ -167,6 +168,7 @@ Disallowed behavior:
 
 ## Save and Settings Rules
 
+- Package saves and package-owned settings use [[Package_Save_Settings_API_Contract]].
 - settings writes must be power-fail safe
 - BLE pairing/bonding records must be power-fail safe and preserve the last valid record on failed update
 - persistent fault-log writes must preserve the previous valid record on failed update
@@ -174,6 +176,7 @@ Disallowed behavior:
 - save schema versions must support migration paths
 - write frequency assumptions and wear strategy must be documented
 - save/settings regions are not host-writable
+- package-owned settings are separate from Platform settings/config
 
 ## Failure Policy
 
@@ -204,7 +207,7 @@ If external flash is unavailable:
 7. host write/read/delete smoke succeeds on staging/export volume
 8. firmware reclaim/rescan detects changed staging contents
 9. package install preserves last known valid installed index on interruption
-10. runtime asset reads use raw installed blob storage, not FAT/FileX
+10. runtime asset reads use [[Package_Asset_Loading_API_Contract]] over raw installed blob storage, not FAT/FileX
 11. installer/export mode keeps display static and only minimal input active
 12. logs/screenshots/debug exports are copied into staging/export without exposing internal regions directly
 13. persistent fault-log ring preserves previous valid records and is not host-exposed
