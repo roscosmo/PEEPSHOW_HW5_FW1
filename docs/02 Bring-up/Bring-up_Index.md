@@ -6,10 +6,13 @@ This section is operational and historical. It tracks validation sequences, fail
 
 ## Core Notes
 
+- [[Dev_Orchestration_CLI_Contract]]
 - [[Bootstrap_and_Build]]
 - [[Bring-up_Spec_vs_Tracker]]
 - [[Brought_Up_Tracker]]
 - [[Brought_Up_Archive]]
+- [[Evidence_Artifact_Convention]]
+- [[Pending_Measured_Constants_Register]]
 - [[Validation_Plan]]
 - [[Debug_Workflows]]
 - [[USB_Development_Mode_Contract]]

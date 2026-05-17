@@ -92,7 +92,7 @@ Request payload rules:
 - Real-time cadence must be frame-scheduled and deterministic.
 - No mode transition is complete until HAL and RTOS timebases are valid.
 
-Time-domain labels are mandatory for timing knobs:
+Time-domain labels are mandatory for Platform timing knobs:
 
 - `threadx`
 - `hal_ms`
@@ -139,10 +139,12 @@ Time-domain labels are mandatory for timing knobs:
 
 ## Knobs Invariants
 
-- All tunable firmware constants flow through the knobs pipeline.
+- All tunable Platform firmware constants flow through the Platform knobs pipeline.
 - Generated outputs are never edited manually.
 - Knob changes require regeneration and rebuild.
 - Knobs must not silently alter architecture boundaries.
+- Platform knobs are not part of the game-authoring API.
+- Package-authored balancing values are content parameters, not Platform knobs.
 
 ---
 
@@ -178,4 +180,3 @@ When implementing:
 6. Game or Reference Game intent notes
 
 Any rule conflict must be fixed in docs immediately.
-

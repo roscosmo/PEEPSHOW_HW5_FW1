@@ -2,6 +2,8 @@
 
 This document defines explicit state machines for shell flow, focus/navigation behavior, and modal interaction.
 
+Shell settings, first setup, calibration, and package-management ownership are defined in [[Shell_Settings_Calibration_Contract]].
+
 ---
 
 ## Scope

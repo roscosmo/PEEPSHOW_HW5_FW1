@@ -2,6 +2,16 @@
 
 This document defines how external tools produce package content for runtime hosts.
 
+Related:
+
+- [[Game_Authoring_API_Contract]]
+- [[Content_Parameter_Schema_Contract]]
+- [[Target_Profile_Schema_Contract]]
+- [[Package_Contract]]
+- [[Package_Blob_Format_Contract]]
+- [[Package_Save_Settings_API_Contract]]
+- [[Dev_Orchestration_CLI_Contract]]
+
 ---
 
 ## Goal
@@ -11,6 +21,8 @@ Keep tooling output stable and host-oriented so tools never depend on RTOS or ha
 Tool-side validation is a required pre-compilation gate. Install-time firmware validation remains mandatory, but it is not a substitute for validating content before package compilation or export.
 
 Normal game-authoring validation must use PeepOS concepts. Low-level forbidden-token checks are internal verifier guardrails for toolchain defects, corrupted artifacts, malicious packages, or future advanced tooling.
+
+Project-level command orchestration is defined in [[Dev_Orchestration_CLI_Contract]]. CLI package commands must call this pipeline and must not bypass validation.
 
 ---
 
@@ -26,6 +38,7 @@ Tooling inputs may include:
 - sensor profile/context definitions
 - communication profile/message schema definitions
 - diagnostics profile definitions
+- content parameter schemas and values
 - asset metadata tables
 - image/audio source assets
 - Aseprite/PNG sprite and tile sources
@@ -418,5 +431,6 @@ Tooling does:
 For each package build retain:
 - input manifest and schema versions
 - tool version
+- command line or orchestration CLI invocation
 - generated package checksum
 - compatibility report

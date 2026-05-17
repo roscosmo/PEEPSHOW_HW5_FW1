@@ -159,14 +159,14 @@ PeepShow v1 uses mutually exclusive USB personalities.
 | Personality | Interface | Storage Owner | Purpose |
 |---|---|---|---|
 | normal installer/export | MSC only | host owns staging/export while mounted | universal package copy and artifact export |
-| developer console | CDC only | firmware / `thStorage` | structured package upload, live-safe tuning, telemetry, and capture commands |
+| developer console | CDC only | firmware / `thStorage` | structured package upload, live-safe Platform tuning, telemetry, and capture commands |
 
 Rules:
 
 - normal USB attach should prefer MSC installer/export behavior unless explicit dev-mode entry policy is active.
 - CDC developer mode must not expose MSC at the same time in v1.
 - CDC package upload writes through firmware-owned staging and `thStorage`, not a host-mounted FAT volume.
-- CDC live tuning uses owner-routed, typed, validated commands; it must not write raw memory directly.
+- CDC live tuning uses owner-routed, typed, validated Platform knob commands; it must not write raw memory directly.
 - composite `MSC + CDC` is future work and requires new validation before use.
 
 ## Installer Mode Behavior

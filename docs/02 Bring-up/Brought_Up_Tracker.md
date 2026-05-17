@@ -47,13 +47,19 @@ Digital twin evidence cannot mark hardware behavior known-good. Hardware behavio
 
 ## Evidence Ledger
 
+Evidence artifacts should follow [[Evidence_Artifact_Convention]].
+
+Measured constants promoted by an evidence entry should update [[Pending_Measured_Constants_Register]].
+
 For each evidence entry record:
 
 - date/time
+- evidence ID
 - test case ID
 - mode/runtime class
 - result
 - artifacts
+- command line or orchestration CLI invocation
 - notes
 - trace profile and Tracealyzer artifact path, if a trace snapshot was used
 - telemetry capture artifact path and schema version, if dashboard telemetry was used

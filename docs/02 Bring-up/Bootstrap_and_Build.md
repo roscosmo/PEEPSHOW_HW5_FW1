@@ -43,6 +43,10 @@ No dynamic allocation is allowed unless explicitly approved and documented.
 
 ## Example Configure/Build Commands
 
+The recommended long-term entry point for repeatable workflows is [[Dev_Orchestration_CLI_Contract]].
+
+Manual commands remain valid during bootstrap and when diagnosing the orchestration layer.
+
 ```powershell
 cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/debug
@@ -73,6 +77,8 @@ openocd -f interface/stlink.cfg -f target/stm32u5x.cfg
 
 Keep actual production commands in [[Debug_Workflows]].
 
+Once the orchestration CLI exists, equivalent commands should be available through documented `peep build`, `peep flash`, and `peep debug` workflows while still printing the underlying tool invocation or artifact summary.
+
 ---
 
 ## Bring-Up Phases
@@ -96,6 +102,7 @@ Do not enable deep sleep before phases 0-6 are stable.
 For each phase capture:
 - date and board revision
 - firmware commit ID
+- command line or orchestration CLI invocation
 - what was tested
 - pass/fail criteria
 - evidence artifact path (SWO log, scope capture, host logs)

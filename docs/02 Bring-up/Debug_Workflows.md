@@ -24,6 +24,8 @@ Tracealyzer snapshot evidence policy is defined in [[Tracealyzer_Snapshot_Eviden
 
 Dashboard-facing telemetry is defined in [[Telemetry_And_Debug_Dashboard_Contract]].
 
+Repeatable host workflows should be wrapped by [[Dev_Orchestration_CLI_Contract]] once the CLI exists.
+
 ---
 
 ## debug.gdb Contract
@@ -35,6 +37,7 @@ Rules:
 - keep breakpoint count bounded
 - remove stale experimental helpers
 - keep helper names stable
+- orchestration commands may call stable helpers, but must not depend on stale experimental helpers
 
 ---
 
@@ -117,7 +120,7 @@ Allowed:
 - telemetry subscription
 - bounded capture start/stop/export
 - package upload through firmware-owned staging
-- live-safe tuning through [[Live_Tuning_And_Knobs_Contract]] owner-routed requests
+- live-safe Platform tuning through [[Live_Tuning_And_Knobs_Contract]] owner-routed requests
 
 Disallowed:
 
@@ -163,6 +166,7 @@ Each debug session must record:
 - active live-tuning overlay, if any
 - trace profile and snapshot artifact path, if tracing was enabled
 - telemetry capture artifact path and schema version, if dashboard telemetry was captured
+- orchestration CLI command line, if used
 - test focus
 - artifact paths
 

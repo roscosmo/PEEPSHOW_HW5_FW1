@@ -96,6 +96,7 @@ PeepShow_HW5_FW1/
 `tools/`
 
 - repository-level helper tools
+- expected home for the project orchestration CLI defined in [[Dev_Orchestration_CLI_Contract]]
 
 ---
 

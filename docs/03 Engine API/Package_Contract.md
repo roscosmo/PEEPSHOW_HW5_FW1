@@ -6,6 +6,9 @@ Related:
 
 - [[Game_Authoring_API_Contract]]
 - [[PeepOS_Capability_Registry]]
+- [[Target_Profile_Schema_Contract]]
+- [[Content_Parameter_Schema_Contract]]
+- [[Package_Save_Settings_API_Contract]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Logic_State_API_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
@@ -216,11 +219,21 @@ realtime microgame -> transition idle fallback
 
 ---
 
-## Package Settings And Capability Contexts
+## Content Parameters, Package Settings, And Capability Contexts
 
 Package settings and Platform settings are separate.
 
 Detailed package save/settings API rules are defined in [[Package_Save_Settings_API_Contract]].
+
+Detailed content parameter schema rules are defined in [[Content_Parameter_Schema_Contract]].
+
+Content parameters:
+
+- are package-authored balancing or behavior values
+- are declared by package schemas or package source data
+- may be edited by normal package-authoring tools
+- compile into package data or package-owned settings
+- are not Platform knobs and do not live in `config/knobs.json`
 
 Package settings:
 
@@ -257,7 +270,7 @@ Rules:
 - package gameplay code does not handle hardware-level grant/reject/revoke paths for required HW5 primitives.
 - if a required context cannot be maintained at runtime, Platform/Engine handles fault logging and lifecycle policy.
 - contexts must have bounded duration, declared runtime-unit scope, or explicit release behavior.
-- packages must not directly write Platform settings, hardware registers, or storage policy.
+- packages must not directly write Platform knobs, Platform settings, hardware registers, or storage policy.
 
 ---
 

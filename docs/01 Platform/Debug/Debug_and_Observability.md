@@ -24,7 +24,7 @@ USB CDC developer mode is defined in [[USB_Development_Mode_Contract]]. Live tun
 Rules:
 
 - SWO/SWV is primarily observation from device to host.
-- CDC developer mode is the structured control path for live-safe tuning, telemetry queries, captures, and package upload.
+- CDC developer mode is the structured control path for live-safe Platform tuning, telemetry queries, captures, and package upload.
 - CDC commands must route through owner-thread or Engine service requests.
 - CDC must not expose raw memory, protected storage, HAL handles, RTOS objects, or arbitrary filesystem paths.
 - release/shipping builds must disable CDC developer control unless a future policy explicitly defines a limited diagnostic subset.

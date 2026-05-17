@@ -231,7 +231,7 @@ Expected panels:
 | Audio | active cues, BBB patterns, queue/decode status, suppression/faults |
 | Storage/USB | storage owner FSM, install flow, MSC/CDC personality, staging state |
 | Communication | abstract session state, peers, message counts, timeouts |
-| Live Tuning | active overlay, live-safe tunables, applied/clamped/rejected results |
+| Live Tuning | active Platform knob overlay, live-safe Platform knobs, applied/clamped/rejected results |
 | Virtual Display | latest frame, screenshot, or frame checksum where available |
 | Evidence | capture metadata, artifact paths, test case, pass/fail notes |
 
@@ -341,7 +341,7 @@ Allowed controls:
 
 - start/stop telemetry subscription through [[USB_Development_Mode_Contract]]
 - start/stop capture through [[USB_Development_Mode_Contract]]
-- apply live-safe tuning through [[Live_Tuning_And_Knobs_Contract]]
+- apply live-safe Platform tuning through [[Live_Tuning_And_Knobs_Contract]]
 - upload package through [[USB_Development_Mode_Contract]]
 - run digital twin replay/fault-injection profiles
 

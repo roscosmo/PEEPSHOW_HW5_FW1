@@ -61,6 +61,8 @@ The Engine owns package save/settings APIs. The Platform storage owner performs 
 
 Package-owned settings include preferences such as difficulty, text speed, local sound preference, package-local input preference, or package-local accessibility preference.
 
+Content parameters are package-authored balancing or behavior values. If a content parameter needs runtime/user persistence, it must be represented as a package-owned setting or save record. It must not be promoted into a Platform knob or Platform setting.
+
 Hardware-affecting behavior is expressed through bounded capability contexts, not settings mutation.
 
 ---
@@ -357,6 +359,7 @@ Digital twin save evidence is package/Engine evidence only. It is not flash wear
 Related:
 
 - [[Package_Contract]]
+- [[Content_Parameter_Schema_Contract]]
 - [[Package_Blob_Format_Contract]]
 - [[Package_Asset_Loading_API_Contract]]
 - [[Storage_and_Installer_Contract]]

@@ -36,6 +36,8 @@ In scope for Platform freeze:
 - shell/settings/calibration flows
 - validation evidence and bring-up tracker
 
+Shell/settings/calibration behavior is defined in [[Shell_Settings_Calibration_Contract]].
+
 Out of scope until Platform freeze:
 
 - Reference Game mechanics implementation
@@ -101,4 +103,3 @@ Platform freeze is complete only when all conditions below are true:
 - Runtime lifecycle passes the validation matrix.
 - Shell remains fully functional without the Reference Game.
 - Game notes map to Engine capability requests instead of Platform policy changes.
-

@@ -7,6 +7,7 @@ Capabilities are abstract. They do not name pins, buses, peripherals, DMA channe
 Related:
 
 - [[Game_Authoring_API_Contract]]
+- [[Target_Profile_Schema_Contract]]
 - [[Digital_Twin_Host_Runtime_Contract]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Logic_State_API_Contract]]
@@ -275,6 +276,8 @@ Diagnostics are rate-limited and do not own debug transports. Package diagnostic
 ## Target Profiles
 
 Target profiles grant a concrete set of capabilities and limits.
+
+The authoritative target profile schema is defined in [[Target_Profile_Schema_Contract]].
 
 Required initial profiles:
 

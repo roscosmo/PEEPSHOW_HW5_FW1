@@ -8,6 +8,7 @@ Related:
 
 - [[Game_Authoring_API_Contract]]
 - [[PeepOS_Capability_Registry]]
+- [[Target_Profile_Schema_Contract]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Host_Internal_State_Machines]]
 - [[Runtime_Logic_State_API_Contract]]
@@ -140,6 +141,217 @@ Examples:
 - communication available when the twin profile enables it
 
 Fault and unavailable-capability behavior is tested through explicit fault injection or profile configuration.
+
+---
+
+## Parity Schema
+
+The digital twin must exchange structured parity data with tools, replay systems, and dashboard captures.
+
+Required parity objects:
+
+```text
+twin_profile
+state_vector
+event_record
+replay_manifest
+replay_result
+parity_report
+```
+
+Rules:
+
+- parity data uses Engine/Platform contract names only.
+- parity data must not expose host filesystem paths to package runtime.
+- parity data must not contain HAL, register, pin, DMA, RTOS, or linker names.
+- hardware-derived fields must identify the source target profile and evidence reference.
+
+---
+
+## Twin Profile Schema
+
+The twin profile imports a target profile and declares host-only behavior.
+
+```text
+twin_profile:
+  twin_profile_id
+  twin_profile_version
+  source_target_profile_id
+  source_target_profile_version
+  source_evidence_refs[]
+  platform_contract_revision
+  engine_contract_revision
+  host_backend_version
+  time_models[]
+  input_adapters[]
+  sensor_trace_adapters[]
+  audio_output_mode
+  communication_backend
+  save_backend
+  fault_injection_supported[]
+  unsupported_features[]
+```
+
+Rules:
+
+- `HOST_DIGITAL_TWIN_HW5` must reference a measured HW5 target profile.
+- `HOST_AUTHORING_PREVIEW` may use provisional limits, but must label them as preview.
+- a twin profile cannot grant a package capability blocked by its source target profile.
+- host-only adapters are not package capabilities.
+
+---
+
+## State Vector Schema
+
+State vectors are the main parity comparison surface.
+
+```text
+state_vector:
+  sequence
+  timestamp_model
+  target_profile_id
+  runtime_class
+  runtime_unit_id
+  runtime_lifecycle_state
+  host_internal_state
+  shell_state
+  power_state
+  sleep_class
+  display_contract_state
+  audio_contract_state
+  input_contract_state
+  sensor_contract_state
+  storage_contract_state
+  communication_contract_state
+  active_capabilities[]
+  rejected_capabilities[]
+  requested_cadence
+  granted_cadence
+  clamped_requests[]
+  wake_reason
+  package_diagnostics[]
+  platform_diagnostics[]
+```
+
+Rules:
+
+- state vector fields must match the contract-visible hardware backend categories.
+- state vectors may include compact checksums for large state, assets, display frames, or saves.
+- package-visible state and Platform diagnostic state must remain separated.
+- normal game logic must not branch on Platform hardware fault internals.
+
+---
+
+## Event Record Schema
+
+Replay and dashboard parity use ordered event records.
+
+```text
+event_record:
+  sequence
+  time
+  source
+  category
+  name
+  payload_schema
+  payload
+  target_profile_id
+  runtime_unit_id
+  deterministic
+```
+
+Allowed source categories:
+
+- `platform`
+- `engine`
+- `package`
+- `input`
+- `sensor`
+- `time`
+- `communication`
+- `storage`
+- `diagnostic`
+- `fault_injection`
+
+Rules:
+
+- events must be schema-versioned.
+- event order must be deterministic in replay mode.
+- event payloads must be bounded.
+- events must not expose raw host paths, raw memory, or hardware internals.
+
+---
+
+## Replay Manifest Schema
+
+Replay manifests define deterministic twin runs.
+
+```text
+replay_manifest:
+  replay_id
+  package_id
+  package_hash
+  target_profile_id
+  twin_profile_id
+  content_parameter_hash
+  content_parameter_overrides_ref
+  initial_save_state_ref
+  time_model
+  input_trace_ref
+  sensor_trace_ref
+  communication_trace_ref
+  fault_injection_ref
+  expected_outputs[]
+```
+
+Replay result:
+
+```text
+replay_result:
+  replay_id
+  result
+  final_state_vector_hash
+  frame_checksum_sequence
+  save_delta_hash
+  diagnostics_hash
+  compatibility_report_ref
+  telemetry_capture_ref
+  notes
+```
+
+Rules:
+
+- replay manifests must record content parameter overrides.
+- replay manifests must record active target/twin profile versions.
+- replay results are package/Engine evidence, not HW5 hardware evidence.
+- failing replay output should preserve enough artifacts for deterministic reproduction.
+
+---
+
+## Parity Report Schema
+
+Parity reports compare expected and actual contract behavior.
+
+```text
+parity_report:
+  report_id
+  profile_pair
+  package_hash
+  run_context
+  compared_fields[]
+  matched_fields[]
+  mismatched_fields[]
+  ignored_fields[]
+  hardware_evidence_refs[]
+  twin_artifact_refs[]
+  conclusion
+```
+
+Rules:
+
+- ignored fields must explain why they are not contract-visible or not comparable.
+- hardware-only measurements such as current draw, bus timing, and exact interrupt latency are never twin parity requirements.
+- mismatch against measured HW5 contract behavior means the twin is wrong unless the Platform contract changes with evidence.
 
 ---
 
@@ -503,6 +715,8 @@ Hardware behavior is known-good only when measured on HW5 and recorded in [[Brou
 
 The first digital twin profile should be derived from measured HW5 Platform behavior after validation.
 
+Target profile fields are defined in [[Target_Profile_Schema_Contract]]. The twin profile adds host adapter and replay behavior on top of that source target profile.
+
 Profile fields should include:
 
 - display capability profile
@@ -519,6 +733,12 @@ Profile fields should include:
 - runtime class support
 
 Profiles must be versioned and tied to the Platform contract revision they mirror.
+
+Rules:
+
+- twin profiles must not redefine target profile limits.
+- host-only adapters must be clearly labeled.
+- source target profile hash/version must be recorded in replay manifests.
 
 ---
 

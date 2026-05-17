@@ -277,6 +277,41 @@ They should not expose register, ADC, interrupt, or driver details to normal gam
 
 ---
 
+## Target Profile Sensor Contexts
+
+Target profiles publish measured sensor contexts.
+
+A target profile sensor context describes what PeepOS can provide to packages for a capability, runtime class, and power class.
+
+Conceptual shape is defined in [[Target_Profile_Schema_Contract]] and includes:
+
+```text
+sensor_context:
+  context_id
+  capability
+  runtime_classes[]
+  power_class
+  grant_status
+  sample_rate_hz_min
+  sample_rate_hz_max
+  event_rate_hz_max
+  wake_capable
+  continuous_in_sleep
+  mcu_wake_required
+  duration_ms_max
+  evidence_ref
+```
+
+Rules:
+
+- package tools validate package `sensor_profile.contexts[]` against target profile `sensor_contexts[]`.
+- rates are not sensor-wide facts; they belong to a measured context.
+- Platform sampling cadence and package-visible event cadence are separate.
+- wake-capable sensor behavior must be evidence-backed before shipping profiles grant it.
+- high-duty streaming contexts must be runtime-class bounded and duration bounded.
+
+---
+
 ## Runtime Fault Handling
 
 Runtime sensor faults are handled outside normal gameplay APIs.

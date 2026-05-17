@@ -2,14 +2,16 @@
 
 This section defines host-side and firmware-facing development tools for PeepShow.
 
-Development tools support bring-up, package authoring, telemetry, live-safe tuning, replay, and developer workflows. They must not become hidden game APIs or bypass Platform ownership.
+Development tools support bring-up, package authoring, telemetry, live-safe Platform tuning, replay, and developer workflows. They must not become hidden game APIs or bypass Platform ownership.
 
 ## Core Notes
 
+- [[Dev_Orchestration_CLI_Contract]]
 - [[USB_Development_Mode_Contract]]
 - [[Live_Tuning_And_Knobs_Contract]]
 - [[Telemetry_And_Debug_Dashboard_Contract]]
 - [[Tracealyzer_Snapshot_Evidence_Contract]]
+- [[Evidence_Artifact_Convention]]
 - [[Knobs_and_Tuning_Contract]]
 - [[Debug_and_Observability]]
 - [[Debug_Workflows]]
@@ -23,9 +25,11 @@ Development tooling is split into four lanes:
 | Lane | Purpose | Primary Interfaces |
 |---|---|---|
 | observation | understand what the device is doing | [[Telemetry_And_Debug_Dashboard_Contract]], SWO structured events, Tracealyzer snapshots, staged log export, optional CDC telemetry |
-| control | change live-safe development settings | [[Live_Tuning_And_Knobs_Contract]] over dev-only CDC or digital twin adapters |
-| authoring | produce valid content and packages | asset pipeline, package compiler, validators |
+| control | change live-safe Platform development settings | [[Live_Tuning_And_Knobs_Contract]] over dev-only CDC or digital twin adapters |
+| authoring | produce valid content and packages | asset pipeline, package compiler, content parameter editors, validators |
 | replay | reproduce runtime behavior | digital twin, trace capture, deterministic input/time/sensor streams |
+
+The recommended host entry point for routine workflows is [[Dev_Orchestration_CLI_Contract]].
 
 ## Boundary
 
@@ -46,3 +50,4 @@ Tools must not:
 3. add USB CDC only as a mutually exclusive developer personality
 4. make live tuning generated, typed, validated, and owner-routed
 5. build dashboards and replay tooling from the same structured events used by the digital twin
+6. wrap common generate/build/package/flash/trace/twin/evidence sequences in a single auditable CLI

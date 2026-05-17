@@ -4,6 +4,8 @@ This note tracks what must be documented before CubeMX generation and firmware i
 
 Hardware documentation is considered ready when the board authority docs, platform contracts, and bring-up runbooks agree with each other.
 
+Hardware-dependent constants, timings, thresholds, and budgets that still require HW5 measurement are tracked in [[Pending_Measured_Constants_Register]].
+
 ## Current Priority
 
 Reference Game expansion is paused.

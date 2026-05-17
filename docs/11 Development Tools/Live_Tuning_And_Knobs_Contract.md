@@ -1,13 +1,14 @@
-# Live Tuning and Knobs Contract
+# Live Tuning and Platform Knobs Contract
 
-This document defines how PeepShow development tools may inspect and change live-safe tuning values without reflashing firmware.
+This document defines how PeepShow development tools may inspect and change live-safe Platform knobs without reflashing firmware.
 
-Live tuning is a developer workflow. It is not raw memory poking and it is not a normal game/package API.
+Live tuning is a PeepOS developer workflow. It is not raw memory poking and it is not a normal game/package API.
 
 Related:
 
 - [[Development_Tooling_Index]]
 - [[Knobs_and_Tuning_Contract]]
+- [[Content_Parameter_Schema_Contract]]
 - [[USB_Development_Mode_Contract]]
 - [[Debug_and_Observability]]
 - [[Debug_Workflows]]
@@ -39,7 +40,7 @@ Does not define:
 
 ## Core Principle
 
-The authoritative knob source remains the repository knob schema and JSON.
+The authoritative Platform knob source remains the repository knob schema and JSON.
 
 ```text
 config/knobs.json
@@ -52,9 +53,11 @@ generated live-tuning metadata
 generated host/editor metadata
 ```
 
-Live tuning may temporarily override approved values during a developer session.
+Live tuning may temporarily override approved Platform knob values during a developer session.
 
-A useful live value becomes permanent only when the source knob file, schema, package content, or package tuning data is updated and rebuilt through the normal pipeline.
+A useful live Platform value becomes permanent only when the source knob file or schema is updated and rebuilt through the normal pipeline.
+
+Package-facing content values are separate. They become permanent only when package source content, package schemas, package settings, or package-owned generated data are updated through package tooling.
 
 ---
 
@@ -68,41 +71,78 @@ Live tuning must not:
 - silently change firmware defaults
 - patch Platform policy in shipping builds
 - expose hardware controls to package/game tools
+- expose Platform knobs as normal package/game controls
 - replace measured bring-up evidence
 
 GDB memory writes may remain an emergency/debugger technique, but they are not the supported live-tuning workflow.
 
 ---
 
+## Naming And Visibility
+
+Use these names consistently:
+
+| Name | Owner | Tool Visibility | Purpose |
+|---|---|---|---|
+| Platform knob | PeepOS Platform | PeepOS developer tools only | firmware/platform tuning |
+| development tuning overlay | PeepOS developer workflow | PeepOS developer tools only | temporary session override of approved live-safe Platform knobs |
+| target profile | Platform/Engine | read-only to package tools | published capability and limit set |
+| content parameter | package/game author | editable by package authoring tools | balancing and authored package behavior |
+| package setting | package/user through Engine APIs | editable where package schema allows | package-local runtime/user preference |
+| capability request | package runtime through Engine APIs | callable through Engine APIs | bounded request for hardware-backed behavior |
+
+Rules:
+
+- normal game-authoring tools must not list or edit Platform knobs.
+- package tools may read target profiles but must not mutate them.
+- content parameters must be stored in package source data or package-generated content, not `config/knobs.json`.
+- package settings must use [[Package_Save_Settings_API_Contract]], not Platform settings or Platform knobs.
+- capability requests are API calls with Platform-owned grant/clamp behavior, not hidden knob writes.
+
+Suggested namespaces:
+
+```text
+platform.knobs.power.static_timeout_ms
+platform.knobs.display.stop_max_fps
+dev_overlay.platform.knobs.display.stop_max_fps
+target_profile.display.width
+target_profile.power.stop_max_fps
+package.content.pet.hunger_decay_rate
+package.settings.difficulty
+```
+
+---
+
 ## Tuning Classes
 
-Every tunable value should declare one tuning class.
+Every Platform knob should declare one tuning class.
 
 | Class | Meaning | Live Editable |
 |---|---|---|
 | `compile_time` | memory layout, stack sizes, queue depths, object counts, static hardware choices | no |
 | `boot_applied` | defaults applied during init or boot | no, or reboot-required |
 | `runtime_live_safe` | can be changed at a safe runtime boundary through owner validation | yes in developer mode |
-| `package_tunable` | package/reference-game balancing or content tuning through Engine/package tooling | yes where package policy allows |
 | `protected_policy` | power, storage, PMIC, safety, or architecture policy with high risk | no, except explicit bring-up firmware policy |
 
 Rules:
 
-- live tools may only expose `runtime_live_safe` and approved `package_tunable` values by default.
+- Platform live tools may only expose `runtime_live_safe` Platform knobs by default.
 - `protected_policy` values require explicit bring-up firmware or maintainer-only policy before any live change path exists.
 - `compile_time` values never become live-editable because they affect static allocation, object shape, or build-time layout.
 - `boot_applied` values may be staged for next boot only if the owner subsystem supports a safe staged update.
 
+Package content parameters are not a Platform knob class. They are package-authored values and are governed by package schemas.
+
 ---
 
-## Live Tuning Metadata
+## Platform Live Tuning Metadata
 
-Every live-editable value must have generated metadata.
+Every live-editable Platform knob must have generated metadata.
 
 Required fields:
 
 ```text
-live_tunable:
+platform_live_knob:
   id
   path
   owner
@@ -124,19 +164,19 @@ live_tunable:
 Rules:
 
 - `path` is stable and human-readable.
-- `owner` names the Platform owner, Engine service, or package/runtime service that validates and applies the value.
+- `owner` names the Platform owner that validates and applies the value.
 - `type` must be explicit.
 - numeric ranges must be explicit.
 - enum values must be explicit.
 - timing values must declare their timebase domain.
 - descriptions are host/editor metadata, not firmware logic.
-- metadata must be generated from the same source as the compile-time knob contract.
+- metadata must be generated from the same source as the compile-time Platform knob contract.
 
 ---
 
 ## Owner-Routed Apply Model
 
-Live tuning commands flow through owner requests.
+Platform live tuning commands flow through owner requests.
 
 ```text
 host tool
@@ -161,7 +201,7 @@ Owners may return:
 | `clamped` | value was adjusted to the owner-approved range |
 | `rejected` | value is invalid or unsafe |
 | `requires_reboot` | value can only apply after reboot/reinit |
-| `unsupported` | selected build/target/profile does not allow this tunable |
+| `unsupported` | selected build/target/profile does not allow this Platform knob |
 
 Rules:
 
@@ -233,7 +273,6 @@ Allowed persistence forms:
 - session-only overlay
 - staged next-boot development setting
 - exported patch for `config/knobs.json`
-- package tuning export through package tooling
 
 Rules:
 
@@ -245,9 +284,9 @@ Rules:
 
 ---
 
-## Package Tunables
+## Content Parameters
 
-Package tunables are separate from Platform knobs.
+Content parameters are package-authored values for balancing and package behavior. They are separate from Platform knobs.
 
 Examples:
 
@@ -260,10 +299,11 @@ Examples:
 
 Rules:
 
-- package tunables must use Engine/package schemas.
-- package tunables may be previewed through the digital twin or CDC developer mode where allowed.
-- package tunables must compile into package data or package-owned settings.
-- package tunables must not mutate Platform settings or hardware policy.
+- content parameters must use Engine/package schemas.
+- content parameters may be previewed through the digital twin or package authoring tools where allowed.
+- content parameters must compile into package data or package-owned settings.
+- content parameters must not mutate Platform settings, Platform knobs, or hardware policy.
+- content parameter commands and UI must not use the Platform `knob` namespace.
 
 ---
 
@@ -271,22 +311,22 @@ Rules:
 
 The USB CDC developer protocol is defined in [[USB_Development_Mode_Contract]].
 
-Expected live-tuning commands:
+Expected Platform live-tuning commands:
 
 ```text
-knob.list
-knob.describe path
-knob.get path
-knob.set path value
-knob.apply path
-knob.stage path value
-knob.overlay.export
-knob.overlay.clear
+platform.knob.list
+platform.knob.describe path
+platform.knob.get path
+platform.knob.set path value
+platform.knob.apply path
+platform.knob.stage path value
+platform.knob.overlay.export
+platform.knob.overlay.clear
 ```
 
 Rules:
 
-- commands operate on stable paths, not raw addresses.
+- commands operate on stable `platform.knobs.*` paths, not raw addresses.
 - values are encoded by schema.
 - every command has bounded payload size.
 - invalid values are rejected before owner apply where possible.
@@ -300,7 +340,7 @@ The digital twin should use the same live-tuning metadata where practical.
 
 Rules:
 
-- twin live tuning follows the same class and bounds rules.
+- twin Platform live tuning follows the same class and bounds rules.
 - twin may provide faster UI iteration, but it must still model owner-routed apply semantics.
 - twin-only changes are not hardware evidence.
 - replay captures must record any active tuning overlay.
@@ -348,15 +388,16 @@ The normal live-tuning surface must not expose:
 ## Validation Cases
 
 1. generated live-tuning registry matches `config/knobs.json` and schema metadata.
-2. `runtime_live_safe` knob can be listed, described, set, and applied through owner request.
+2. `runtime_live_safe` Platform knob can be listed, described, set, and applied through owner request.
 3. out-of-range live value is clamped or rejected according to metadata.
-4. non-live-safe knob is not exposed in normal live tuning and is rejected if requested directly.
+4. non-live-safe Platform knob is not exposed in normal live tuning and is rejected if requested directly.
 5. owner apply failure preserves previous valid value.
 6. staged next-boot value does not silently alter compile-time defaults.
 7. overlay export records firmware commit, knobs hash, board revision, changed values, and tool version.
 8. live-tuned validation evidence records active overlay and USB personality.
 9. digital twin replay records and reapplies the same tuning overlay for deterministic runs.
 10. raw memory address tuning command is unavailable.
+11. content parameters are not listed through Platform knob commands.
 
 ---
 

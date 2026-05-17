@@ -26,7 +26,7 @@ Defines:
 - normal USB MSC package install/export behavior
 - developer USB CDC behavior
 - storage ownership rules for both personalities
-- package upload and live-safe tuning boundaries
+- package upload and live-safe Platform tuning boundaries
 - composite USB policy for v1
 
 Does not define:
@@ -45,7 +45,7 @@ For v1, the device exposes one USB personality at a time.
 | Personality | Audience | USB Interface | Storage Owner | Purpose |
 |---|---|---|---|---|
 | normal installer/export | normal users | MSC only | host while exported | copy packages and exported artifacts with no special tool |
-| developer console | developers | CDC only | firmware / `thStorage` | package upload, live-safe tuning, telemetry, capture/export commands |
+| developer console | developers | CDC only | firmware / `thStorage` | package upload, live-safe Platform tuning, telemetry, capture/export commands |
 
 Composite `MSC + CDC` is explicitly deferred.
 
@@ -83,7 +83,7 @@ Purpose:
 - upload packages without exposing MSC
 - inspect device state
 - stream or query telemetry
-- apply live-safe tuning values
+- apply live-safe Platform knob values
 - start and stop captures
 - export bounded diagnostic artifacts through firmware-owned storage paths
 
@@ -93,7 +93,7 @@ Rules:
 - CDC developer mode does not expose a host-writable FAT volume.
 - firmware keeps storage ownership.
 - all storage writes route through `thStorage`.
-- all live tuning writes route through the owning Platform or Engine service.
+- all Platform live tuning writes route through the owning Platform subsystem.
 - CDC commands must be typed, bounded, authenticated/gated by dev-mode policy where required, and rejectable.
 - CDC must not expose raw memory, raw flash, HAL handles, RTOS objects, filesystem paths, or Platform private structs.
 - CDC must be disableable in release/shipping builds unless a future policy explicitly allows a limited diagnostic subset.
@@ -137,10 +137,14 @@ trace.unsubscribe
 capture.start
 capture.stop
 capture.export
-knob.list
-knob.get
-knob.set
-knob.apply
+platform.knob.list
+platform.knob.describe
+platform.knob.get
+platform.knob.set
+platform.knob.apply
+platform.knob.stage
+platform.knob.overlay.export
+platform.knob.overlay.clear
 package.begin
 package.write
 package.end
@@ -204,13 +208,14 @@ validated applied/clamped/rejected result
 
 Rules:
 
-- only knobs marked live-safe may be edited at runtime.
-- compile-time, memory-layout, queue-depth, stack-size, clock-tree, storage-layout, and protected power-policy knobs are not live-editable.
-- live tuning metadata comes from the knobs/schema pipeline.
-- each live tunable declares owner subsystem, type, min/max or enum values, apply timing, persistence behavior, and reset/reboot requirement.
+- only Platform knobs marked `runtime_live_safe` may be edited at runtime.
+- compile-time, memory-layout, queue-depth, stack-size, clock-tree, storage-layout, and protected power-policy Platform knobs are not live-editable.
+- live tuning metadata comes from the Platform knobs/schema pipeline.
+- each live Platform knob declares owner subsystem, type, min/max or enum values, apply timing, persistence behavior, and reset/reboot requirement.
 - owner subsystem validates and applies the value at a safe boundary.
 - changes are reflected in telemetry or explicit command response.
 - persistence, if allowed, uses Platform settings/storage APIs and remains power-fail safe.
+- package content parameters and package settings are not edited through `platform.knob.*` commands.
 
 ---
 

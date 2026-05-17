@@ -2,6 +2,10 @@
 
 This document defines what must be proven before platform freeze and before package-facing expansion.
 
+Evidence artifacts and tracker links should follow [[Evidence_Artifact_Convention]].
+
+Hardware-dependent constants and limits should be tracked in [[Pending_Measured_Constants_Register]] until promoted by evidence.
+
 ---
 
 ## Validation Stages
@@ -208,7 +212,7 @@ Required cases:
 - MSC personality exposes no CDC developer control in v1
 - CDC developer personality exposes no MSC staging/export volume in v1
 - CDC package upload routes through firmware-owned staging and package validation
-- CDC live-safe tuning rejects non-live-safe knobs and routes accepted edits through owner requests
+- CDC live-safe tuning rejects non-live-safe Platform knobs and routes accepted edits through owner requests
 - package stage/validate/commit
 - safe rollback on failure
 - return to shell and remount local storage
@@ -217,14 +221,14 @@ Required cases:
 
 ## Development Tooling Validation Cases
 
-Development tooling validation must prove the boundary defined by [[USB_Development_Mode_Contract]], [[Live_Tuning_And_Knobs_Contract]], and [[Telemetry_And_Debug_Dashboard_Contract]].
+Development tooling validation must prove the boundary defined by [[Dev_Orchestration_CLI_Contract]], [[USB_Development_Mode_Contract]], [[Live_Tuning_And_Knobs_Contract]], and [[Telemetry_And_Debug_Dashboard_Contract]].
 
 Required cases:
 
-1. live-tuning registry is generated from the same source as the compile-time knobs schema.
-2. `runtime_live_safe` knob can be listed, described, set, and applied through the owning subsystem.
+1. live-tuning registry is generated from the same source as the compile-time Platform knobs schema.
+2. `runtime_live_safe` Platform knob can be listed, described, set, and applied through the owning subsystem.
 3. out-of-range live value is clamped or rejected according to metadata.
-4. `compile_time`, `boot_applied`, and `protected_policy` knobs are not exposed as normal live controls.
+4. `compile_time`, `boot_applied`, and `protected_policy` Platform knobs are not exposed as normal live controls.
 5. raw memory address write commands are unavailable.
 6. owner apply failure preserves the previous valid value.
 7. session overlay export records firmware commit, knobs hash, board revision, changed values, and tool version.
@@ -236,6 +240,10 @@ Required cases:
 13. dashboard controls use documented CDC/live-tuning/package-upload protocols and cannot bypass owner routing or package validation.
 14. telemetry evidence records firmware commit, board revision, knobs hash, schema versions, source profile, and artifact path.
 15. telemetry payloads do not expose protected storage, raw memory, HAL handles, RTOS objects, or arbitrary filesystem paths.
+16. orchestration CLI package build refuses to emit installable output when validation fails.
+17. orchestration CLI flash/debug/package/trace commands record active profiles, artifacts, and command line.
+18. game-authoring tools can edit package content parameters but cannot list or edit `platform.knobs.*`.
+19. orchestration CLI evidence command prepares tracker-ready metadata but does not mark bring-up completion automatically.
 
 Tracealyzer snapshot validation must prove the boundary defined by [[Tracealyzer_Snapshot_Evidence_Contract]].
 

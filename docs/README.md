@@ -42,6 +42,7 @@ Platform chooses hardware policy.
 - `08 Research`: external research and experimental notes.
 - `09 Canvases`: Obsidian canvases.
 - `10 References`: ADR process, external references, and retained process documents.
+- [[Development_Tooling_Index|11 Development Tools]]: host/dev tooling, CDC developer mode, live-safe Platform tuning, telemetry dashboards, Tracealyzer evidence, orchestration CLI, and digital twin workflows.
 
 ## Authority
 

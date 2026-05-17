@@ -12,6 +12,8 @@ Related:
 - [[Runtime_Logic_State_API_Contract]]
 - [[Digital_Twin_Host_Runtime_Contract]]
 - [[PeepOS_Capability_Registry]]
+- [[Target_Profile_Schema_Contract]]
+- [[Content_Parameter_Schema_Contract]]
 - [[Package_Contract]]
 - [[Package_Manager_State_Machine]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
@@ -126,6 +128,7 @@ PeepOS game tools may expose and produce:
 - audio cue tables
 - BBB pattern tables
 - save schemas
+- content parameter schemas
 - capability declarations
 - wake-intent declarations
 - cadence hints
@@ -136,6 +139,7 @@ PeepOS game tools must not expose:
 
 - hardware pins, ports, buses, registers, interrupts, DMA, clocks, or sleep modes
 - STM32 HAL/LL, CubeMX, ThreadX, FileX, LevelX, USBX, or Platform-internal names
+- Platform knobs or `platform.knobs.*` paths as editable package controls
 - raw filesystem paths for runtime use
 - direct storage-region addresses
 - raw memory pointers or function pointers
@@ -148,6 +152,7 @@ The package compiler and internal verifier must also ensure generated artifacts 
 - raw filesystem paths for runtime use
 - direct storage-region addresses
 - raw peripheral register writes
+- Platform knob writes or generated Platform knob references
 - CubeMX pin, DMA, or clock assumptions
 - unbounded scripts
 - host-specific private struct layouts unless defined by a versioned package schema
@@ -996,6 +1001,32 @@ Rules:
 - if a required context cannot be maintained at runtime, Platform/Engine handles fault logging and lifecycle policy
 - packages must tolerate delayed wake within declared policy
 - no package may enter sleep, change clocks, or keep hardware awake directly
+
+---
+
+## Content Parameter Hooks
+
+Packages may define content parameters through package schemas.
+
+Content parameters are package-authored values used for balancing or authored behavior. They are not Platform knobs.
+
+Allowed content parameter examples:
+
+- pet hunger or energy rates
+- encounter weights
+- animation timing
+- dialogue timing
+- puzzle constants
+- package-local difficulty defaults
+
+Rules:
+
+- content parameters live in package source data, package schemas, or generated package content.
+- content parameters may be edited by normal game-authoring tools.
+- content parameters may be previewed in the digital twin.
+- content parameters must compile into package data or package-owned settings.
+- content parameters must not mutate Platform knobs, Platform settings, hardware policy, sleep policy, storage policy, sensor policy, PMIC policy, or communication policy.
+- any hardware-facing intent must be expressed through target profile validation and bounded capability requests.
 
 ---
 

@@ -9,6 +9,8 @@ The Engine may understand gameplay concepts abstractly, but it must not depend o
 ## Core Notes
 
 - [[Game_Authoring_API_Contract]]
+- [[Target_Profile_Schema_Contract]]
+- [[Content_Parameter_Schema_Contract]]
 - [[Runtime_Logic_State_API_Contract]]
 - [[Audio_API_Contract]]
 - [[Input_Focus_API_Contract]]
