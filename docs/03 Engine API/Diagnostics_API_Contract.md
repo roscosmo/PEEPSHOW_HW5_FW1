@@ -10,6 +10,7 @@ Related:
 - [[PeepOS_Capability_Registry]]
 - [[Package_Contract]]
 - [[Digital_Twin_Host_Runtime_Contract]]
+- [[Telemetry_And_Debug_Dashboard_Contract]]
 - [[Debug_and_Observability]]
 - [[Boot_and_Fault_Supervisor_State_Machine]]
 - [[Storage_and_Installer_Contract]]
@@ -61,6 +62,8 @@ Packages own:
 - diagnostic labels for authored systems
 
 Packages do not own debug output channels.
+
+Dashboard-facing telemetry may include package diagnostics only after Engine validation, rate limiting, and profile gating.
 
 ---
 

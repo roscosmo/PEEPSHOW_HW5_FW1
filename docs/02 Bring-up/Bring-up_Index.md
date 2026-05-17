@@ -12,6 +12,10 @@ This section is operational and historical. It tracks validation sequences, fail
 - [[Brought_Up_Archive]]
 - [[Validation_Plan]]
 - [[Debug_Workflows]]
+- [[USB_Development_Mode_Contract]]
+- [[Live_Tuning_And_Knobs_Contract]]
+- [[Telemetry_And_Debug_Dashboard_Contract]]
+- [[Tracealyzer_Snapshot_Evidence_Contract]]
 - [[HW5_Hardware_Documentation_Readiness]]
 
 ## Subsystem Runbooks

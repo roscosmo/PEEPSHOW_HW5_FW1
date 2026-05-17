@@ -61,6 +61,8 @@ For each host:
 4. unmount and switch to another host
 5. failure injection during each lifecycle phase
 
+Tracealyzer snapshot evidence should be used where practical to verify owner-thread scheduling and runtime lifecycle ordering. Snapshot trace policy is defined in [[Tracealyzer_Snapshot_Evidence_Contract]].
+
 ---
 
 ## Runtime Logic And State Validation Cases
@@ -203,9 +205,48 @@ Required cases:
 
 - local to installer handoff
 - USB export with no competing storage users
+- MSC personality exposes no CDC developer control in v1
+- CDC developer personality exposes no MSC staging/export volume in v1
+- CDC package upload routes through firmware-owned staging and package validation
+- CDC live-safe tuning rejects non-live-safe knobs and routes accepted edits through owner requests
 - package stage/validate/commit
 - safe rollback on failure
 - return to shell and remount local storage
+
+---
+
+## Development Tooling Validation Cases
+
+Development tooling validation must prove the boundary defined by [[USB_Development_Mode_Contract]], [[Live_Tuning_And_Knobs_Contract]], and [[Telemetry_And_Debug_Dashboard_Contract]].
+
+Required cases:
+
+1. live-tuning registry is generated from the same source as the compile-time knobs schema.
+2. `runtime_live_safe` knob can be listed, described, set, and applied through the owning subsystem.
+3. out-of-range live value is clamped or rejected according to metadata.
+4. `compile_time`, `boot_applied`, and `protected_policy` knobs are not exposed as normal live controls.
+5. raw memory address write commands are unavailable.
+6. owner apply failure preserves the previous valid value.
+7. session overlay export records firmware commit, knobs hash, board revision, changed values, and tool version.
+8. validation evidence records active tuning overlay and USB personality when live tuning is used.
+9. digital twin replay records and reapplies the active tuning overlay for deterministic runs.
+10. dashboard decoder accepts a capture manifest and telemetry stream with matching schema versions.
+11. dashboard clearly identifies source type: hardware live, hardware exported, Tracealyzer-linked, or digital twin.
+12. state vector, owner FSM, sleep/wake, display, storage/USB, runtime, package diagnostics, and live-tuning events appear in the expected panels.
+13. dashboard controls use documented CDC/live-tuning/package-upload protocols and cannot bypass owner routing or package validation.
+14. telemetry evidence records firmware commit, board revision, knobs hash, schema versions, source profile, and artifact path.
+15. telemetry payloads do not expose protected storage, raw memory, HAL handles, RTOS objects, or arbitrary filesystem paths.
+
+Tracealyzer snapshot validation must prove the boundary defined by [[Tracealyzer_Snapshot_Evidence_Contract]].
+
+Required cases:
+
+1. trace build exposes owner thread names.
+2. each owner thread blocks when idle and wakes on its expected event path.
+3. snapshot captures display/storage/input/sensor/audio/runtime scenarios inside the trace window.
+4. sleep quiesce snapshot shows owner acknowledgements before sleep entry.
+5. wake snapshot shows wake reason classification before owner resume validation completes.
+6. trace-enabled evidence records trace configuration, buffer size, firmware commit, knobs hash, and artifact path.
 
 ---
 

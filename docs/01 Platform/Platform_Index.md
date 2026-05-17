@@ -30,6 +30,7 @@ The Platform is game-agnostic.
 - [[Sensors_Index]]
 - [[Communication_Index]]
 - [[Debug_and_Observability]]
+- [[USB_Development_Mode_Contract]]
 - [[Validation_Index]]
 - [[Shell_and_UI_Navigation_State_Machine]]
 - [[Boot_and_Fault_Supervisor_State_Machine]]

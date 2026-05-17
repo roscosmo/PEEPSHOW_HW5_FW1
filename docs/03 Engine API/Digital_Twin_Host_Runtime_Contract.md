@@ -12,6 +12,7 @@ Related:
 - [[Runtime_Host_Internal_State_Machines]]
 - [[Runtime_Logic_State_API_Contract]]
 - [[Package_Contract]]
+- [[Telemetry_And_Debug_Dashboard_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
 - [[Validation_Plan]]
 - [[Brought_Up_Tracker]]
@@ -435,6 +436,7 @@ Replay outputs may include:
 
 - final state vector
 - final package runtime logic state
+- dashboard-facing telemetry events through [[Telemetry_And_Debug_Dashboard_Contract]]
 - frame checksums or screenshots
 - save changes
 - emitted diagnostics through [[Diagnostics_API_Contract]]
@@ -477,6 +479,7 @@ Digital twin evidence can prove:
 - input/action routing
 - save schema behavior
 - deterministic replay behavior
+- dashboard telemetry determinism for a fixed replay input
 - cadence and power-intent compliance against the Platform contract
 - cross-mode logic behavior
 - fallback handling for unavailable capabilities

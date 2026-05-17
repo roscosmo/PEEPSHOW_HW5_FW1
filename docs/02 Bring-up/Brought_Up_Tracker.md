@@ -24,7 +24,7 @@ Use this as the live progress tracker for HW5 hardware and firmware bring-up.
 | 4 - Input and sensors | Not started | [[Button_Input_Bring-up_Runbook]], [[Rotary_Encoder_Bring-up_Runbook]], [[TEMT6000_Light_Sensor_Bring-up_Runbook]], [[LIS2DUX12_IMU_Bring-up_Runbook]], [[TMAG3001_Joystick_Bring-up_Runbook]] | validate physical input and normalized events |
 | 5 - RTOS owner integration | Not started | [[RTOS_Ownership_and_Queue_Topology]], [[Subsystem_State_Machines]] | owner threads and queues match contracts |
 | 6 - Sleep and wake validation | Not started | [[Sleep_Wake_Integration_Bring-up_Runbook]] | wake reason classification and measured current |
-| 7 - Installer and transport mode | Not started | [[USB_MSC_Bring-up_and_Recovery_Runbook]], [[NINA_B112_BLE_Bring-up_Runbook]] | USB staging first; BLE after comm owner exists |
+| 7 - Installer and transport mode | Not started | [[USB_MSC_Bring-up_and_Recovery_Runbook]], [[USB_Development_Mode_Contract]], [[NINA_B112_BLE_Bring-up_Runbook]] | USB MSC staging first; CDC developer personality is separate and mutually exclusive; BLE after comm owner exists |
 | 8 - Runtime host lifecycle | Not started | [[Runtime_Host_Contract]], [[Package_Contract]] | only after hardware owners are stable |
 | 9 - Platform freeze checks | Not started | [[Platform_Freeze_Charter]], [[HW5_Hardware_Documentation_Readiness]] | authority docs and measured evidence agree |
 | 10 - Digital twin parity | Blocked | [[Digital_Twin_Host_Runtime_Contract]], [[Validation_Plan]] | blocked until HW5 Platform hardware validation and Platform contract behavior are proven |
@@ -55,6 +55,9 @@ For each evidence entry record:
 - result
 - artifacts
 - notes
+- trace profile and Tracealyzer artifact path, if a trace snapshot was used
+- telemetry capture artifact path and schema version, if dashboard telemetry was used
+- active tuning overlay and instrumentation state, if applicable
 
 Template row:
 

@@ -6,6 +6,10 @@ This section defines observability requirements, fault capture, SWD/SWO discipli
 
 - [[Debug_and_Observability]]
 - [[Diagnostics_API_Contract]]
+- [[USB_Development_Mode_Contract]]
+- [[Live_Tuning_And_Knobs_Contract]]
+- [[Telemetry_And_Debug_Dashboard_Contract]]
+- [[Tracealyzer_Snapshot_Evidence_Contract]]
 - [[Debug_Workflows]]
 - [[Boot_and_Fault_Supervisor_State_Machine]]
 - [[Brought_Up_Tracker]]

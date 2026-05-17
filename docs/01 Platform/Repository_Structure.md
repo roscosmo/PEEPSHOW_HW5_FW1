@@ -36,6 +36,7 @@ PeepShow_HW5_FW1/
 │   ├── 08 Research/
 │   ├── 09 Canvases/
 │   ├── 10 References/
+│   ├── 11 Development Tools/
 │   └── assets/
 │
 ├── assets/
@@ -55,6 +56,7 @@ PeepShow_HW5_FW1/
 - bring-up journal
 - hardware contracts
 - Engine API contracts
+- development tooling contracts
 - Reference Game design notes
 
 `firmware/Core/`, `firmware/Drivers/`, `firmware/Middlewares/`
@@ -159,4 +161,3 @@ For each module, document:
 - allowed dependencies
 - forbidden dependencies
 - required tests
-

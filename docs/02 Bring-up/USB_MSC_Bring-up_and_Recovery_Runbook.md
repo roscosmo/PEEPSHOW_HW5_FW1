@@ -4,6 +4,7 @@ This runbook captures the practical USB MSC bring-up sequence and regression rec
 
 Use this together with:
 - [[Storage_and_Installer_Contract]]
+- [[USB_Development_Mode_Contract]]
 - [[Debug_Workflows]]
 - [[Bring-up_Spec_vs_Tracker]]
 
@@ -23,6 +24,7 @@ Use this runbook for:
 
 When USB MSC is healthy:
 - USB device enumerates as mass storage
+- USB CDC developer control is not exposed in the same v1 personality
 - host creates disk object
 - host mounts the staging/export FAT volume
 - host can write/read/delete a file
@@ -40,6 +42,8 @@ If any of these fail, follow decision tree in Section 9.
 - No host plus MCU writer overlap on staging/export volume.
 - Settings, saves, calibration, installed blobs, and installed indexes are never host-writable.
 - No runtime rendering/audio/gameplay work in installer mode.
+- USB MSC and USB CDC developer control are mutually exclusive personalities in v1.
+- This runbook validates MSC installer/export only. CDC developer mode needs its own validation path before use.
 
 ---
 
@@ -198,5 +202,6 @@ USB MSC is sign-off ready only when all pass:
 2. host write/read/delete smoke passes
 3. long-idle soak passes with no hardfault
 4. arbitration invariants hold during host mount window
+5. no CDC developer interface is exposed during MSC-only validation
 
 Record final evidence in [[Brought_Up_Tracker]].

@@ -4,6 +4,8 @@ This document defines HW5 storage ownership, flash behavior, region model, USB s
 
 For execution-level USB bring-up and regression recovery steps, use [[USB_MSC_Bring-up_and_Recovery_Runbook]].
 
+Developer USB mode and the MSC/CDC personality split are defined in [[USB_Development_Mode_Contract]].
+
 ## Hardware and Middleware
 
 | Item | HW5 Selection |
@@ -15,6 +17,7 @@ For execution-level USB bring-up and regression recovery steps, use [[USB_MSC_Br
 | Filesystem middleware | FileX |
 | Flash translation | LevelX custom NOR interface |
 | USB export | USBX MSC |
+| USB developer control | USBX CDC, dev-only, mutually exclusive with MSC in v1 |
 
 External flash is the only persistent storage besides internal MCU flash.
 
@@ -47,6 +50,7 @@ Rules:
 
 - settings, calibration, communication bonding records, saves, installed blobs, installed indexes, and persistent fault logs are never directly host-writable.
 - USB MSC exposes only staging/export storage.
+- v1 USB MSC and USB CDC developer control are mutually exclusive personalities.
 - persistent fault logs remain in a protected ring region; firmware may copy/export diagnostic summaries into the staging/export volume.
 - host access must never expose internal storage regions directly.
 
@@ -143,9 +147,27 @@ USB export rules:
 
 - host owns the staging/export FAT volume while MSC is active
 - MCU FileX/FAT remains unmounted while host owns the staging/export volume
+- USB CDC developer control is not active while MSC owns the staging/export volume in v1
 - `B` button is the minimal local exit/cancel input during flashing/export mode
 - display may show a static "flashing" or installer screen and then remain mostly inactive
 - runtime rendering/audio/gameplay are disabled or policy-limited during export
+
+## USB Personalities
+
+PeepShow v1 uses mutually exclusive USB personalities.
+
+| Personality | Interface | Storage Owner | Purpose |
+|---|---|---|---|
+| normal installer/export | MSC only | host owns staging/export while mounted | universal package copy and artifact export |
+| developer console | CDC only | firmware / `thStorage` | structured package upload, live-safe tuning, telemetry, and capture commands |
+
+Rules:
+
+- normal USB attach should prefer MSC installer/export behavior unless explicit dev-mode entry policy is active.
+- CDC developer mode must not expose MSC at the same time in v1.
+- CDC package upload writes through firmware-owned staging and `thStorage`, not a host-mounted FAT volume.
+- CDC live tuning uses owner-routed, typed, validated commands; it must not write raw memory directly.
+- composite `MSC + CDC` is future work and requires new validation before use.
 
 ## Installer Mode Behavior
 
@@ -156,6 +178,7 @@ Allowed behavior:
 - static Sharp Memory LCD status screen
 - minimal input monitoring, especially `B` to exit/cancel when safe
 - USB MSC host transfer
+- no CDC developer control unless the active personality is explicitly developer CDC mode
 - storage owner staging/rescan/install flow
 - diagnostics explicitly allowed by policy
 
@@ -211,10 +234,13 @@ If external flash is unavailable:
 11. installer/export mode keeps display static and only minimal input active
 12. logs/screenshots/debug exports are copied into staging/export without exposing internal regions directly
 13. persistent fault-log ring preserves previous valid records and is not host-exposed
+14. v1 USB personalities are mutually exclusive: MSC mode exposes no CDC developer control, and CDC developer mode exposes no MSC staging volume
+15. CDC package upload routes through firmware-owned staging and package validation
 
 Related:
 
 - [[Storage_Index]]
+- [[USB_Development_Mode_Contract]]
 - [[Package_Manager_State_Machine]]
 - [[USB_MSC_Bring-up_and_Recovery_Runbook]]
 - [[HW5_DMA_Map]]

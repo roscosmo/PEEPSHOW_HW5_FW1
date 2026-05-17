@@ -90,3 +90,5 @@ Before runtime host feature work:
 2. mode and power event paths verified
 3. quiesce/resume barrier verified
 4. overflow and timeout behavior verified
+
+Tracealyzer snapshot evidence should be used where practical to prove owner-thread scheduling, queue wake/block behavior, and quiesce/resume ordering. Snapshot capture policy is defined in [[Tracealyzer_Snapshot_Evidence_Contract]].

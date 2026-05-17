@@ -178,6 +178,9 @@
   },
   "active": "1f0c9402597c6e72",
   "lastOpenFiles": [
+    "11 Development Tools/USB_Development_Mode_Contract.md",
+    "11 Development Tools/Development_Tooling_Index.md",
+    "11 Development Tools",
     "03 Engine API/Runtime_Logic_State_API_Contract.md",
     "03 Engine API/Diagnostics_API_Contract.md",
     "03 Engine API/Time_And_Power_Intent_API_Contract.md",
@@ -202,8 +205,6 @@
     "05 Reference Game/00 Scratch/Scratchpad.md",
     "05 Reference Game/02 Content/Rituals.md",
     "05 Reference Game/02 Content/Items.md",
-    "05 Reference Game/02 Content/Places.md",
-    "05 Reference Game/02 Content/Enemies.md",
     "05 Reference Game/04 Notes",
     "05 Reference Game/03 Maps",
     "05 Reference Game/02 Content",
