@@ -28,6 +28,7 @@ The Engine may understand gameplay concepts abstractly, but it must not depend o
 - [[Package_Asset_Loading_API_Contract]]
 - [[Package_Save_Settings_API_Contract]]
 - [[Package_Blob_Format_Contract]]
+- [[Package_Compatibility_Report_Contract]]
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
 
 ## Boundary

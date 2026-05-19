@@ -9,6 +9,7 @@ Related:
 - [[Target_Profile_Schema_Contract]]
 - [[Package_Contract]]
 - [[Package_Blob_Format_Contract]]
+- [[Package_Compatibility_Report_Contract]]
 - [[Package_Save_Settings_API_Contract]]
 - [[Dev_Orchestration_CLI_Contract]]
 
@@ -187,6 +188,7 @@ Required package-facing audio artifacts:
 | `audio_context_table` | runtime-unit audio contexts and preload requirements |
 | `audio_asset_table` | validated sampled audio references and decode budgets |
 | `bbb_pattern_table` | bounded BBB tone/gap/sweep/repeat steps |
+| `bbb_melody_sources` | RTTTL/Nokia-style melody authoring sources compiled into BBB patterns |
 | `audio_timeline_table` | optional symbolic markers for replay, diagnostics, or package logic |
 
 Rules:
@@ -195,7 +197,10 @@ Rules:
 - PeepOS does not require packages to remain semantically complete when muted.
 - audio-centric packages are valid when their assets, contexts, and runtime behavior are bounded.
 - sampled audio assets must match the accepted target profile format.
+- RTTTL is the v1 BBB melody authoring format and must be compiled by tooling before package export.
+- runtime packages must not require firmware to parse RTTTL or any other melody source text.
 - BBB patterns must validate duration, frequency, envelope, curve, step count, and repeat bounds.
+- compiled BBB melodies must validate the same frequency, duration, envelope, curve, step count, repeat, priority, and total-duration bounds as hand-authored BBB patterns.
 - cue priorities, groups, loop policy, fade policy, and ducking policy must be deterministic.
 - active runtime audio must not require FAT, host paths, or editor source files.
 
@@ -306,6 +311,8 @@ Required rendering asset classes:
 | `precomposed_low_power_sequence` | baked 1bpp sequence candidate for `ULP_ANIM` |
 
 `tone5` is a coverage model, not a color-depth format.
+
+Source art may be authored as a five-color indexed PNG or equivalent indexed source. Tooling must convert it into validated `tone5_masked` package assets containing logical tone data, masks, and deterministic 1bpp coverage semantics.
 
 Tone values:
 

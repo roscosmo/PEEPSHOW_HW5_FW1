@@ -176,6 +176,7 @@ This is a conceptual C-level shape. Final signatures may differ, but must preser
 ```c
 typedef enum {
     SAVE_OK = 0,
+    SAVE_DEFERRED,
     SAVE_ERR_NOT_READY,
     SAVE_ERR_NOT_FOUND,
     SAVE_ERR_SCHEMA,
@@ -204,6 +205,19 @@ typedef struct {
     uint32_t flags;
 } package_setting_desc_t;
 ```
+
+Package-visible persistence result classes:
+
+| Result | Meaning |
+|---|---|
+| `success` | record accepted and published by the save/settings contract |
+| `deferred` | write accepted for later flush/coalescing where policy allows |
+| `rejected_budget` | write exceeds rate, size, or lifecycle budget |
+| `rejected_schema` | write does not match declared schema/version/bounds |
+| `unavailable` | save/settings service is not available for this package/profile/state |
+| `failed_preserved` | write failed but the previous valid record is preserved where required |
+
+Package logic and authoring tools must model these results. The cause of a storage or hardware failure remains Platform diagnostics; packages see only the bounded persistence result.
 
 Required API families:
 

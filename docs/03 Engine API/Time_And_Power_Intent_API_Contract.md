@@ -206,10 +206,10 @@ Package-facing cadence intents:
 
 | Intent | Meaning |
 |---|---|
-| `static_update_max_hz` | preferred maximum low-cadence active update rate |
-| `low_power_tick_period_ms` | desired low-power package event cadence |
+| `static_periodic_update_hz` | requested maximum periodic/static update rate |
+| `low_power_periodic_update_hz` | requested low-power package event/display cadence |
 | `realtime_target_fps` | desired frame cadence for realtime scene |
-| `deadline_class` | latency class for package-visible work |
+| `latency_tolerance` | acceptable response delay for package-visible work |
 
 Rules:
 
@@ -219,6 +219,22 @@ Rules:
 - `STATIC` updates are low-rate and event driven.
 - input-triggered `STATIC` updates may be serviced promptly and then return to idle policy.
 - Platform inactivity timeout can force fallback regardless of requested cadence.
+- target profiles distinguish static periodic cadence from static input-response latency.
+- target profiles distinguish low-power wake/update/return behavior from autonomous display sequences.
+
+Target profile cadence limits include:
+
+```text
+cadence:
+  static_periodic_update_hz_max
+  static_input_response_latency_ms_max
+  low_power_periodic_update_hz_max
+  low_power_update_requires_mcu_wake
+  realtime_target_fps
+  realtime_frame_budget_ms
+```
+
+These are validation and Platform policy limits. They are not hardware timer controls.
 
 ---
 

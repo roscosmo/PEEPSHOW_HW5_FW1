@@ -147,7 +147,7 @@ Initial chunk types:
 | `time_power_profile` | calendar requirements, schedule table metadata, wake intents, cadence hints, and catch-up policy |
 | `state_graph` | bounded runtime logic, graph, event, action, and scene/module state data |
 | `input_map` | logical input bindings and focus scopes |
-| `audio_profile` | symbolic cue tables, BBB pattern metadata, audio contexts, and timeline markers |
+| `audio_profile` | symbolic cue tables, BBB pattern/melody metadata, audio contexts, and timeline markers |
 | `sensor_profile` | PeepOS sensor contexts, event interests, step sessions, and wake intents |
 | `save_schema` | save records, package-owned settings, defaults, migration policy, reset policy, and write budget |
 | `communication_profile` | session contexts, roles, message schema references, rate limits, and routing behavior |
@@ -161,7 +161,7 @@ Initial chunk types:
 | `font_bank` | package fonts and text layout metadata |
 | `text_table` | localized/string table data |
 | `audio_bank` | music/SFX audio payloads such as bounded ADPCM blocks |
-| `bbb_pattern_bank` | bounded buzzer/beeper/buzzer pattern data |
+| `bbb_pattern_bank` | bounded BBB tone/gap/sweep/repeat pattern data, including compiled RTTTL melody output |
 | `low_power_sequence` | portable precomposed 1bpp low-power sequence candidate |
 | `data_table` | bounded generic package data |
 | `compat_report` | tooling compatibility report retained for diagnostics |
@@ -261,6 +261,7 @@ Allowed packing is format-specific and bounded:
 - opacity masks
 - tone planes
 - fixed-layout tilemaps
+- compiled BBB pattern steps from hand-authored patterns or RTTTL melody sources
 - IMA ADPCM or other explicitly documented bounded audio payloads
 - simple RLE only when the chunk format defines a bounded decoder, maximum expansion size, and decode budget
 
@@ -271,6 +272,7 @@ Rules:
 - no streaming decompressor whose worst-case time or output size is unknown.
 - expansion size must be known before runtime decode.
 - packages must remain usable when optional compressed assets fall back to uncompressed or lower-cost alternatives, where declared.
+- RTTTL and other melody source text are authoring inputs only. Runtime packages must contain compiled BBB pattern data if the melody is required at runtime.
 
 ---
 
@@ -339,28 +341,16 @@ Tooling and installer validation must reject:
 
 Every package build must produce a compatibility report.
 
-The report must include:
+The report schema, status model, required fields, waiver rules, staleness rules, and digital twin use are defined in [[Package_Compatibility_Report_Contract]].
 
-- tool version
-- package container version
-- schema versions
-- target profile
-- capability compatibility/admission summary
-- runtime unit inventory
-- runtime logic budget summary
-- asset inventory
-- chunk inventory
-- memory/decode/render budget summary
-- warnings and waivers
-- package checksum
-
-The report is diagnostic metadata. It does not replace installer validation.
+The package blob may include a `compat_report` chunk for diagnostics, but installer validation must not trust that report as proof of package safety. Firmware install validation must still re-check package integrity, schema compatibility, runtime class compatibility, and required capability compatibility.
 
 ---
 
 Related:
 
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
+- [[Package_Compatibility_Report_Contract]]
 - [[Package_Contract]]
 - [[Runtime_Logic_State_API_Contract]]
 - [[Rendering_API_Contract]]

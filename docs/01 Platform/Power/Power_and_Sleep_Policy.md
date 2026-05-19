@@ -133,13 +133,17 @@ Cadence requests are requests only:
 
 Target profiles must define:
 
-- inactivity timeout
-- static display cadence cap
-- low-power display cadence cap
+- enforced inactivity timeout
+- required forced-idle low-power route policy
+- static periodic update cadence cap
+- static input-response latency cap
+- low-power periodic update cadence cap
+- whether low-power updates require MCU wake/update/return behavior
 - realtime frame budget
 - realtime target frame rate
 - autonomous display sequence availability
 - autonomous sequence frame/cadence caps, if available
+- package-visible wake intents and lifecycle wake reasons
 
 Current design expectations are an inactivity timeout in the 10-15 second range, static updates around 2 Hz, baseline low-power display updates around 1 Hz when each update wakes the MCU, and a 30 fps realtime target. These are design targets only until HW5 evidence freezes target profile values.
 

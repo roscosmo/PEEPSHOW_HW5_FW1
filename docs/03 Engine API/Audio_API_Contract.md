@@ -144,6 +144,13 @@ audio_profile:
     steps[]
     priority
     max_duration_ms
+  bbb_melodies[]:
+    melody_id
+    source_format = rtttl
+    source_ref
+    compiled_pattern_ref
+    priority
+    max_duration_ms
   audio_contexts[]:
     context_id
     runtime_unit_refs[]
@@ -162,6 +169,7 @@ Cue types:
 | `music` | long or looping sampled cue, one active music voice in HW5 baseline |
 | `sfx` | short sampled sound effect cue |
 | `bbb_pattern` | authored procedural BBB pattern |
+| `bbb_melody` | authored melody source compiled by tooling into a BBB pattern |
 | `bbb_tone` | bounded procedural BBB tone request |
 | `bbb_sweep` | bounded procedural BBB sweep request |
 
@@ -234,6 +242,49 @@ Rules:
 - unsupported curves/envelopes fail validation.
 - BBB patterns are package assets or approved built-in system patterns.
 - BBB output may be muted or suppressed by PeepOS policy like other audio output.
+
+### BBB Melody Authoring
+
+BBB melody authoring is a tooling feature, not a runtime parser.
+
+V1 melody source format is RTTTL/Nokia ringtone text.
+
+```text
+pet_happy:d=8,o=5,b=140:c,e,g,2c6,p,g
+```
+
+Tooling must compile RTTTL source into validated BBB pattern steps before package export.
+
+```text
+RTTTL source
+  -> melody parser
+  -> normalized note/rest events
+  -> target-profile validation
+  -> compiled BBB pattern asset
+  -> runtime bbb.play_pattern(pattern_id, priority)
+```
+
+Runtime firmware must not parse RTTTL text.
+
+Supported v1 RTTTL subset:
+
+- monophonic notes `a` through `g`
+- optional sharp notes with `#`
+- pause/rest with `p`
+- durations `1`, `2`, `4`, `8`, `16`, and `32`
+- dotted notes where target tooling supports deterministic expansion
+- bounded octave range from the selected target profile
+- bounded tempo range from the selected target profile
+
+Rules:
+
+- RTTTL source is an authoring input or source-side package asset only.
+- compiled packages contain validated BBB pattern data, not required runtime RTTTL source.
+- every note must map to a target-profile-valid frequency.
+- every duration must map to a target-profile-valid duration.
+- total melody duration, step count, repeat count, envelope, drive class, and priority must fit target-profile limits.
+- unsupported RTTTL features, out-of-range notes, unbounded loops, chords, polyphony, or runtime tempo mutation fail validation.
+- melody playback uses normal BBB priority, preemption, mute, stop/drain, and sleep-quiesce policy.
 
 ---
 

@@ -8,6 +8,7 @@ This section is operational and historical. It tracks validation sequences, fail
 
 - [[Dev_Orchestration_CLI_Contract]]
 - [[Bootstrap_and_Build]]
+- [[HW5_Arrival_Phase0_Checklist]]
 - [[Bring-up_Spec_vs_Tracker]]
 - [[Brought_Up_Tracker]]
 - [[Brought_Up_Archive]]

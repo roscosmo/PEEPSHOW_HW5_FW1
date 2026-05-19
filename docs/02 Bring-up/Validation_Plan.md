@@ -136,13 +136,15 @@ Required cases:
 1. symbolic music cue resolves to a valid package audio asset without exposing SAI, DMA, mixer, or amp control.
 2. SFX priority/preemption is deterministic within the target profile voice limit.
 3. BBB pattern validates frequency, duration, step count, repeat count, curve, and envelope bounds.
-4. package volume/mute intent is overridden by global mute without corrupting package state.
-5. muted or suppressed output does not fail package validation and does not require semantic fallback.
-6. audio-centric package behavior validates when assets, contexts, and runtime behavior are bounded.
-7. package audio path performs no FileX/FAT, host-path, or editor-source streaming during active runtime.
-8. package logic cannot subscribe to DMA callbacks, SAI completion, LPTIM interrupts, or buffer refill timing.
-9. digital twin audio timeline replay is deterministic with and without host audio output.
-10. digital twin audio fault injection produces diagnostics and lifecycle evidence, not HW5 bring-up evidence.
+4. RTTTL BBB melody source compiles to bounded BBB pattern data before package export.
+5. runtime package playback does not require firmware to parse RTTTL or other melody source text.
+6. package volume/mute intent is overridden by global mute without corrupting package state.
+7. muted or suppressed output does not fail package validation and does not require semantic fallback.
+8. audio-centric package behavior validates when assets, contexts, and runtime behavior are bounded.
+9. package audio path performs no FileX/FAT, host-path, or editor-source streaming during active runtime.
+10. package logic cannot subscribe to DMA callbacks, SAI completion, LPTIM interrupts, or buffer refill timing.
+11. digital twin audio timeline replay is deterministic with and without host audio output.
+12. digital twin audio fault injection produces diagnostics and lifecycle evidence, not HW5 bring-up evidence.
 
 ---
 

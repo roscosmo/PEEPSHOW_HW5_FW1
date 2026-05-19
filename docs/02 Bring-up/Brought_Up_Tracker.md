@@ -17,7 +17,7 @@ Use this as the live progress tracker for HW5 hardware and firmware bring-up.
 
 | Phase | Status | Primary Runbooks | Notes |
 |---|---|---|---|
-| 0 - Power and clock stability | Not started | [[ADP5360_Power_Bring-up_Runbook]], [[HW5_Clock_Tree_Contract]] | validate safe power, clocks, PMIC, reset causes |
+| 0 - Arrival, power, and clock stability | Not started | [[HW5_Arrival_Phase0_Checklist]], [[ADP5360_Power_Bring-up_Runbook]], [[HW5_Clock_Tree_Contract]] | intake board safely, validate safe power, clocks, PMIC, reset causes |
 | 1 - Display validation | Not started | [[LS013B7DH05_Display_Bring-up_Runbook]] | static image, EXTCOMIN, full/partial update, SRAM4 DMA buffer path |
 | 2 - Storage validation | Not started | [[AT25SL128A_External_Flash_Bring-up_Runbook]] | ID, erase/program/readback, deep power-down |
 | 3 - Audio validation | Not started | [[Audio_Output_Bring-up_Runbook]] | speaker, BBB, shutdown, DMA/mixer when available |

@@ -120,7 +120,7 @@ Detailed package-facing rules are defined in [[Time_And_Power_Intent_API_Contrac
 
 Runtime expresses intent only:
 - desired update cadence
-- wake sources needed
+- wake intents needed
 - tolerance for latency
 - active/idle hints
 

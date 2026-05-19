@@ -876,7 +876,7 @@ Runtime may request:
 - request next low-power tick
 - request realtime frame pacing
 - publish idle/active hint
-- declare temporary wake-source need
+- declare temporary wake intent
 - read PeepOS local calendar time
 - consume elapsed suspend/resume time
 

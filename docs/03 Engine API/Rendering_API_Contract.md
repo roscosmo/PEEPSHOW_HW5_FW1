@@ -74,6 +74,8 @@ Package assets may use these Engine pixel models:
 
 The asset pipeline may pack `tone5_masked` however it chooses, including compact color-plane plus mask-plane representations. The package-facing contract is the semantic tone model.
 
+Source art may be authored as a five-color indexed PNG. The asset pipeline converts that source into validated `tone5_masked` package assets containing logical tone data and explicit ownership/mask semantics.
+
 ---
 
 ## Coverage Rendering
@@ -116,6 +118,8 @@ Each runtime layer has ownership/opacity semantics. A transparent pixel does not
 Authoring tools may expose more logical layers, but the compiler must flatten, merge, or schedule those layers into the bounded runtime compositor model.
 
 System UI is Platform/Engine-owned and may use reserved crisp 1bpp assets. Package UI defaults to `masked_1bpp`; `tone5` package UI is allowed only when explicitly authored and within render budget.
+
+System UI is reserved PeepOS behavior for setup, calibration, package management, diagnostics, errors, shipping mode, and related system flows. It is not a package-authored game layer.
 
 ---
 

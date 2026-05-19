@@ -458,7 +458,7 @@ Required behavior:
 - STOP-resident logical time may advance without running package code
 - wake reasons are classified and delivered through the normal lifecycle/event path
 
-The exact timeout, low-power frame cap, static frame cap, and realtime frame budget are Platform policy values and must come from measured/frozen contracts.
+The enforced inactivity timeout, static cadence/latency caps, low-power cadence policy, and realtime frame budget are Platform policy values and must come from measured/frozen target profiles.
 
 The twin should report:
 
@@ -721,10 +721,13 @@ Profile fields should include:
 
 - display capability profile
 - LPBAM/autonomous sequence availability
-- static display cadence cap
-- low-power update cadence cap
+- static periodic cadence cap
+- static input-response latency cap
+- low-power periodic cadence cap
+- low-power wake/update/return policy
 - realtime frame budget
-- inactivity timeout
+- enforced inactivity timeout
+- wake intents and lifecycle wake reasons
 - available input capabilities
 - available sensor capabilities
 - audio capability limits

@@ -293,8 +293,8 @@ power_policy:
   inactivity_timeout_behavior
   activity_hints[]
   cadence_requests:
-    static_update_max_hz
-    low_power_update_max_hz
+    static_periodic_update_hz
+    low_power_periodic_update_hz
     realtime_target_fps
   input_update_policy
   low_power_sequence_ref
@@ -326,9 +326,11 @@ Cadence request semantics:
 
 | Request | Meaning | Platform Response |
 |---|---|---|
-| `static_update_max_hz` | preferred maximum event/state update cadence while awake-low-power | grant or clamp to target profile |
-| `low_power_update_max_hz` | preferred low-power display/event cadence | grant, clamp, coalesce, or reject |
+| `static_periodic_update_hz` | requested maximum periodic/static update cadence | grant or clamp to target profile |
+| `low_power_periodic_update_hz` | requested low-power display/event cadence | grant, clamp, coalesce, or reject |
 | `realtime_target_fps` | requested frame cadence for realtime unit | grant or clamp while realtime activity is valid |
+
+Target profiles separately define static input-response latency caps. Input-triggered static updates may be serviced promptly, then must return to the declared idle behavior.
 
 Profile behavior:
 

@@ -6,6 +6,7 @@ This section defines game-agnostic asset production, package generation, validat
 
 - [[Asset_Pipeline_and_Package_Tooling_Contract]]
 - [[Package_Blob_Format_Contract]]
+- [[Package_Compatibility_Report_Contract]]
 - [[Content_Parameter_Schema_Contract]]
 - [[Target_Profile_Schema_Contract]]
 - [[Rendering_API_Contract]]

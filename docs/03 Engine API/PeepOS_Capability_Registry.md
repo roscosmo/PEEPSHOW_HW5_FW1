@@ -220,6 +220,8 @@ Packages may read PeepOS calendar time where granted, but may not set, correct, 
 
 These capabilities express intent only. Platform chooses RTC setup, sleep class, clocks, wake-source arming, and resume policy.
 
+Target profiles expose package-facing wake behavior as wake intents and normalized lifecycle wake reasons. Hardware wake-source arming remains Platform policy.
+
 ---
 
 ## Sensor Capabilities
@@ -300,11 +302,15 @@ Profiles must record:
 - display profile
 - rendering profile
 - cadence limits
-- idle timeout
-- static display cadence cap
-- low-power display cadence cap
+- enforced inactivity timeout
+- forced-idle route requirement
+- static periodic cadence cap
+- static input-response latency cap
+- low-power periodic cadence cap
+- low-power wake/update/return policy
 - realtime frame budget
 - realtime target frame rate
+- wake intents and lifecycle wake reasons
 - autonomous display sequence availability
 - autonomous sequence frame/cadence caps, if available
 - input availability

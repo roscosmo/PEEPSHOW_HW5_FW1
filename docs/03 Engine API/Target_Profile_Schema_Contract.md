@@ -148,7 +148,7 @@ runtime:
   classes[]              # LP_GRAPH, LP_MODULE, RT_SCENE, plus Platform-owned SHELL/INSTALLER where relevant
   default_package_class
   allowed_transitions[]
-  idle_fallback_required
+  forced_idle_route_required
   runtime_units_max
   runtime_unit_nesting_depth_max
   runtime_transition_chain_max
@@ -174,6 +174,7 @@ Rules:
 - `RT_SCENE` units must declare frame budget, idle behavior, suspend behavior, resume behavior, and fallback route.
 - `LP_GRAPH` must not request high-frequency polling.
 - `LP_MODULE` must declare an approved module type.
+- `forced_idle_route_required` means every package runtime unit must resolve to a concrete low-power route when PeepOS enforces inactivity policy.
 - `runtime_unit_nesting_depth_max` limits how many package runtime units may be nested or suspended behind each other.
 - `runtime_transition_chain_max` limits how many state/runtime transitions may execute from one event before the runtime must yield or report validation failure.
 - neither field describes ThreadX stack memory.
@@ -186,20 +187,20 @@ Required display fields:
 
 ```text
 display:
-  logical_width
-  logical_height
-  native_width
-  native_height
-  pixel_model              # mono_1bpp
-  orientation_model
+  logical_surface:
+    width
+    height
+    logical_pixel_model    # mono_1bpp
+    orientation
+  native_panel_diagnostics:
+    visible_to_package_tools = false
+    width
+    height
+    native_pixel_model      # panel_native_1bpp
   static_hold_supported
-  static_update_max_hz
-  low_power_update_max_hz
-  realtime_target_fps
-  realtime_max_fps
   dirty_tracking_internal = true
   autonomous_sequence:
-    status                 # unavailable, pending_validation, granted
+    grant_status           # blocked, pending_validation, granted, experimental
     frame_count_max
     cadence_hz_max
     payload_bytes_max
@@ -212,21 +213,37 @@ Required rendering fields:
 
 ```text
 rendering:
-  layer_order = UI_GAME_BG
+  layer_order_top_to_bottom[] = [UI, GAME, BG]
   masked_1bpp_supported
-  tone5_supported
-  tone5_integer_scale_max
+  tone5:
+    supported
+    source_model = 5_color_indexed_png
+    runtime_asset_model = tone5_masked
+    output_model = deterministic_1bpp_coverage
+    coverage_model
+    scale_integer_only = true
+    integer_scale_max
+    deterministic_phase_required = true
   tilemap_viewport_supported
-  low_power_sequence_precompose_required = true
-  system_ui_layer_reserved = true
+  low_power_sequence_assets:
+    supported
+    pixel_model = precomposed_1bpp
+    precompose_required = true
+    autonomous_playback_requires_display_grant = true
+  system_ui_reserved = true
 ```
 
 Rules:
 
 - package tools must not expose dirty-row controls.
+- package tools author against `display.logical_surface`, not `display.native_panel_diagnostics`.
+- native panel diagnostics are Platform reporting metadata only. They are hidden from normal package tools and must not expose panel command bytes, row packing, SRAM4 buffers, or transfer policy.
 - tone5 is a semantic coverage model, not native display color.
+- tone5 source art may be authored as a five-color indexed PNG; tooling converts it into validated `tone5_masked` package assets containing the logical tone data and masks used by the renderer.
+- tone5 output must be deterministic 1bpp coverage on every backend, including the digital twin.
 - autonomous display sequences must use precomposed final 1bpp frames.
-- system UI is Platform-owned and not drawn by package/game tools.
+- precomposed low-power sequence assets may exist even when autonomous playback is blocked; autonomous playback still requires `display.autonomous_sequence.grant_status = granted`.
+- system UI is reserved PeepOS behavior for setup, calibration, package management, diagnostics, errors, shipping mode, and related system flows. It is not a package-authored game layer.
 
 ---
 
@@ -239,21 +256,30 @@ power:
   enforced_inactivity_timeout_ms
   inactivity_low_power_route_required = true
   idle_to_low_power_forced = true
-  static_update_policy
-  low_power_update_policy
   realtime_requires_activity = true
   communication_wake_supported
   sleep_classes[]
-  wake_sources[]
+  wake_intents_supported[]
+  lifecycle_wake_reasons[]
   latency_classes[]
+  cadence:
+    static_periodic_update_hz_max
+    static_input_response_latency_ms_max
+    low_power_periodic_update_hz_max
+    low_power_update_requires_mcu_wake
+    realtime_target_fps
+    realtime_frame_budget_ms
 
 time:
   calendar_read_supported
   calendar_set_by_package_allowed = false
   delayed_event_supported
+  delayed_events_max
   calendar_schedule_supported
+  calendar_schedules_max
   rtc_wake_intent_supported
   missed_event_policy
+  missed_event_catchup_max
 ```
 
 Rules:
@@ -262,6 +288,11 @@ Rules:
 - packages may not set RTC/calendar time.
 - user inactivity timeout always applies, regardless of package cadence requests.
 - packages decide the declared low-power route for forced inactivity, but PeepOS owns the timeout and enforcement.
+- static periodic updates and static input-response latency are separate profile limits.
+- baseline low-power display updates that wake the MCU must be modeled separately from autonomous display sequences.
+- package wake behavior uses `wake_intents_supported[]`; hardware wake source details remain Platform/HW documentation.
+- `lifecycle_wake_reasons[]` are normalized package-visible reasons, not EXTI or peripheral names.
+- delayed/calendar event limits are package schedule limits, not direct RTC alarm ownership.
 - communication wake is blocked for HW5 profiles unless a future measured profile grants it.
 
 ---
@@ -363,31 +394,54 @@ save_storage:
   package_settings_supported
   record_bytes_max
   package_save_bytes_max
+  package_settings_bytes_max
   writes_per_period_max
   write_period_ms
   write_on_suspend_supported
+  transactional_write_supported
+  preserve_previous_valid_record = true
+  schema_migration_supported
+  write_failure_result_required = true
+  package_visible_results[]       # success, deferred, rejected_budget, rejected_schema, unavailable, failed_preserved
 
 diagnostics:
   package_markers_supported
   package_counters_supported
   timing_scopes_supported
   trace_values_supported
+  package_fault_codes_supported
   shipping_minimal_faults_supported
   event_rate_max
+  payload_bytes_max
+  marker_count_max
+  counter_count_max
+  timing_scope_count_max
+  trace_value_count_max
 
 package_limits:
   package_bytes_max
   asset_bytes_max
   runtime_ram_bytes_max
+  runtime_unit_count_max
+  save_settings_bytes_max
+  diagnostics_table_bytes_max
   content_parameter_count_max
   content_parameter_blob_bytes_max
   string_table_bytes_max
+  low_power_sequence_asset_bytes_max
 ```
 
 Rules:
 
-- save/settings limits describe Engine APIs, not filesystem access.
-- package diagnostics are bounded and do not own debug transports.
+- save/settings limits describe Engine APIs, not filesystem access, flash offsets, erase pages, raw storage regions, or Platform settings.
+- package save records and package-owned settings are schema-versioned records, not files.
+- package-owned settings may influence package logic only. They must not mutate PeepOS knobs, Platform settings, calibration, BLE bonding, install metadata, power policy, or hardware policy.
+- save writes may be deferred, clamped, rejected by budget, rejected by schema, unavailable, or failed while preserving the previous valid record.
+- save write failure is a package-visible persistence result that package logic and tools must model. The underlying storage or hardware fault remains Platform diagnostics.
+- package tools must validate save schemas, defaults, migration policy, write policy, and fallback behavior before export.
+- package diagnostics are bounded records and do not own debug transports, dashboard export, Tracealyzer/SWO, USB CDC, BLE, UART, protected storage, or fault-log storage.
+- shipping diagnostics must be minimal and explicitly profile-gated.
+- package limits are target-profile abstractions, not memory-map facts. They must not expose SRAM bank names, linker sections, flash offsets, raw heap regions, or DMA buffer addresses.
 - profile package limits must be enforced before package compilation/export.
 
 ---
@@ -426,6 +480,13 @@ Profile changes require:
 8. package tools can read target profiles but cannot edit them.
 9. dev-only inputs are stripped, nulled, or rejected on non-dev target profiles.
 10. system override actions are not delivered as normal package input after Platform override handling begins.
+11. package rendering validation uses `display.logical_surface`; `display.native_panel_diagnostics` is not package-authorable.
+12. tone5 source art is valid only after tooling converts it to deterministic `tone5_masked` package assets.
+13. `rendering.low_power_sequence_assets.supported` does not imply autonomous playback; that still requires `display.autonomous_sequence.grant_status = granted`.
+14. package save/settings validation rejects records that exceed schema, size, migration, or write-budget limits before export.
+15. package-visible write failure uses bounded persistence results; underlying storage faults remain Platform diagnostics.
+16. package diagnostics cannot request debug transports, protected storage, or dashboard export ownership.
+17. package limits expose abstract compatibility budgets, not SRAM banks, linker sections, flash offsets, heap regions, or DMA buffers.
 
 ---
 
