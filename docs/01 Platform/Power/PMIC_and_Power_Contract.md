@@ -74,6 +74,15 @@ Both paths should be reconciled by `thPower`.
 
 Disagreement between the PMIC VBUS view and MCU VBUS view is a diagnostic event until explained. It must not silently change installer/storage ownership.
 
+VBUS classification means external USB power is present. It does not by itself prove a USB data host exists.
+
+Rules:
+
+- VBUS may wake the device, update charger policy, and notify USB policy.
+- VBUS alone must not prompt for MSC flashing/export mode.
+- USB protocol activity or successful host enumeration must gate MSC availability through [[Storage_and_Installer_Contract]].
+- power-only chargers and USB-C power banks remain charger/external-power cases when no usable USB data-host activity is observed.
+
 ---
 
 ## System Power FSM
@@ -170,8 +179,9 @@ Fault handling depends on severity:
 3. VBUS detected through ADP5360
 4. VBUS detected through `USB_OTG_FS_VBUS` on `PA9`
 5. VBUS path disagreement handling
-6. charging while normal runtime is active
-7. charging while flashing/install mode is active
-8. low-battery forced sleep
-9. critical-battery ISOFET disconnect
+6. VBUS-only charger/power-bank attach does not trigger MSC prompt or storage handoff
+7. charging while normal runtime is active
+8. charging while flashing/install mode is active
+9. low-battery forced sleep
+10. critical-battery ISOFET disconnect
 10. START hold shipping-prep handoff from input to power

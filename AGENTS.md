@@ -179,6 +179,10 @@ Engine/package runtime must not use FAT or host-visible files for active gamepla
 
 USB MSC is the normal universal package ingress path unless a contract says otherwise.
 
+VBUS presence is external-power evidence only. Do not treat VBUS attach alone as MSC availability, a flashing prompt, or a storage handoff; USB data-host activity/enumeration and the storage/installer contract gate MSC entry.
+
+For USBX MSC bring-up or regression work, follow `docs/02 Bring-up/USB_MSC_Bring-up_and_Recovery_Runbook.md` before speculative USB/storage patches.
+
 USB CDC development mode is a dev workflow for commands, live tuning, telemetry, and file/package transfer where implemented. Composite MSC+CDC should be treated as future/optional unless documented.
 
 Do not add package runtime dependencies on host paths, direct filesystem paths, flash offsets, erase pages, or raw storage regions.

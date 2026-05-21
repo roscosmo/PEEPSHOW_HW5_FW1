@@ -209,6 +209,8 @@ Required cases:
 
 ## Installer Cases
 
+- VBUS-only charger/power-bank attach shows charging/external-power behavior without MSC prompt or storage handoff
+- USB protocol activity/enumeration gates the MSC installer/export offer
 - local to installer handoff
 - USB export with no competing storage users
 - MSC personality exposes no CDC developer control in v1

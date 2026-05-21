@@ -63,7 +63,7 @@ Any owner timeout during quiesce is a failed sleep-entry test.
 | A/B/L/R | optional/contextual wake | only wakes when explicitly armed |
 | `BTN_BOOT` | maintenance after app boot only | not normal runtime/game input |
 | `PMIC_INT` | charger/battery/power events | EXTI15 event and PMIC status readback |
-| USB VBUS attach | installer/transport policy | VBUS classification and storage policy handoff |
+| USB VBUS attach | power and USB host-detection policy | VBUS classification; no MSC prompt/handoff until USB data-host activity or enumeration gate passes |
 | TMAG3001 `JOY_INT` | threshold joystick wake | threshold-based wake and normalized post-wake sample |
 | LIS2DUX12 `MPU_INT` | motion/gesture/event where enabled | event classification; step counter is normally polled |
 | IMU step counter mode | background activity count | deepest sleep class that preserves embedded function state |
@@ -84,7 +84,7 @@ Unknown wake reasons are defects until explained.
 6. Repeat with `BTN_START`.
 7. Repeat with A/B/L/R only for policies where those buttons are armed.
 8. Repeat with `PMIC_INT` using a safe charger/input event.
-9. Repeat with USB VBUS attach and confirm installer/storage policy is not entered until storage ownership rules allow it.
+9. Repeat with USB VBUS attach and confirm VBUS-only power does not enter MSC prompt/export; then validate USB data-host activity/enumeration separately before installer/storage policy can be offered.
 10. Repeat with TMAG3001 threshold joystick wake once joystick threshold bring-up is complete.
 11. Repeat with LIS2DUX12 event wake only for modes that intentionally arm IMU interrupt wake.
 12. Validate IMU step-counter polling mode separately: no step interrupt wake required, but the sleep class must preserve embedded step counting.

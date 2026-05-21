@@ -50,6 +50,7 @@ Rules:
 
 - settings, calibration, communication bonding records, saves, installed blobs, installed indexes, and persistent fault logs are never directly host-writable.
 - USB MSC exposes only staging/export storage.
+- VBUS presence alone is external-power evidence, not evidence that a USB data host is available for MSC.
 - v1 USB MSC and USB CDC developer control are mutually exclusive personalities.
 - persistent fault logs remain in a protected ring region; firmware may copy/export diagnostic summaries into the staging/export volume.
 - host access must never expose internal storage regions directly.
@@ -152,6 +153,43 @@ USB export rules:
 - display may show a static "flashing" or installer screen and then remain mostly inactive
 - runtime rendering/audio/gameplay are disabled or policy-limited during export
 
+## USB Data-Host Detection And MSC Gate
+
+VBUS detection and MSC export are separate lifecycle gates.
+
+VBUS may:
+
+- wake power/USB policy
+- enable charger and external-power handling
+- allow lightweight USB protocol detection where power policy permits it
+
+VBUS must not:
+
+- directly prompt for installer/export mode
+- directly hand staging/export storage to USB MSC
+- directly quiesce active gameplay or runtime storage ownership
+
+Preferred v1 gate model:
+
+| Gate | Meaning | Storage Consequence |
+|---|---|---|
+| `VBUS_PRESENT` | external power is present | charging/power policy only |
+| `USB_ACTIVITY_DETECTED` | USB reset or equivalent protocol activity from a real data host was observed | host detection may continue; no MSC storage export |
+| `USB_ENUMERATED` | a lightweight USB personality reached successful host enumeration/configuration | PeepOS may expose a USB-host-available status or offer installer/export |
+| `MSC_AVAILABLE` | user/system policy allows the installer/export offer | UI may prompt for MSC entry |
+| `MSC_ACTIVE` | installer/export entry accepted and MSC personality active | `thStorage` quiesces local users and exports staging storage |
+
+Rules:
+
+- actual USB protocol activity or successful enumeration is required before MSC availability is offered.
+- a charger or USB-C power bank that provides VBUS without usable USB data must remain an external-power/charging case and must not trigger an MSC prompt.
+- lightweight host detection/enumeration may run while gameplay continues when Platform policy allows it.
+- pre-MSC detection should be lightweight control/status or protocol detection only; it is neither MSC storage export nor the CDC developer personality unless explicit dev-mode policy selects CDC.
+- lightweight detection must not mount/export MSC media, relinquish flash ownership, run SCSI/block traffic, or expose host writes before installer/export entry.
+- MSC entry must quiesce runtime/storage clients before host ownership of the staging/export FAT volume.
+- the active USB personality may re-enumerate when switching from lightweight detection to MSC.
+- exact pre-MSC descriptors and USBX implementation detail belong to the USB owner implementation and validation, not package/runtime code.
+
 ## USB Personalities
 
 PeepShow v1 uses mutually exclusive USB personalities.
@@ -163,7 +201,8 @@ PeepShow v1 uses mutually exclusive USB personalities.
 
 Rules:
 
-- normal USB attach should prefer MSC installer/export behavior unless explicit dev-mode entry policy is active.
+- VBUS attach alone must not enter or prompt for MSC installer/export behavior.
+- after USB data-host detection/enumeration and explicit installer/export entry, normal user transfer uses the MSC personality unless explicit dev-mode entry policy is active.
 - CDC developer mode must not expose MSC at the same time in v1.
 - CDC package upload writes through firmware-owned staging and `thStorage`, not a host-mounted FAT volume.
 - CDC live tuning uses owner-routed, typed, validated Platform knob commands; it must not write raw memory directly.
@@ -225,17 +264,19 @@ If external flash is unavailable:
 2. flash deep power-down and wake/revalidate path works
 3. local mount reaches `STORAGE_LOCAL_READY`
 4. storage failure routes to `STORAGE_SAFE_MODE`
-5. USB MSC exports only staging/export volume
-6. settings/saves/installed blobs are never host-writable
-7. host write/read/delete smoke succeeds on staging/export volume
-8. firmware reclaim/rescan detects changed staging contents
-9. package install preserves last known valid installed index on interruption
-10. runtime asset reads use [[Package_Asset_Loading_API_Contract]] over raw installed blob storage, not FAT/FileX
-11. installer/export mode keeps display static and only minimal input active
-12. logs/screenshots/debug exports are copied into staging/export without exposing internal regions directly
-13. persistent fault-log ring preserves previous valid records and is not host-exposed
-14. v1 USB personalities are mutually exclusive: MSC mode exposes no CDC developer control, and CDC developer mode exposes no MSC staging volume
-15. CDC package upload routes through firmware-owned staging and package validation
+5. VBUS-only charger/power attach does not prompt for or enter MSC mode
+6. USB data-host activity/enumeration is detected before MSC availability is offered
+7. USB MSC exports only staging/export volume
+8. settings/saves/installed blobs are never host-writable
+9. host write/read/delete smoke succeeds on staging/export volume
+10. firmware reclaim/rescan detects changed staging contents
+11. package install preserves last known valid installed index on interruption
+12. runtime asset reads use [[Package_Asset_Loading_API_Contract]] over raw installed blob storage, not FAT/FileX
+13. installer/export mode keeps display static and only minimal input active
+14. logs/screenshots/debug exports are copied into staging/export without exposing internal regions directly
+15. persistent fault-log ring preserves previous valid records and is not host-exposed
+16. v1 USB personalities are mutually exclusive: MSC mode exposes no CDC developer control, and CDC developer mode exposes no MSC staging volume
+17. CDC package upload routes through firmware-owned staging and package validation
 
 Related:
 

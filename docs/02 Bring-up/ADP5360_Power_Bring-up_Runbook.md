@@ -66,7 +66,7 @@ This sequence proves the PMIC monitor path before full sleep policy depends on i
 5. Configure only the minimum required PMIC settings for safe monitor operation.
 6. Validate `PMIC_INT` by reading/clearing a known pending condition or producing a safe charger/input event.
 7. Compare VBUS classification from ADP5360 status and `PA9` USB VBUS sense.
-8. Connect USB and confirm charging/input-present state without changing storage ownership by itself.
+8. Connect USB power and confirm charging/input-present state without showing an MSC prompt or changing storage ownership by itself.
 9. Disconnect USB and confirm charger/input-absent state.
 10. Trigger or simulate low-battery threshold and confirm forced-sleep policy is selected.
 11. Trigger or simulate critical-battery threshold and confirm ISOFET-disconnect policy is selected instead of shipping mode.
@@ -105,7 +105,7 @@ Thresholds are Platform tuning constants, not Reference Game policy.
 | address representation | public 7-bit `0x46` through `ps_hw_i2c3` | convention confirmed | TBD | open |
 | status read | PMIC status registers | charger/battery/fault state readable | TBD | open |
 | PMIC_INT | safe event or pending clear | EXTI15 event and owner handling | TBD | open |
-| VBUS cross-check | USB attach/detach | ADP5360 and `PA9` agree or log diagnostic | TBD | open |
+| VBUS cross-check | USB attach/detach | ADP5360 and `PA9` agree or log diagnostic; no VBUS-only MSC prompt | TBD | open |
 | charging | USB attached | charging/charge-done state reported | TBD | open |
 | low battery | simulated or measured threshold | forced sleep selected | TBD | open |
 | critical battery | simulated or controlled threshold | ISOFET disconnect selected, not shipping mode | TBD | open |
@@ -121,7 +121,7 @@ Thresholds are Platform tuning constants, not Reference Game policy.
 2. Probe ADP5360 over I2C3 at `0x46`.
 3. Read basic PMIC/fuel/charger status registers.
 4. Confirm `PMIC_INT` edge/level behavior and EXTI routing.
-5. Compare VBUS classification from ADP5360 and `PA9` VBUS divider/path.
+5. Compare VBUS classification from ADP5360 and `PA9` VBUS divider/path; confirm VBUS-only power does not offer MSC mode.
 6. Validate charging and charge-done reporting.
 7. Validate low-battery threshold routes to forced sleep policy.
 8. Validate critical-battery threshold disconnects ISOFET, not shipping mode.
@@ -140,7 +140,7 @@ Record in [[Brought_Up_Tracker]]:
 - I2C probe log
 - PMIC status readback
 - PMIC interrupt observation
-- VBUS cross-check result
+- VBUS cross-check result, including no VBUS-only MSC prompt/storage handoff
 - charging state result
 - low-battery forced-sleep test result
 - critical-battery ISOFET disconnect result if safely testable

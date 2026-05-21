@@ -534,7 +534,10 @@ Key events:
 - `EV_LOCAL_QUIESCE_OK`
 - `EV_INSTALLER_ENTER`
 - `EV_UMOUNT_OK`
-- `EV_USB_ATTACH`
+- `EV_USB_VBUS_PRESENT`
+- `EV_USB_ACTIVITY_DETECTED`
+- `EV_USB_ENUMERATED`
+- `EV_USB_MSC_ENTRY_ACCEPTED`
 - `EV_USB_DETACH`
 - `EV_USB_HOST_DIRTY`
 - `EV_USB_RELEASE_REQ`
@@ -546,6 +549,8 @@ Key events:
 
 Rules:
 - Only `thStorage` may mount/unmount/export.
+- VBUS presence alone is not an MSC entry event.
+- USB protocol activity or host enumeration must gate MSC availability before installer/export entry is accepted.
 - USB MSC exposes only the staging/export region.
 - Runtime/package access must be blocked in `STORAGE_USB_STAGING_EXPORTED`.
 - Storage failure routes to safe mode because settings/calibration are required for normal usability.

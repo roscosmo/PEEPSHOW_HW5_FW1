@@ -15,7 +15,7 @@ This note records all wake-capable sources and their Platform handling path.
 | Joystick / hall IRQ | `PC11` `JOY_INT`, `EXTI11` | `thInput` / `thPower` | TMAG threshold filter | policy-defined | threshold interrupt from TMAG3001; read over I2C3 to determine cardinal direction(s) |
 | IMU IRQ | `PB14` `MPU_INT`, `EXTI14`, LIS2DUX12 `INT1` | `thSensor` / `thPower` | required | policy-defined | motion, tap/shake, tilt/orientation, diagnostics, or future policy events; step counting is normally polled and must not wake on every step |
 | PMIC / fuel IRQ | `PB15` `PMIC_INT`, `EXTI15` | `thPower` | required | policy-defined | ADP5360 charger, battery, or fault notification |
-| USB attach | `PA9` VBUS plus USB OTG FS device path | `thStorage` / `thPower` | required | installer flow | USBX MSC enabled |
+| USB VBUS attach | `PA9` VBUS plus PMIC VBUS classification | `thPower` / USB policy | required | power/USB detection policy | external power wake/detect only; USB protocol activity or enumeration must gate MSC availability |
 
 ## Not Wake Sources In Current `.ioc`
 

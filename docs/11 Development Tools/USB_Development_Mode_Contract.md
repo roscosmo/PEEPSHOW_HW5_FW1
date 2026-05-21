@@ -55,6 +55,8 @@ Composite `MSC + CDC` is explicitly deferred.
 
 Normal USB mode remains mass storage first.
 
+That means MSC remains the universal normal-user transfer personality after the USB data-host gate and installer/export entry. It does not mean VBUS presence immediately exposes MSC or prompts for flashing/export.
+
 Purpose:
 
 - user copies installable `PeepPkg` packages
@@ -63,6 +65,9 @@ Purpose:
 
 Rules:
 
+- VBUS presence alone may wake power/USB policy and indicate charging, but it must not directly prompt for MSC entry.
+- PeepOS may offer MSC installer/export only after USB reset/enumeration or equivalent USB data-host activity proves that a host is present.
+- lightweight pre-MSC USB host detection may run during gameplay if Platform policy permits it; it must not expose staging storage or start MSC block/SCSI traffic.
 - USB MSC exposes only the staging/export FAT volume.
 - host owns the staging/export volume while MSC is active.
 - firmware must not mount or write the staging/export FAT volume while the host owns it.
@@ -114,7 +119,8 @@ Allowed entry mechanisms:
 
 Rules:
 
-- normal USB attach should prefer MSC installer/export behavior.
+- normal data-host detection should prefer the normal MSC installer/export path after user/system entry policy allows it.
+- VBUS-only charger/power attach must not be treated as MSC availability.
 - dev-mode entry must be visible in Platform state and diagnostics.
 - dev-mode entry must not silently expose protected storage.
 - failed dev-mode entry falls back to normal safe behavior or no USB personality.
@@ -273,16 +279,18 @@ Until then:
 
 ## Validation Cases
 
-1. normal USB attach exposes MSC installer/export personality, not CDC dev control, unless dev entry policy is active.
-2. MSC mode exports only staging/export storage.
-3. firmware does not mount or write the staging/export FAT volume while host owns MSC.
-4. dev-mode entry exposes CDC only and no MSC volume.
-5. CDC package upload writes only through firmware-owned staging and `thStorage`.
-6. corrupted CDC package upload fails validation without changing the active installed package.
-7. live-safe knob edit is owner-routed, validated, and reported as applied, clamped, or rejected.
-8. non-live-safe knob edit is rejected.
-9. CDC telemetry is rate-limited and disableable.
-10. release/shipping build disables CDC dev control unless a future policy explicitly allows a limited subset.
+1. VBUS-only charger/power attach exposes no MSC prompt and no CDC developer control unless explicit dev policy says otherwise.
+2. USB data-host detection/enumeration occurs before the normal MSC installer/export offer.
+3. accepted normal installer/export entry exposes MSC, not CDC dev control, unless dev entry policy is active.
+4. MSC mode exports only staging/export storage.
+5. firmware does not mount or write the staging/export FAT volume while host owns MSC.
+6. dev-mode entry exposes CDC only and no MSC volume.
+7. CDC package upload writes only through firmware-owned staging and `thStorage`.
+8. corrupted CDC package upload fails validation without changing the active installed package.
+9. live-safe knob edit is owner-routed, validated, and reported as applied, clamped, or rejected.
+10. non-live-safe knob edit is rejected.
+11. CDC telemetry is rate-limited and disableable.
+12. release/shipping build disables CDC dev control unless a future policy explicitly allows a limited subset.
 
 ---
 
