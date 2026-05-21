@@ -85,7 +85,7 @@ Packages do not own physical time or power policy.
 - Packages may not program RTC, SysTick, hardware timers, clocks, STOP mode, or wake pins.
 - Packages may request logical schedules and cadence only.
 - Platform may clamp, coalesce, delay, or skip low-power timing work according to policy.
-- User inactivity timeout always applies to package runtime.
+- User inactivity timeout always applies to package runtime; an admitted interactive communication context may receive only the bounded peer-wait grace granted by the target profile.
 - `HOLD` and `ULP_ANIM` run no arbitrary package logic.
 - Realtime execution must declare idle detection and fallback routing.
 - Runtime lifecycle events are the normal path for sleep/resume reconciliation.
@@ -218,7 +218,7 @@ Rules:
 - `LP_GRAPH` should be event/schedule driven, not polling driven.
 - `STATIC` updates are low-rate and event driven.
 - input-triggered `STATIC` updates may be serviced promptly and then return to idle policy.
-- Platform inactivity timeout can force fallback regardless of requested cadence.
+- Platform inactivity timeout can force fallback regardless of requested cadence once any admitted interactive peer-wait grace has expired.
 - target profiles distinguish static periodic cadence from static input-response latency.
 - target profiles distinguish low-power wake/update/return behavior from autonomous display sequences.
 
@@ -324,6 +324,23 @@ Rules:
 
 ---
 
+## Interactive Session Wait
+
+Some communication experiences need the local device to remain responsive while a remote peer is taking a turn or supplying the next meaningful session action.
+
+The communication contract may declare an interactive wait policy for that context. Power policy may then grant a bounded peer-wait grace from the target profile.
+
+Rules:
+
+- peer-wait grace delays the forced low-power route; it does not remove inactivity enforcement.
+- packages do not author the grace duration through the power API.
+- meaningful remote activity may refresh peer-wait grace only when the communication context and target profile allow it.
+- keepalives, presence chatter, and arbitrary activity hints are not a general stay-awake path.
+- when grace expires, the runtime follows its declared session idle, pause, fallback, or low-power route.
+- HW5 communication still cannot wake a package after low-power entry.
+
+---
+
 ## Runtime Class Rules
 
 | Runtime Class | Time And Power Behavior |
@@ -357,6 +374,7 @@ Reject:
 - polling loops used to approximate low-power cadence.
 - high-frequency schedules in `LP_GRAPH`.
 - realtime runtime unit without idle fallback.
+- interactive session wait without target-profile support or a declared expiry route.
 - runtime unit that requests cadence above target profile caps.
 - package wake intent unsupported by selected target profile.
 - communication wake intent on HW5 profiles.
@@ -391,7 +409,7 @@ Optional twin time models:
 Rules:
 
 - calendar time must be controllable in deterministic tests.
-- scheduled events, lifecycle events, wake reasons, cadence clamps, and inactivity timeout must be replayable.
+- scheduled events, lifecycle events, wake reasons, cadence clamps, inactivity timeout, and admitted interactive peer-wait grace must be replayable.
 - twin profiles must derive cadence caps and inactivity timeout from measured/frozen target profiles.
 - twin evidence does not prove RTC hardware, wake latency, current draw, or physical sleep behavior.
 
@@ -408,6 +426,8 @@ Rules:
 7. `LP_GRAPH` polling cadence above target profile limits fails validation.
 8. `RT_SCENE` without idle fallback fails validation.
 9. user inactivity timeout forces declared low-power route despite active cadence request.
-10. HW5 communication wake intent fails validation.
-11. digital twin deterministic replay produces the same time, schedule, wake, and lifecycle event sequence for a fixed trace.
-12. digital twin accelerated sleep simulation is not used as HW5 current, wake-latency, or RTC hardware evidence.
+10. bounded interactive peer-wait grace may delay the low-power route only where the target profile and communication context grant it.
+11. peer-wait expiry follows the declared session idle, pause, fallback, or low-power route.
+12. HW5 communication wake intent fails validation.
+13. digital twin deterministic replay produces the same time, schedule, wake, lifecycle, and peer-wait expiry sequence for a fixed trace.
+14. digital twin accelerated sleep simulation is not used as HW5 current, wake-latency, or RTC hardware evidence.

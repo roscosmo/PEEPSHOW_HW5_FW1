@@ -11,10 +11,14 @@
             "id": "1f0c9402597c6e72",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "05 Reference Game/Reference_Game_Index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Reference_Game_Index"
             }
           }
         ]
@@ -178,6 +182,7 @@
   },
   "active": "1f0c9402597c6e72",
   "lastOpenFiles": [
+    "02 Bring-up/Brought_Up_Tracker.md",
     "11 Development Tools/USB_Development_Mode_Contract.md",
     "11 Development Tools/Development_Tooling_Index.md",
     "11 Development Tools",
@@ -204,7 +209,6 @@
     "05 Reference Game/01 Mechanics/Forms.md",
     "05 Reference Game/00 Scratch/Scratchpad.md",
     "05 Reference Game/02 Content/Rituals.md",
-    "05 Reference Game/02 Content/Items.md",
     "05 Reference Game/04 Notes",
     "05 Reference Game/03 Maps",
     "05 Reference Game/02 Content",

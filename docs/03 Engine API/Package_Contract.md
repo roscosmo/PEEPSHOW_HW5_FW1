@@ -181,6 +181,8 @@ Runtime class requirements:
 
 `RT_SCENE` units do not have a fixed maximum active duration at the package contract level. The Platform inactivity timeout always applies. A realtime unit may remain active while meaningful user activity or Platform-approved active work continues, but it must declare idle detection, suspend behavior, resume behavior, and fallback routing.
 
+An interactive communication context may request only the bounded peer-wait grace defined by [[Communication_API_Contract]] and the selected target profile. That policy delays the forced low-power route where admitted; it is not a package-owned timeout override.
+
 `LP_MODULE` units must name an approved Engine module type. They are not arbitrary low-power code blobs.
 
 ---
@@ -310,6 +312,7 @@ Rules:
 - `realtime_idle_fallback` is required for `RT_SCENE`.
 - low-power and static update rates must fit the target profile.
 - packages must tolerate forced low-power behavior after Platform idle timeout.
+- interactive communication peer-wait grace must be declared through the communication profile and fit the target profile.
 - `idle_behavior` must resolve to `HOLD`, `ULP_ANIM`, `STATIC`, `exit_to_shell`, or another approved low-power route.
 - activity hints are not exemptions from inactivity timeout.
 - input-triggered updates must be bounded and return to the declared idle behavior.
@@ -600,6 +603,7 @@ communication_profile:
     message_schema_ref
     rate_limits
     timeout_policy
+    interactive_wait_policy
     ordering_policy
     session_end_route
     fallback_route

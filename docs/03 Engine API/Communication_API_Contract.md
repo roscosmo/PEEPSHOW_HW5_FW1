@@ -82,6 +82,7 @@ Packages do not own BLE hardware behavior.
 - Message send/receive behavior must have fixed maximum payload size and rate limits.
 - Communication runtime units must declare either fallback/route behavior or session-required admission behavior.
 - Multiplayer-only and companion-required package experiences are valid when declared and bounded.
+- Interactive session waits may request only the bounded peer-wait behavior granted by the target profile.
 - BLE hardware faults are Platform health events, not package gameplay logic.
 - Peer disconnects, session closes, message timeouts, and session admission failures are package-visible session events.
 - For HW5, BLE does not wake the device.
@@ -140,6 +141,7 @@ communication_profile:
     message_schema_ref
     rate_limits
     timeout_policy
+    interactive_wait_policy
     ordering_policy
     session_end_route
     fallback_route
@@ -170,7 +172,38 @@ Rules:
 - session-required runtime units must declare an admission route when no session exists.
 - optional contexts must declare fallback/route behavior.
 - timeout and session-end policy must be explicit.
+- interactive wait policy must be explicit when a context expects the local device to remain awake while a remote peer is taking a turn or supplying the next meaningful session action.
 - no context may declare communication wake on HW5 profiles.
+
+---
+
+## Interactive Session Wait Policy
+
+Interactive communication can include bounded peer-wait periods where the local player has finished an action and is waiting for the next meaningful remote action.
+
+This is a declared communication policy, not a package-owned power override.
+
+Conceptual shape:
+
+```text
+interactive_wait_policy:
+  requested
+  refresh_message_types[]
+  wait_expiry_route
+```
+
+Rules:
+
+- target profiles decide whether interactive session wait is supported and the maximum awake grace that may be granted.
+- packages may request peer-wait behavior only through a declared communication context.
+- package code does not set or extend the Platform inactivity timeout directly.
+- `refresh_message_types[]` may name bounded schema messages that represent meaningful peer progress or input.
+- generic keepalive traffic, presence chatter, and arbitrary high-rate messages must not be used to defeat low-power policy.
+- wait expiry must route through declared session idle, pause, fallback, or low-power behavior.
+- remote activity can refresh an admitted peer-wait grace only where the target profile grants that behavior.
+- HW5 peer-wait policy does not create BLE wake; once the Platform has taken the low-power route, communication cannot wake the package.
+
+This allows experiences such as turn-based multiplayer to keep the watching player responsive for a bounded peer turn without making an active session an unlimited awake lease.
 
 ---
 
@@ -281,6 +314,8 @@ Rules:
 
 For HW5, communication cannot be a wake source. A communication session may raise the Platform power floor while active, but Platform remains the sleep authority.
 
+An admitted interactive wait policy may delay the forced low-power route for a bounded peer-wait grace when the target profile grants it. That grace expires under Platform policy and does not turn message traffic into a communication wake source.
+
 ---
 
 ## Tool-Time Validation
@@ -297,6 +332,9 @@ Reject:
 - unknown or unresolved message schema.
 - session-required runtime unit without admission/session route.
 - optional communication context without fallback/route behavior.
+- interactive wait policy when the selected target profile does not support it.
+- interactive wait policy without a declared wait-expiry route.
+- interactive wait policy that depends on keepalive or unbounded chatter to stay awake.
 - `LP_GRAPH` unit depending on BLE receive.
 - realtime communication context without declared budget/rate limits.
 - arbitrary byte stream unless a future bounded stream primitive is contracted.
@@ -362,6 +400,7 @@ Rules:
 - BLE/NINA commands are not exposed.
 - bonding and pairing internals are not modeled as hardware behavior.
 - message schema, payload bounds, rate limits, and session-required admission behavior must match package contracts.
+- interactive peer-wait behavior must enforce target-profile grace limits, refresh policy, and expiry routes.
 - twin profiles must model HW5's no-BLE-wake rule unless a future target profile grants communication wake.
 - twin communication evidence is not HW5 BLE bring-up evidence.
 
@@ -379,3 +418,5 @@ Rules:
 8. BLE owner fault is logged as Platform/Engine diagnostic and not exposed as UART/NINA error to package gameplay code.
 9. digital twin multi-instance session replay is deterministic for a fixed trace.
 10. digital twin delayed/drop/disconnect fault injection validates package session behavior without acting as HW5 bring-up evidence.
+11. interactive peer-wait policy validates only when the target profile grants it and the context declares a wait-expiry route.
+12. keepalive or unbounded chatter cannot refresh peer-wait grace or bypass the low-power route.

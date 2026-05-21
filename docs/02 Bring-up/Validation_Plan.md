@@ -164,6 +164,8 @@ Required cases:
 8. BLE owner fault is logged as Platform/Engine diagnostic and not exposed as UART/NINA error to package gameplay code.
 9. digital twin multi-instance communication replay is deterministic for a fixed trace.
 10. digital twin delayed/drop/disconnect/fault injection validates package session behavior without acting as HW5 BLE bring-up evidence.
+11. interactive peer-wait policy validates only when the target profile grants it and the context declares a wait-expiry route.
+12. keepalive or unbounded communication chatter cannot bypass peer-wait grace limits or the declared low-power route.
 
 ---
 
@@ -182,9 +184,11 @@ Required cases:
 7. low-power polling cadence above target profile limits fails validation.
 8. `RT_SCENE` without idle fallback fails validation.
 9. user inactivity timeout forces declared low-power route despite active cadence request.
-10. HW5 communication wake intent fails validation.
-11. digital twin deterministic replay produces the same time, schedule, wake, and lifecycle event sequence for a fixed trace.
-12. digital twin accelerated sleep simulation is not used as HW5 current, wake-latency, RTC, or physical sleep evidence.
+10. bounded interactive peer-wait grace delays the low-power route only where the target profile and communication context grant it.
+11. peer-wait expiry follows the declared session idle, pause, fallback, or low-power route.
+12. HW5 communication wake intent fails validation.
+13. digital twin deterministic replay produces the same time, schedule, wake, lifecycle, and peer-wait expiry sequence for a fixed trace.
+14. digital twin accelerated sleep simulation is not used as HW5 current, wake-latency, RTC, or physical sleep evidence.
 
 ---
 

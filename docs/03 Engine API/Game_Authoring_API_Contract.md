@@ -420,6 +420,7 @@ Rules:
 - every package must have a valid low-power route unless it is a Platform-owned installer/diagnostic flow
 - realtime work must be declared, bounded, and able to fall back to idle/static behavior
 - realtime units have no fixed maximum active duration at this contract level, but user inactivity timeout always applies
+- interactive communication may request only bounded target-profile peer-wait grace through the communication contract
 - packages do not keep hardware awake directly
 - packages express activity, latency, wake, and cadence intent only
 - Platform may force low-power behavior after the idle timeout

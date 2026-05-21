@@ -258,6 +258,10 @@ power:
   idle_to_low_power_forced = true
   realtime_requires_activity = true
   communication_wake_supported
+  interactive_session_wait:
+    supported
+    awake_grace_ms_max
+    remote_activity_refresh_supported
   sleep_classes[]
   wake_intents_supported[]
   lifecycle_wake_reasons[]
@@ -287,7 +291,10 @@ Rules:
 - packages may read valid PeepOS calendar time where granted.
 - packages may not set RTC/calendar time.
 - user inactivity timeout always applies, regardless of package cadence requests.
+- target profiles may grant only bounded interactive session peer-wait grace before the forced low-power route.
 - packages decide the declared low-power route for forced inactivity, but PeepOS owns the timeout and enforcement.
+- packages may request supported peer-wait policy through communication contexts, but may not author inactivity timeout or peer-wait grace values.
+- remote activity refresh support must not turn keepalive traffic or arbitrary chatter into a general stay-awake path.
 - static periodic updates and static input-response latency are separate profile limits.
 - baseline low-power display updates that wake the MCU must be modeled separately from autonomous display sequences.
 - package wake behavior uses `wake_intents_supported[]`; hardware wake source details remain Platform/HW documentation.
@@ -487,6 +494,7 @@ Profile changes require:
 15. package-visible write failure uses bounded persistence results; underlying storage faults remain Platform diagnostics.
 16. package diagnostics cannot request debug transports, protected storage, or dashboard export ownership.
 17. package limits expose abstract compatibility budgets, not SRAM banks, linker sections, flash offsets, heap regions, or DMA buffers.
+18. interactive communication wait validates against profile peer-wait support and grace limits without granting communication wake.
 
 ---
 

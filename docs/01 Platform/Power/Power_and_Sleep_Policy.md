@@ -123,6 +123,8 @@ User inactivity timeout is mandatory for game/runtime packages.
 
 After the timeout expires, Platform policy may force the active runtime unit toward its declared low-power route even if the package requested realtime cadence or temporary capability contexts.
 
+An admitted interactive communication context may receive bounded peer-wait grace where the target profile grants it. This exists for cases such as turn-based remote play where the local device is watching for the next meaningful peer action. It delays the forced low-power route only within Platform-owned limits; it is not a package-owned timeout override, unlimited active-session lease, or communication wake source.
+
 Cadence requests are requests only:
 
 - `REALTIME` frame cadence is granted only while realtime activity is valid.
@@ -143,6 +145,7 @@ Target profiles must define:
 - realtime target frame rate
 - autonomous display sequence availability
 - autonomous sequence frame/cadence caps, if available
+- interactive session peer-wait support, grace cap, refresh policy, and expiry-route requirement where available
 - package-visible wake intents and lifecycle wake reasons
 
 Current design expectations are an inactivity timeout in the 10-15 second range, static updates around 2 Hz, baseline low-power display updates around 1 Hz when each update wakes the MCU, and a 30 fps realtime target. These are design targets only until HW5 evidence freezes target profile values.

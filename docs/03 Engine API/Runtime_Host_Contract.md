@@ -128,6 +128,8 @@ Runtime unit transitions must preserve this model. A realtime unit must return t
 
 `RT_SCENE` has no fixed maximum active duration at this contract level. Platform inactivity timeout always applies, and realtime units must declare idle detection, suspend/resume behavior, and fallback routing.
 
+Bounded interactive peer-wait grace is admitted only through [[Communication_API_Contract]] and target-profile policy. Runtime hosts must not treat an active communication session as an unlimited stay-awake grant.
+
 Power manager maps intent to hardware policy.
 
 ---

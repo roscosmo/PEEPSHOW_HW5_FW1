@@ -452,13 +452,14 @@ The twin enforces PeepOS power policy as a contract, not as a measurement.
 Required behavior:
 
 - inactivity timeout advances the simulated Platform toward low-power policy
+- admitted interactive peer-wait grace delays that route only within selected target-profile limits
 - packages cannot keep realtime behavior active without declared activity
 - background display cadence is clamped by runtime class and Platform profile
 - input-triggered updates can be modeled as immediate where Platform policy allows
 - STOP-resident logical time may advance without running package code
 - wake reasons are classified and delivered through the normal lifecycle/event path
 
-The enforced inactivity timeout, static cadence/latency caps, low-power cadence policy, and realtime frame budget are Platform policy values and must come from measured/frozen target profiles.
+The enforced inactivity timeout, interactive peer-wait grace policy, static cadence/latency caps, low-power cadence policy, and realtime frame budget are Platform policy values and must come from measured/frozen target profiles.
 
 The twin should report:
 
@@ -623,7 +624,7 @@ Optional time models:
 
 All time models must preserve the runtime class and lifecycle contracts.
 
-Calendar time must be controllable in deterministic tests. The twin must replay package-visible local time, elapsed suspend time, schedule delivery, wake reasons, cadence clamps, and inactivity timeout behavior from the selected target profile.
+Calendar time must be controllable in deterministic tests. The twin must replay package-visible local time, elapsed suspend time, schedule delivery, wake reasons, cadence clamps, inactivity timeout behavior, and admitted peer-wait expiry from the selected target profile.
 
 The host time model must not be used as HW5 RTC hardware, wake-latency, current, or physical sleep evidence.
 
