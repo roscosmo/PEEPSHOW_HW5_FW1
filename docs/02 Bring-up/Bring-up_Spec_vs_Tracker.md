@@ -36,6 +36,7 @@ Do not mix these roles in one document.
 
 - `Not started`: no evidence logged
 - `In progress`: partial evidence, open criteria remain
+- `Blocked`: intentionally unavailable until prerequisite evidence or architecture work exists
 - `Complete`: all criteria met and evidence logged
 
 If any required evidence is missing, status is not complete.

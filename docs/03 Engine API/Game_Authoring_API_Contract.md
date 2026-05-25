@@ -4,12 +4,15 @@ This document defines the Engine-facing contract for game-authoring tools, packa
 
 Game-authoring tools target this contract and the package contracts. They must not target Platform hardware abstractions, RTOS internals, CubeMX output, STM32 HAL/LL, middleware internals, or Reference Game-specific implementation details.
 
+Editable project/source files are governed by [[Authoring_Project_Schema_Contract]]. Compiled package/runtime output remains governed by this contract, [[Runtime_Logic_State_API_Contract]], and the package/tooling contracts.
+
 Related:
 
 - [[Engine_API_Index]]
 - [[Runtime_Host_Contract]]
 - [[Runtime_Host_Internal_State_Machines]]
 - [[Runtime_Logic_State_API_Contract]]
+- [[Authoring_Project_Schema_Contract]]
 - [[Digital_Twin_Host_Runtime_Contract]]
 - [[PeepOS_Capability_Registry]]
 - [[Target_Profile_Schema_Contract]]

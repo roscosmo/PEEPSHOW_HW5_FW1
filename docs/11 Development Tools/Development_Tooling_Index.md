@@ -7,6 +7,7 @@ Development tools support bring-up, package authoring, telemetry, live-safe Plat
 ## Core Notes
 
 - [[Dev_Orchestration_CLI_Contract]]
+- [[Authoring_Project_Schema_Contract]]
 - [[USB_Development_Mode_Contract]]
 - [[Live_Tuning_And_Knobs_Contract]]
 - [[Telemetry_And_Debug_Dashboard_Contract]]
@@ -30,6 +31,8 @@ Development tooling is split into four lanes:
 | replay | reproduce runtime behavior | digital twin, trace capture, deterministic input/time/sensor streams |
 
 The recommended host entry point for routine workflows is [[Dev_Orchestration_CLI_Contract]].
+
+Visual authoring tools should use [[Authoring_Project_Schema_Contract]] as their editable source model and [[Asset_Pipeline_and_Package_Tooling_Contract]] as the package build boundary.
 
 ## Boundary
 

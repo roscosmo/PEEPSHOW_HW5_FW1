@@ -6,7 +6,7 @@ Use this as the live progress tracker for HW5 hardware and firmware bring-up.
 
 ## Metadata
 
-- Last updated: `YYYY-MM-DD`
+- Last updated: `2026-05-26`
 - Board revision: `TBD`
 - Firmware commit: `TBD`
 - Maintainer: `TBD`

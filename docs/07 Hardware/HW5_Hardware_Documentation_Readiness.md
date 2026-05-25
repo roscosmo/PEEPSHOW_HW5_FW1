@@ -16,6 +16,12 @@ Active CubeMX file:
 
 - `firmware/peepshow_hw5_fw1/peepshow_hw5_fw1.ioc`
 
+## Arrival-Day Rule
+
+When HW5 hardware arrives, start with [[HW5_Arrival_Phase0_Checklist]].
+
+This readiness note can confirm that documentation is prepared, but it does not prove hardware behavior. Subsystem behavior becomes known-good only from measured evidence linked in [[Brought_Up_Tracker]].
+
 ## Readiness Gates
 
 | Gate | Required Notes | Status | Notes |
@@ -66,7 +72,7 @@ Active CubeMX file:
 - Measure TEMT6000 settle time, dark/room/bright ADC values, normalized bands, filtering policy, and streaming limits before finalizing light-sensor API behavior.
 - Verify generated EXTI edge configuration, button logic levels, debounce timing, chord/repeat behavior, Start shipping-prep thresholds, and BOOT0 application/ROM boundary on HW5.
 
-## Before CubeMX Generation Checklist
+## Before CubeMX Generation Or Regeneration Checklist
 
 1. Confirm all hardware docs reference the active `.ioc` path.
 2. Resolve pin ownership conflicts between [[HW5_CubeMX_Pin_Map]] and [[HW5_Pin_Ownership_Matrix]].

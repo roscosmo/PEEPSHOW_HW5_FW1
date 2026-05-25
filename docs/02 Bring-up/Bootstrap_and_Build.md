@@ -17,12 +17,12 @@ This document defines the initial project setup and the first bring-up sequence 
 
 ## One-Time Project Bootstrap
 
-1. Create a CubeMX project for the target board.
+1. Confirm the active CubeMX project path from [[HW5_Hardware_Documentation_Readiness]].
 2. Validate pin map and peripheral clock selections against schematic.
-3. Generate code into the repository with CMake support enabled.
-4. Copy baseline docs from this pack into `/docs`.
-5. Define initial knobs and schemas in `/config`.
-6. Commit a "hardware skeleton only" checkpoint before feature work.
+3. Generate or regenerate firmware code into the documented firmware workspace with CMake support enabled.
+4. Keep `/docs` as the Obsidian vault and architecture source of truth.
+5. Define initial knobs and schemas in the documented configuration location before feature work depends on them.
+6. Commit a "hardware skeleton only" checkpoint before subsystem feature work.
 
 ---
 
@@ -87,17 +87,21 @@ Once the orchestration CLI exists, equivalent commands should be available throu
 
 ## Bring-Up Phases
 
-1. Phase 0 - Clock and reset stability.
-2. Phase 1 - GPIO and always-on rails.
-3. Phase 2 - Display bring-up (blocking path first).
-4. Phase 3 - External flash and storage path.
-5. Phase 4 - Audio path and DMA.
-6. Phase 5 - Input and sensor validation.
-7. Phase 6 - ThreadX owner-thread integration.
-8. Phase 7 - STOP2 and wake classification.
-9. Phase 8 - Installer path and storage ownership handoff.
+Use the phase order from [[Brought_Up_Tracker]]:
 
-Do not enable deep sleep before phases 0-6 are stable.
+1. Phase 0 - Arrival, power, and clock stability.
+2. Phase 1 - Display validation.
+3. Phase 2 - Storage validation.
+4. Phase 3 - Audio validation.
+5. Phase 4 - Input and sensors.
+6. Phase 5 - RTOS owner integration.
+7. Phase 6 - Sleep and wake validation.
+8. Phase 7 - Installer and transport mode.
+9. Phase 8 - Runtime host lifecycle.
+10. Phase 9 - Platform freeze checks.
+11. Phase 10 - Digital twin parity.
+
+Do not enable deep sleep before power, clocks, owner-thread quiesce, and wake classification prerequisites are documented by the relevant runbooks.
 
 ---
 

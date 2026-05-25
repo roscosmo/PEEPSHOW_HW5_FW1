@@ -5,6 +5,7 @@ This document defines how external tools produce package content for runtime hos
 Related:
 
 - [[Game_Authoring_API_Contract]]
+- [[Authoring_Project_Schema_Contract]]
 - [[Content_Parameter_Schema_Contract]]
 - [[Target_Profile_Schema_Contract]]
 - [[Package_Contract]]
@@ -24,6 +25,8 @@ Tool-side validation is a required pre-compilation gate. Install-time firmware v
 Normal game-authoring validation must use PeepOS concepts. Low-level forbidden-token checks are internal verifier guardrails for toolchain defects, corrupted artifacts, malicious packages, or future advanced tooling.
 
 Project-level command orchestration is defined in [[Dev_Orchestration_CLI_Contract]]. CLI package commands must call this pipeline and must not bypass validation.
+
+Editable source projects are defined in [[Authoring_Project_Schema_Contract]]. This pipeline consumes those authoring sources and emits deterministic package/runtime artifacts.
 
 ---
 
