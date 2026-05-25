@@ -81,6 +81,8 @@ peep debug openocd
 peep package build
 peep package install-msc
 peep package upload-cdc
+peep platform-update stage-msc
+peep platform-update upload-cdc
 peep trace snapshot
 peep telemetry capture
 peep dashboard
@@ -103,6 +105,7 @@ Final command names may change, but command responsibilities should remain stabl
 | `flash` | program firmware through approved debug/programming tools |
 | `debug` | start approved debug sessions or helper scripts |
 | `package` | build, validate, install, or upload `PeepPkg` artifacts |
+| `platform-update` | stage or upload Platform update artifacts through documented update policy, when supported |
 | `usb` | inspect or select allowed USB development workflows |
 | `trace` | prepare/dump Tracealyzer snapshot evidence |
 | `telemetry` | capture/export dashboard telemetry artifacts |
@@ -224,6 +227,28 @@ Rules:
 
 ---
 
+## Platform Update Workflows
+
+Platform update commands are future/deferred unless the Platform update policy and recovery path are implemented.
+
+Expected future command shape:
+
+```text
+peep platform-update stage-msc --artifact path/to/peepshow-update.bin
+peep platform-update upload-cdc --artifact path/to/peepshow-update.bin
+```
+
+Rules:
+
+- Platform update artifacts are not `PeepPkg` packages.
+- MSC staging copies the artifact only; firmware-owned Platform update validation starts after staging is reclaimed.
+- CDC upload writes only to firmware-owned staging through documented USB developer commands.
+- no CLI platform-update command may raw-program Platform firmware regions through CDC.
+- direct firmware flashing remains under the `flash` family and uses approved debug/programming tools.
+- apply/commit commands remain deferred until [[Platform_Firmware_Update_and_Development_Security_Policy]] defines the recovery/update flow.
+
+---
+
 ## Trace And Telemetry Workflows
 
 Trace and telemetry commands coordinate existing contracts.
@@ -302,6 +327,7 @@ The CLI must not expose:
 - direct filesystem access into protected device regions
 - direct HAL/LL/RTOS/private owner state mutation
 - package install bypass
+- Platform firmware update apply/commit outside the documented Platform update flow
 - simultaneous MSC host ownership and firmware writes to the same FAT volume
 
 Any advanced escape hatch for maintainers must be explicit, logged, gated, and excluded from normal workflows.
@@ -338,11 +364,13 @@ CI must not:
 5. flash command prints target and image summary before programming.
 6. CDC package upload refuses to run unless developer CDC personality is active.
 7. MSC package install workflow does not require PeepShow-specific host tooling for normal copy path.
-8. `platform-knob` command rejects non-live-safe Platform knob.
-9. telemetry capture command records schema versions and source profile.
-10. trace snapshot command records trace profile and artifact path.
-11. twin command refuses hardware-derived profile before required validation evidence exists.
-12. evidence command produces tracker-ready metadata without marking completion automatically.
+8. platform-update commands treat update artifacts as distinct from `PeepPkg` packages.
+9. platform-update upload over CDC refuses raw flash programming.
+10. `platform-knob` command rejects non-live-safe Platform knob.
+11. telemetry capture command records schema versions and source profile.
+12. trace snapshot command records trace profile and artifact path.
+13. twin command refuses hardware-derived profile before required validation evidence exists.
+14. evidence command produces tracker-ready metadata without marking completion automatically.
 
 ---
 

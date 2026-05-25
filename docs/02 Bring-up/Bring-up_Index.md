@@ -16,6 +16,8 @@ This section is operational and historical. It tracks validation sequences, fail
 - [[Pending_Measured_Constants_Register]]
 - [[Validation_Plan]]
 - [[Debug_Workflows]]
+- [[Bounded_Build_Flash_Debug_Runbook]]
+- [[Power_Measurement_and_Trace_Correlation_Runbook]]
 - [[USB_Development_Mode_Contract]]
 - [[Live_Tuning_And_Knobs_Contract]]
 - [[Telemetry_And_Debug_Dashboard_Contract]]

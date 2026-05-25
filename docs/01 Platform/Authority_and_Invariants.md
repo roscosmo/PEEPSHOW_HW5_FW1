@@ -14,6 +14,7 @@ Defines:
 - ownership and concurrency invariants
 - timing and cadence invariants
 - storage and installer invariants
+- firmware update and development security invariants
 - determinism and debug invariants
 - documentation priority
 
@@ -116,6 +117,19 @@ Time-domain labels are mandatory for Platform timing knobs:
 - Engine and Reference Game must not use FAT for active runtime execution.
 - `INSTALLER` is single-writer mode for host-visible transport.
 - Non-installer subsystems are isolated while installer path is active.
+- Package install is not Platform firmware update.
+- Platform firmware update is a Platform-owned recovery/update flow, not an Engine/package runtime operation.
+
+---
+
+## Firmware Update and Development Security Invariants
+
+- Development and bring-up builds must remain recoverable.
+- Do not enable irreversible debug lock-down, option-byte protection, RDP, PCROP, write protection, TrustZone, MPU hardening, or equivalent production security enforcement until the recovery/update path is proven and documented.
+- Security metadata seams such as versions, hashes, checksums, and future signature fields may exist before enforcement.
+- Package validation remains mandatory even when signature enforcement is deferred.
+- Native executable package installation into an internal app slot is not the current package model. Any future native executable package path requires a separate architecture contract.
+- Watchdog enforcement is deferred release hardening until reset-cause logging, owner health reporting, sleep/resume, and interrupted storage/update recovery are proven.
 
 ---
 

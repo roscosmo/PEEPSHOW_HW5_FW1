@@ -187,7 +187,8 @@ Rules:
 ## Flash Layout Contract
 
 Define fixed regions for:
-- boot and app images
+- boot/recovery and Platform firmware images
+- Platform firmware update staging or metadata if implemented
 - package staging area
 - package installed area
 - save data area
@@ -195,6 +196,12 @@ Define fixed regions for:
 - protected persistent fault-log ring near the end of external flash
 
 Layout changes require migration notes and compatibility review.
+
+Rules:
+
+- package installed areas store validated package/content data, not arbitrary native executable game slots.
+- Platform firmware update layout is separate from package install layout and follows [[Platform_Firmware_Update_and_Development_Security_Policy]].
+- exact bootloader, update-slot, rollback, and production protection layout decisions are deferred until the Platform update/recovery path is intentionally designed.
 
 Persistent fault-log ring rules:
 

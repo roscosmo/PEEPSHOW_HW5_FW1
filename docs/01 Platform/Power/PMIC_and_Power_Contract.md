@@ -17,6 +17,13 @@ Related:
 
 PMIC: `ADP5360`.
 
+Current HW5 battery planning target:
+
+- Bring-up battery simulator / source meter: Nordic Power Profiler Kit II (`PPK2`) or equivalent controlled source.
+- Previous cell family: `LIR2540` rechargeable coin cell.
+- Current cell family: `303040` flat LiPo pouch cell.
+- Current seller-stated capacity: `450 mAh`, treated as unverified until measured.
+
 Confirmed connections:
 
 - ADP5360 is connected to MCU I2C at address `0x46`.
@@ -146,6 +153,11 @@ Threshold values are tuning constants, not game policy.
 
 Required thresholds:
 
+- selected battery profile / cell family
+- configured ADP5360 battery capacity value
+- charger terminal voltage
+- charger current
+- charge termination current
 - low battery warning threshold
 - low battery forced-sleep threshold
 - critical battery ISOFET-disconnect threshold
@@ -154,6 +166,13 @@ Required thresholds:
 - PMIC read retry limit
 
 Thresholds must be logged with firmware version during bring-up tests.
+
+Rules:
+
+- real-cell charging must not begin until the selected cell chemistry, polarity, protection status, charge voltage, and charge-current limit are confirmed.
+- seller-stated pouch-cell capacity is not a design fact until measured or otherwise verified.
+- ADP5360 fuel-gauge capacity configuration is a Platform battery-profile setting, not a package or game setting.
+- if the physical cell capacity exceeds the ADP5360 fuel-gauge coding range, charger safety policy still follows the cell datasheet and PMIC limits; package-visible battery estimates must be treated as approximate until characterized.
 
 ---
 
@@ -179,9 +198,11 @@ Fault handling depends on severity:
 3. VBUS detected through ADP5360
 4. VBUS detected through `USB_OTG_FS_VBUS` on `PA9`
 5. VBUS path disagreement handling
-6. VBUS-only charger/power-bank attach does not trigger MSC prompt or storage handoff
-7. charging while normal runtime is active
-8. charging while flashing/install mode is active
-9. low-battery forced sleep
-10. critical-battery ISOFET disconnect
-10. START hold shipping-prep handoff from input to power
+6. PPK2 or equivalent battery-simulator operation across selected voltage points
+7. ADP5360 battery-profile configuration for the selected cell
+8. VBUS-only charger/power-bank attach does not trigger MSC prompt or storage handoff
+9. charging while normal runtime is active
+10. charging while flashing/install mode is active
+11. low-battery forced sleep
+12. critical-battery ISOFET disconnect
+13. START hold shipping-prep handoff from input to power

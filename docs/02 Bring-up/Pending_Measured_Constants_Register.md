@@ -70,6 +70,9 @@ A pending measured constant becomes authoritative only when:
 | PMC-POWER-006 | static cadence and input-response caps | Power/Display | [[Power_and_Sleep_Policy]], [[Target_Profile_Schema_Contract]] | current/display tests | Pending | separate periodic cadence from input-response latency |
 | PMC-POWER-007 | baseline low-power periodic update cap | Power/Display | [[Power_and_Sleep_Policy]], [[Display_and_Rendering_Contract]] | current/display sleep tests | Pending | wake/update/return cost must be measured |
 | PMC-POWER-008 | autonomous low-power display sequence cadence | Power/Display | [[Target_Profile_Schema_Contract]], [[Digital_Twin_Host_Runtime_Contract]] | LPBAM display experiment | Pending | only relevant if LPBAM path works |
+| PMC-POWER-009 | 303040 LiPo battery profile and ADP5360 charge/fuel settings | Power/PMIC | [[PMIC_and_Power_Contract]], [[ADP5360_Power_Bring-up_Runbook]] | PPK2 traces, cell review, ADP5360 register readback, charging tests | Pending | seller-stated 450 mAh is unverified; previous LIR2540 assumptions must not carry over |
+| PMC-POWER-010 | measured effective battery capacity / runtime basis | Power/Product | [[PMIC_and_Power_Contract]], target profile UX estimates | controlled discharge/runtime tests | Pending | use for battery indicator/runtime claims; not required before initial PMIC probe |
+| PMC-POWER-011 | operation energy profiles for Platform actions | Power/Tooling | [[Power_Measurement_and_Trace_Correlation_Runbook]], [[Power_and_Sleep_Policy]], [[Target_Profile_Schema_Contract]] | PPK2 traces correlated with Tracealyzer/SWO/telemetry | Pending | cost table for wake/resume, display flush, sensor burst, BLE activity, audio output, save write, USB enumeration, MSC activity |
 | PMC-DISPLAY-001 | LS013B7DH05 pixel polarity | Display | [[Display_and_Rendering_Contract]], renderer implementation | [[LS013B7DH05_Display_Bring-up_Runbook]] | Pending | confirm native bit meaning with pattern test |
 | PMC-DISPLAY-002 | row order and line address format | Display | [[Display_and_Rendering_Contract]] | display pattern tests | Pending | validates logical/native coordinate mapping |
 | PMC-DISPLAY-003 | byte order and row payload format | Display | [[Display_and_Rendering_Contract]] | display pattern tests | Pending | needed before partial update policy |
@@ -115,6 +118,7 @@ A pending measured constant becomes authoritative only when:
 | PMC-TOOL-001 | SWO event rate limit | Debug/Tooling | [[Debug_and_Observability]], [[Telemetry_And_Debug_Dashboard_Contract]] | debug workflow tests | Pending | avoid destabilizing timing |
 | PMC-TOOL-002 | dashboard telemetry schema/event rate | Tooling | [[Telemetry_And_Debug_Dashboard_Contract]] | dashboard capture validation | Pending | build/profile gated |
 | PMC-TOOL-003 | evidence artifact folder convention adoption | Bring-up | [[Evidence_Artifact_Convention]], [[Brought_Up_Tracker]] | first evidence entry | Pending | validate convention with first real artifact |
+| PMC-TOOL-004 | power trace correlation sync strategy | Debug/Power | [[Power_Measurement_and_Trace_Correlation_Runbook]], [[Tracealyzer_Snapshot_Evidence_Contract]] | board pin review and first correlated power capture | Pending | physical GPIO sync if a safe pin exists; otherwise timed/cue fallback with stated precision |
 
 ---
 
@@ -125,6 +129,8 @@ A pending measured constant becomes authoritative only when:
 Power constants should remain profile-gated until measured on HW5.
 
 Do not promote STOP, wake, or current assumptions from the digital twin.
+
+Power estimates should be derived from measured operation energy profiles, battery profile evidence, and target-profile runtime behavior. PPK2 traces and sync markers are Platform evidence only; package tools may consume resulting profile limits or estimates, not raw measurement internals.
 
 ### Display And Rendering
 

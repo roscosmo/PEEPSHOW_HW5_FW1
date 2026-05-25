@@ -18,6 +18,7 @@ The Platform is game-agnostic.
 - [[Peripheral_Robustness_Contract]]
 - [[Memory_and_Budgeting_Contract]]
 - [[Knobs_and_Tuning_Contract]]
+- [[Platform_Firmware_Update_and_Development_Security_Policy]]
 
 ## Core Subsystems
 

@@ -6,6 +6,8 @@ For execution-level USB bring-up and regression recovery steps, use [[USB_MSC_Br
 
 Developer USB mode and the MSC/CDC personality split are defined in [[USB_Development_Mode_Contract]].
 
+Platform firmware update and development security phasing are defined in [[Platform_Firmware_Update_and_Development_Security_Policy]].
+
 ## Hardware and Middleware
 
 | Item | HW5 Selection |
@@ -42,6 +44,7 @@ Required regions:
 | save data | Reference Game and package saves | No | `thStorage` through save API |
 | installed package/blob | installed game/content raw blob storage | No | `thStorage` / Engine package API |
 | installed index/metadata | active package index, versions, integrity data | No | `thStorage` / package manager |
+| Platform update staging metadata | staged Platform update artifact state, if implemented | No | Platform update flow / `thStorage` |
 | persistent fault log ring | boot/fault records, reset evidence, crash summaries | No | `thStorage` through fault supervisor request |
 | USB staging/export | package staging, host transfer, debug export surface | Yes | host while exported, `thStorage` otherwise |
 | logs/screenshots/debug export | copied/exported diagnostic artifacts | Indirect only | `thStorage` |
@@ -54,6 +57,8 @@ Rules:
 - v1 USB MSC and USB CDC developer control are mutually exclusive personalities.
 - persistent fault logs remain in a protected ring region; firmware may copy/export diagnostic summaries into the staging/export volume.
 - host access must never expose internal storage regions directly.
+- Platform firmware update artifacts may be transferred through staging/export or CDC developer upload in the future, but applying them is a distinct Platform-owned update/recovery flow.
+- package install must not rewrite Platform firmware, bootloader/recovery regions, or native executable app slots.
 
 ## Persistent Fault Log Region
 
@@ -228,6 +233,24 @@ Disallowed behavior:
 - non-installer storage clients
 - host and MCU writing the same FAT/staging region simultaneously
 
+## Platform Update Boundary
+
+Package install and Platform firmware update are separate.
+
+Normal package install consumes `PeepPkg` package data and commits validated package/content blobs and indexes.
+
+Future Platform firmware update consumes a distinct Platform update artifact and must enter Platform-owned update/recovery policy before any firmware image is applied.
+
+Rules:
+
+- a Platform update artifact may arrive through MSC staging/export after host release.
+- a Platform update artifact may arrive through CDC developer upload if developer mode supports that command family.
+- both transfer paths must feed the same Platform-owned validation and apply flow where both are supported.
+- `thStorage` may store or stage the artifact, but it does not decide firmware trust policy.
+- package manager validation must reject Platform update artifacts as packages.
+- the update flow must preserve or document recovery from failed update before production use.
+- exact bootloader layout, update-slot strategy, signature enforcement, and protection settings are deferred until flash layout and Platform lifecycle are stable.
+
 ## Save and Settings Rules
 
 - Package saves and package-owned settings use [[Package_Save_Settings_API_Contract]].
@@ -277,6 +300,8 @@ If external flash is unavailable:
 15. persistent fault-log ring preserves previous valid records and is not host-exposed
 16. v1 USB personalities are mutually exclusive: MSC mode exposes no CDC developer control, and CDC developer mode exposes no MSC staging volume
 17. CDC package upload routes through firmware-owned staging and package validation
+18. package install rejects Platform update artifacts and never rewrites Platform firmware regions
+19. future Platform update staging, if implemented, routes through Platform-owned update validation rather than package-manager commit
 
 Related:
 

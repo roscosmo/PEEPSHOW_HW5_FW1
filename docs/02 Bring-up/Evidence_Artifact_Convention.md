@@ -9,6 +9,7 @@ Related:
 - [[Brought_Up_Tracker]]
 - [[Validation_Plan]]
 - [[Debug_Workflows]]
+- [[Power_Measurement_and_Trace_Correlation_Runbook]]
 - [[Tracealyzer_Snapshot_Evidence_Contract]]
 - [[Telemetry_And_Debug_Dashboard_Contract]]
 - [[Dev_Orchestration_CLI_Contract]]
@@ -189,7 +190,7 @@ Rules:
 | Tracealyzer snapshot | trace profile, buffer size, firmware commit, thread names, capture window |
 | SWO/telemetry log | schema version, source, firmware commit, timestamp basis |
 | dashboard capture | dashboard version, telemetry schema, source type, profile |
-| current/power log | instrument model, sample rate, shunt/range, calibration notes |
+| current/power log | instrument model, sample rate, shunt/range, calibration notes, source voltage/current limit, sync marker strategy |
 | logic analyzer/oscilloscope | instrument, channel mapping, sample rate, trigger condition |
 | display photo/video | pattern name, expected output, lighting notes where relevant |
 | package validation output | package hash, target profile, validator version |

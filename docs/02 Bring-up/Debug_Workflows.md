@@ -24,7 +24,11 @@ Tracealyzer snapshot evidence policy is defined in [[Tracealyzer_Snapshot_Eviden
 
 Dashboard-facing telemetry is defined in [[Telemetry_And_Debug_Dashboard_Contract]].
 
+Power measurement and trace correlation is defined in [[Power_Measurement_and_Trace_Correlation_Runbook]].
+
 Repeatable host workflows should be wrapped by [[Dev_Orchestration_CLI_Contract]] once the CLI exists.
+
+Agent-run build, flash, and debugger inspection must follow [[Bounded_Build_Flash_Debug_Runbook]].
 
 ---
 
@@ -38,6 +42,7 @@ Rules:
 - remove stale experimental helpers
 - keep helper names stable
 - orchestration commands may call stable helpers, but must not depend on stale experimental helpers
+- agent/orchestration debug commands must not call resume-style helpers unless the run is explicitly approved and externally timed according to [[Bounded_Build_Flash_Debug_Runbook]]
 
 ---
 
@@ -62,6 +67,20 @@ HardFault data must be captured before reset.
 4. validate sleep entry and wake traces
 
 Prefer trace markers over frequent breakpoint halts.
+
+## Bounded Build, Flash, And Debug Workflow
+
+Agents may run build, flash, and debugger inspection only through bounded wrappers.
+
+Rules:
+
+- build wrappers must use hard timeouts, stdout/stderr capture, exit-code reporting, and leftover process checks.
+- flash wrappers must verify download and include reset.
+- GDB must run in batch mode through a bounded wrapper.
+- safe unattended GDB inspection is limited to register/status reads and known non-resume `debug.gdb` helpers.
+- `continue`, `run`, stepping commands, `_wait` helpers, and helpers that require `Ctrl-C` are not allowed unless the user explicitly approves a timed scenario.
+
+Detailed policy is in [[Bounded_Build_Flash_Debug_Runbook]].
 
 ---
 
@@ -109,6 +128,25 @@ Rules:
 - trace-enabled runs are not final current or STOP-residency evidence unless explicitly accepted by the test.
 - repeated short snapshots are preferred for bring-up.
 - streaming trace is future work and not required unless snapshots are insufficient.
+
+## Power Measurement Workflow
+
+Use PPK2 or equivalent measurement to prove current and operation energy cost.
+
+Recommended flow:
+
+1. choose one focused power scenario
+2. enable only the markers needed for that scenario
+3. use a physical sync pin if HW5 has one available, otherwise use a deliberate timed/cue alignment sequence
+4. capture PPK2 current data
+5. capture Tracealyzer/SWO/telemetry where useful for software context
+6. record instrument setup, sync strategy, artifacts, and interpretation in evidence
+
+Rules:
+
+- current measurement proves electrical behavior; Tracealyzer explains software ordering.
+- trace-enabled current captures are diagnostic unless confirmed by trace-disabled measurement.
+- PPK2 traces and power markers are PeepOS development evidence, not game-facing APIs.
 
 ## Developer CDC Workflow
 

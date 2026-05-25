@@ -10,6 +10,7 @@ Related:
 - [[Subsystem_State_Machines]]
 - [[Peripheral_Robustness_Contract]]
 - [[Storage_and_Installer_Contract]]
+- [[Platform_Firmware_Update_and_Development_Security_Policy]]
 - [[Joystick_Hall_Input_Contract]]
 - [[Display_and_Rendering_Contract]]
 - [[Debug_and_Observability]]
@@ -27,12 +28,14 @@ Defines:
 - global fault classification
 - persistent fault evidence policy
 - fatal fault handling
+- reset-cause and watchdog-hardening policy
 
 Does not define:
 
 - per-peripheral recovery internals
 - Reference Game launch policy beyond Platform readiness
 - MCU ROM bootloader behavior once `BOOT0` is sampled high
+- final secure boot, Platform update slot, or production lock-down design
 
 ---
 
@@ -45,6 +48,7 @@ Does not define:
 - `BTN_BOOT` / `PH3-BOOT0` is the MCU hardware bootloader pin. If it is held high early enough to enter ROM bootloader mode, application firmware does not run and cannot classify it.
 - If application firmware is running, `BTN_BOOT` remains reserved for maintenance/recovery policy only and is never normal Engine/Game input.
 - Boot must be useful without the Reference Game installed.
+- Watchdog enforcement is deferred until release hardening; boot must still capture reset cause and preserve enough evidence to diagnose unexpected resets where possible.
 
 ---
 
@@ -68,6 +72,7 @@ Does not define:
 | Event | Source | Meaning |
 |---|---|---|
 | `EV_RESET_VECTOR` | reset handler | application firmware entered after reset |
+| `EV_WATCHDOG_RESET_DETECTED` | reset handler / boot supervisor | previous reset appears watchdog-driven where hardware evidence supports that classification |
 | `EV_SAFE_GPIO_DONE` | boot supervisor | safe defaults applied |
 | `EV_CLOCKS_OK` | clock init | required clocks validated |
 | `EV_CLOCKS_FAIL` | clock init | required clocks failed |
@@ -233,6 +238,7 @@ Persistent fault record should include:
 - hardware status snapshot where cheap and safe
 - timestamp or monotonic boot counter if available
 - recovery attempt count
+- reset-cause classification, including watchdog reset where available
 
 Rules:
 
@@ -241,6 +247,24 @@ Rules:
 - early boot faults before storage is available must use the easiest available diagnostic output
 - debugger/SWO/serial output is acceptable during bring-up when storage is not yet available
 - fault logging must not block fault containment
+
+---
+
+## Watchdog Policy
+
+Watchdog enablement is not required for early bring-up or Platform freeze.
+
+The physical reset path remains the primary development recovery method until reset-cause logging, storage durability, sleep/resume behavior, and update/recovery flows are proven.
+
+If watchdog support is enabled for release hardening:
+
+- a supervisor-owned policy must decide when the watchdog is refreshed.
+- owner threads report health to the supervisor; they do not independently refresh the watchdog.
+- watchdog reset cause must be recorded where hardware evidence allows it.
+- boot must route through normal recovery and package/save reconciliation after watchdog reset.
+- watchdog behavior must be validated with low-power residency, storage writes, package saves, installer state, and Platform update state.
+
+Do not enable watchdog policy as a workaround for unresolved owner-thread hangs during bring-up. Diagnose the hang first.
 
 ---
 
@@ -268,3 +292,5 @@ Rules:
 9. storage-backed fault record is written after storage is available
 10. early boot fault emits debugger/SWO/serial evidence if available
 11. bounded recovery exhaustion escalates by subsystem criticality
+12. watchdog reset cause is captured where available before watchdog release enablement
+13. watchdog release policy does not corrupt save, settings, installer, update, or package metadata during reset recovery

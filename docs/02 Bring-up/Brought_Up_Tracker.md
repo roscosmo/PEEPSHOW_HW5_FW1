@@ -63,6 +63,7 @@ For each evidence entry record:
 - notes
 - trace profile and Tracealyzer artifact path, if a trace snapshot was used
 - telemetry capture artifact path and schema version, if dashboard telemetry was used
+- current/power capture artifact path, instrument setup, and sync strategy, if PPK2 or equivalent measurement was used
 - active tuning overlay and instrumentation state, if applicable
 
 Template row:

@@ -14,6 +14,7 @@ Related:
 - [[Telemetry_And_Debug_Dashboard_Contract]]
 - [[USB_MSC_Bring-up_and_Recovery_Runbook]]
 - [[Knobs_and_Tuning_Contract]]
+- [[Platform_Firmware_Update_and_Development_Security_Policy]]
 - [[Package_Blob_Format_Contract]]
 - [[Package_Contract]]
 
@@ -157,6 +158,10 @@ package.end
 package.validate
 package.install
 package.abort
+platform.update.begin
+platform.update.write
+platform.update.end
+platform.update.validate
 ```
 
 Rules:
@@ -191,6 +196,31 @@ Rules:
 - package manager validation remains mandatory.
 - interrupted upload preserves the last known valid installed package/index.
 - no command may write directly to installed package storage without validation.
+
+---
+
+## Platform Update Upload Over CDC
+
+Platform firmware update upload is distinct from package upload.
+
+CDC may later support structured Platform update artifact transfer for developer workflows, but it must not expose arbitrary flash programming.
+
+Conceptual flow:
+
+```text
+platform.update.begin update_id size checksum
+platform.update.write sequence offset bytes
+platform.update.end
+platform.update.validate
+```
+
+Rules:
+
+- update artifacts are not `PeepPkg` packages.
+- update upload targets firmware-owned staging through `thStorage`.
+- validation and apply policy are Platform-owned, not package-manager-owned.
+- CDC must not provide raw erase/program commands for Platform firmware regions.
+- update apply commands are deferred until [[Platform_Firmware_Update_and_Development_Security_Policy]] defines the recovery/update flow.
 
 ---
 
@@ -291,6 +321,7 @@ Until then:
 10. non-live-safe knob edit is rejected.
 11. CDC telemetry is rate-limited and disableable.
 12. release/shipping build disables CDC dev control unless a future policy explicitly allows a limited subset.
+13. CDC Platform update upload, if implemented, writes only to firmware-owned staging and cannot raw-program Platform firmware regions.
 
 ---
 

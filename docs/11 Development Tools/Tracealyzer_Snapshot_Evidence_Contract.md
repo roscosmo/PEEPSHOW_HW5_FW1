@@ -11,6 +11,7 @@ Related:
 - [[Development_Tooling_Index]]
 - [[Debug_and_Observability]]
 - [[Debug_Workflows]]
+- [[Power_Measurement_and_Trace_Correlation_Runbook]]
 - [[Telemetry_And_Debug_Dashboard_Contract]]
 - [[RTOS_Ownership_and_Queue_Topology]]
 - [[Brought_Up_Tracker]]
@@ -184,6 +185,7 @@ Required custom event classes:
 | `runtime.lifecycle` | runtime host mount/start/suspend/resume/stop/unmount |
 | `package.install` | package stage/validate/commit/rollback event |
 | `fault.path` | fault classification and safe route |
+| `power.sync` | optional marker used to correlate trace/SWO/telemetry with external current measurement |
 
 Rules:
 
@@ -223,6 +225,7 @@ Rules:
 
 - trace-enabled runs may prove ordering and scheduling.
 - trace-enabled runs must not be used as final current, STOP residency, or wake-latency evidence unless the test explicitly accepts trace overhead.
+- power-correlation marker policy is defined in [[Power_Measurement_and_Trace_Correlation_Runbook]].
 - compare timing-sensitive results only between runs with the same trace configuration.
 - trace-disabled confirmation is required for final low-power measurements.
 

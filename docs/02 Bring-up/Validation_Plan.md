@@ -53,6 +53,10 @@ Per mode (`SHELL`, `LP_GRAPH`, `LP_MODULE`, `RT_SCENE`, `INSTALLER`):
 - wake source correctness for all enabled sources
 - STOP2 residency ratio under expected workload
 - repeated stop/resume cycle test (long-run)
+- current captures follow [[Power_Measurement_and_Trace_Correlation_Runbook]]
+- power-correlation evidence records sync strategy, including physical marker pin if available or timed/cue fallback if not
+- operation energy costs are measured for display flush, wake/resume, sensor burst, BLE activity, audio output, storage save, USB enumeration, and MSC activity before those costs feed battery estimates
+- trace-enabled power runs are treated as diagnostic unless a matching trace-disabled measurement confirms final current behavior
 
 ---
 
@@ -222,8 +226,38 @@ Required cases:
 - CDC package upload routes through firmware-owned staging and package validation
 - CDC live-safe tuning rejects non-live-safe Platform knobs and routes accepted edits through owner requests
 - package stage/validate/commit
+- package install rejects Platform firmware update artifacts
 - safe rollback on failure
 - return to shell and remount local storage
+
+---
+
+## Platform Update And Security Phasing Cases
+
+Platform update and security phasing validation must prove the boundary defined by [[Platform_Firmware_Update_and_Development_Security_Policy]].
+
+Required cases before Platform update support:
+
+1. Platform update artifacts are distinguishable from `PeepPkg` packages.
+2. package manager rejects Platform update artifacts as packages.
+3. Platform update transfer over MSC staging, if supported, is detected only after firmware reclaims staging/export.
+4. Platform update transfer over CDC, if supported, writes only to firmware-owned staging.
+5. update validation rejects malformed, incompatible, or corrupted artifacts before apply.
+6. failed update handling has a documented recovery route before production use.
+
+Required cases before production security enforcement:
+
+1. recovery/update path is proven before debug lock-down or irreversible option-byte protection is enabled.
+2. dev and consumer security profiles are explicitly defined.
+3. package signature enforcement, if enabled, is separate from schema, bounds, compatibility, and checksum validation.
+4. production protection settings do not block the documented recovery/support path.
+
+Required cases before watchdog release enablement:
+
+1. reset-cause capture distinguishes watchdog reset where hardware allows.
+2. watchdog refresh policy is supervisor-owned and deterministic.
+3. sleep/resume tests pass with watchdog policy active.
+4. interrupted save, settings, installer, package install, and Platform update scenarios preserve the last valid state.
 
 ---
 
@@ -301,6 +335,7 @@ Every test run record must include:
 - test case ID and expected behavior
 - pass/fail result
 - artifact links (logs, captures, traces)
+- current/power capture path and sync strategy, when physical power measurement was used
 - issue IDs for failures
 
 Evidence classes:

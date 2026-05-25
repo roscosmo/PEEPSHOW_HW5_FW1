@@ -47,6 +47,8 @@ The recommended long-term entry point for repeatable workflows is [[Dev_Orchestr
 
 Manual commands remain valid during bootstrap and when diagnosing the orchestration layer.
 
+Agent-run builds must follow [[Bounded_Build_Flash_Debug_Runbook]].
+
 ```powershell
 cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/debug
@@ -76,6 +78,8 @@ openocd -f interface/stlink.cfg -f target/stm32u5x.cfg
 ```
 
 Keep actual production commands in [[Debug_Workflows]].
+
+Agent-run flash and debugger inspection must use the bounded workflow in [[Bounded_Build_Flash_Debug_Runbook]].
 
 Once the orchestration CLI exists, equivalent commands should be available through documented `peep build`, `peep flash`, and `peep debug` workflows while still printing the underlying tool invocation or artifact summary.
 

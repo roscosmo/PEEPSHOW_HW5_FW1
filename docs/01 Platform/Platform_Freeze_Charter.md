@@ -35,6 +35,7 @@ In scope for Platform freeze:
 - Engine-facing runtime/package contracts
 - shell/settings/calibration flows
 - validation evidence and bring-up tracker
+- development security/update seams sufficient to keep future Platform firmware update and production hardening possible
 
 Shell/settings/calibration behavior is defined in [[Shell_Settings_Calibration_Contract]].
 
@@ -44,6 +45,7 @@ Out of scope until Platform freeze:
 - Reference Game movement/scene logic
 - creature-specific firmware behavior
 - game-specific assumptions inside Platform owners
+- production security lock-down, signature enforcement, final bootloader/update-slot layout, and watchdog release enablement
 
 ---
 

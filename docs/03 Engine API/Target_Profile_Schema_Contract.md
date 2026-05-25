@@ -15,6 +15,7 @@ Related:
 - [[Brought_Up_Tracker]]
 - [[Validation_Plan]]
 - [[Power_and_Sleep_Policy]]
+- [[Power_Measurement_and_Trace_Correlation_Runbook]]
 - [[Display_and_Rendering_Contract]]
 - [[Sensor_API_Contract]]
 - [[Audio_API_Contract]]
@@ -273,6 +274,12 @@ power:
     low_power_update_requires_mcu_wake
     realtime_target_fps
     realtime_frame_budget_ms
+  estimates:
+    supported
+    source = measured_platform_profile
+    confidence_class
+    exposes_raw_measurements = false
+    evidence_refs[]
 
 time:
   calendar_read_supported
@@ -297,6 +304,8 @@ Rules:
 - remote activity refresh support must not turn keepalive traffic or arbitrary chatter into a general stay-awake path.
 - static periodic updates and static input-response latency are separate profile limits.
 - baseline low-power display updates that wake the MCU must be modeled separately from autonomous display sequences.
+- power estimates, where present, are derived from measured Platform profiles and are advisory unless a later contract makes them normative.
+- package tools may consume estimate summaries and compatibility warnings, but must not consume raw PPK2 traces, sync markers, PMIC internals, or Platform operation-cost tables.
 - package wake behavior uses `wake_intents_supported[]`; hardware wake source details remain Platform/HW documentation.
 - `lifecycle_wake_reasons[]` are normalized package-visible reasons, not EXTI or peripheral names.
 - delayed/calendar event limits are package schedule limits, not direct RTC alarm ownership.

@@ -185,6 +185,8 @@ For USBX MSC bring-up or regression work, follow `docs/02 Bring-up/USB_MSC_Bring
 
 USB CDC development mode is a dev workflow for commands, live tuning, telemetry, and file/package transfer where implemented. Composite MSC+CDC should be treated as future/optional unless documented.
 
+Package install is not Platform firmware update. Do not implement native executable game-slot loading, bootloader writes, Platform firmware writes, option-byte changes, or production security lock-down from a package/tooling request unless the relevant Platform update/security contract is explicitly updated first.
+
 Do not add package runtime dependencies on host paths, direct filesystem paths, flash offsets, erase pages, or raw storage regions.
 
 ---
@@ -198,6 +200,12 @@ Platform diagnostics own hardware faults, protected logs, transport routing, Har
 Development dashboards, USB CDC, SWO, Tracealyzer, and telemetry transports are dev-tool or Platform concerns. Packages may emit bounded diagnostics but do not own export channels.
 
 Digital twin, telemetry dashboard, live tuning tools, and orchestration CLI should use the same contracts as device runtime wherever possible.
+
+Agent-run build, flash, and debugger inspection are allowed only through bounded wrappers documented in `docs/02 Bring-up/Bounded_Build_Flash_Debug_Runbook.md`.
+
+Do not start raw interactive build/flash/GDB sessions. Hardware-attached actions such as flashing, reset, ST-Link GDB server startup, live target attach, or target resume require explicit user intent for that run.
+
+Safe unattended GDB use is limited to batch-mode register/status reads and known non-resume `debug.gdb` helpers. Do not automatically run `continue`, `run`, stepping commands, `_wait` helpers, or helpers that require `Ctrl-C` unless the user explicitly approves an externally timed scenario.
 
 ---
 
