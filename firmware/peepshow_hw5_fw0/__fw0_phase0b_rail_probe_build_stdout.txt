@@ -1,0 +1,6 @@
+[1/2] Building C object CMakeFiles/peepshow_hw5_fw0.dir/Core/Src/main.c.obj
+[2/2] Linking C executable peepshow_hw5_fw0.elf
+Memory region         Used Size  Region Size  %age Used
+             RAM:          2 KB       768 KB      0.26%
+             ROM:       16848 B         2 MB      0.80%
+           SRAM4:          0 GB        16 KB      0.00%

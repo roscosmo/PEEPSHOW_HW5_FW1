@@ -6,7 +6,7 @@ This matrix must agree with the schematic, PCB, CubeMX `.ioc`, and Platform owne
 |---|---|---|---|---|---|---|
 | MCU | `STM32U575RIT6` / `STM32U575RITx` | LQFP64 | Platform | N/A | N/A | reset defaults |
 | Display SPI | `SPI3` TX-only master to Sharp `LS013B7DH05` | `PC10` SCK, `PC12` MOSI, `PA15` NSS | `thDisplay` | `LPDMA1_CH0` TX | No | disabled |
-| Display support | RTC EXTCOMIN output / TXU0104 level translator OE | `PC13` `LCD_1HZ`, `PD2` `VLT_LCD` | `thDisplay` / `thPower` | N/A | No | `VLT_LCD` high/disabled before display init; low/enabled with `LCD_1HZ` active while display holds image |
+| Display support | RTC EXTCOMIN output / TXU0104 level translator OE | `PC13` `LCD_1HZ`, `PD2` `VLT_LCD` | `thDisplay` / `thPower` | N/A | No | `VLT_LCD` low/disabled before display init; high/enabled with `LCD_1HZ` active while display holds image |
 | Speaker audio | `SAI1_A` master to `MAX98357AETE+T` | `PA8` SCK, `PB9` FS, `PA10` SD, `PC9` `SD_MODE` | `thAudio` | `GPDMA1_CH3` TX | No | `SD_MODE` low shutdown |
 | BBB piezo | `LPTIM1_CH1` to `PAM8904EGPR` | `PB2` `BUZZ` | `thAudio` | N/A | No | no output, PAM auto-shutdown |
 | External flash | `AT25SL128A` via `OCTOSPI1` quad | `PA0` NCS, `PB10` CLK, `PB1` IO0, `PB0` IO1, `PA7` IO2, `PA6` IO3 | `thStorage` | `GPDMA1_CH4` RX, `GPDMA1_CH5` TX | No | idle / deep-power-down when allowed |

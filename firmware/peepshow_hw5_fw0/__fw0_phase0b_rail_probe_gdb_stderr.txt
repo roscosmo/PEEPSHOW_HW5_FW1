@@ -1,0 +1,15 @@
+Excess command line arguments ignored. (extended-remote ...)
+G:\PEEPSHOW: No such file or directory.
+/firmwares\PEEPSHOW_HW5_FW1\firmware\peepshow_hw5_fw0\build\Debug\peepshow_hw5_fw0.elf: No such file or directory.
+"monitor" command not supported by this target.
+The history is empty.
+Argument required (starting display address).
+Argument required (starting display address).
+The history is empty.
+The history is empty.
+The history is empty.
+The history is empty.
+The history is empty.
+The history is empty.
+"monitor" command not supported by this target.
+The program is not being run.

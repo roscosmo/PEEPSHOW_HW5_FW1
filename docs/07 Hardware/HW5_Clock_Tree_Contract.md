@@ -6,8 +6,8 @@ This note records the intended HW5 clock tree and the CubeMX baseline.
 
 | Profile | Purpose | SYSCLK | Notes |
 |---|---|---|---|
-| CubeMX baseline | generated initial clock profile | 24 MHz MSI | Current `.ioc` baseline; not a final performance policy |
-| Boot/init | deterministic early startup | 24 MHz target unless changed | must keep early bring-up simple |
+| CubeMX baseline | generated initial clock profile | 24 MHz MSI for the full/reference profile; `fw0` early bring-up currently uses 4 MHz MSI | Current `.ioc` baselines are not final performance policy |
+| Boot/init | deterministic early startup | 4 MHz MSI in `fw0` Phase 0; tune upward as bring-up phases require it | must keep early bring-up simple |
 | Low-power active | shell and light runtime work | 24 MHz baseline unless a measured lower profile is added | should maximize STOP residency and avoid unnecessary clock switching |
 | Real-time active | frame-paced runtime work | 24 MHz baseline until a specific Engine/runtime budget requires more | Platform owns clock changes; higher profiles must be justified by measurement |
 | USB installer | host transport mode | 24 MHz SYSCLK baseline with valid 48 MHz USB clock | USB clock must remain valid at 48 MHz |
@@ -26,7 +26,7 @@ Current `.ioc` PLL2 configuration:
 
 | Peripheral | Kernel Clock | Profile Constraints | STOP/Resume Notes |
 |---|---|---|---|
-| SYSCLK / HCLK | MSI 24 MHz baseline | `fw1` reference `.ioc` has SYSCLK/HCLK 24 MHz; `fw0` should start with a conservative equivalent where practical | validate after STOP resume |
+| SYSCLK / HCLK | MSI baseline | `fw1` reference `.ioc` targets SYSCLK/HCLK 24 MHz; `fw0` Phase 0 intentionally starts at 4 MHz MSI and should be retuned only when a bring-up phase needs more clock | validate after STOP resume |
 | RTC | external 32.768 kHz MEMS oscillator on `PC14` LSE input | must remain low-power safe | wake source authority lives in `thPower` |
 | Display SPI3 | HSI 16 MHz kernel, SPI calculated 8 Mbit/s | no clock change during active SPI/LPDMA transfer | display owner must quiesce before STOP unless a validated LPBAM display scenario owns the transfer |
 | Display EXTCOMIN | RTC 1 Hz calibration output on `PC13` | must remain valid while display holds image | coordinated by display/power policy |

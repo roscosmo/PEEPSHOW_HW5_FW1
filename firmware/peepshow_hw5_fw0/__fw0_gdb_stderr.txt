@@ -1,0 +1,2 @@
+firmwares\PEEPSHOW_HW5_FW1\firmware\peepshow_hw5_fw0\__fw0_gdb_commands.gdb: No such file or directory.
+warning: G:\PEEPSHOW: No such file or directory

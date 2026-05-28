@@ -1,0 +1,22 @@
+Reset_Handler () at G:/PEEPSHOW firmwares/PEEPSHOW_HW5_FW1/firmware/peepshow_hw5_fw0\startup_stm32u575xx.s:62
+62	  ldr   sp, =_estack    /* set stack pointer */
+pc             0x8004258           0x8004258 <Reset_Handler>
+lr             0xffffffff          -1
+sp             0x200c0000          0x200c0000
+xpsr           0x1000000           16777216
+$1 = {magic = 0x5030434c, phase = 0xc10, tick = 0x20, system_core_clock = 0x3d0900, sysclk_hz = 0x3d0900, hclk_hz = 0x3d0900, pclk1_hz = 0x3d0900, pclk2_hz = 0x3d0900, pclk3_hz = 0x3d0900, rcc_cr = 0x5, rcc_csr = 0x1c004400, rcc_cfgr1 = 0x0, rcc_cfgr2 = 0x0, rcc_cfgr3 = 0x0, rcc_icscr1 = 0x448635ac, pwr_vosr = 0x8000, flag_oblrst = 0x0, flag_pinrst = 0x1, flag_borrst = 0x1, flag_sftrst = 0x1, flag_iwdgrst = 0x0, flag_wwdgrst = 0x0, flag_lpwrst = 0x0, complete = 0x1}
+$2 = 4000000
+$3 = 4000000
+$4 = 4000000
+$5 = 4000000
+$6 = 4000000
+$7 = 4000000
+$8 = 0x5
+$9 = 0x1c004400
+$10 = 0x0
+$11 = 0x0
+$12 = 0x0
+$13 = 0x448635ac
+$14 = 0x8000
+No breakpoints or watchpoints.
+[Inferior 1 (Remote target) detached]

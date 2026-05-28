@@ -1,0 +1,8 @@
+Reset_Handler () at G:/PEEPSHOW firmwares/PEEPSHOW_HW5_FW1/firmware/peepshow_hw5_fw0\startup_stm32u575xx.s:62
+62	  ldr   sp, =_estack    /* set stack pointer */
+pc             0x8001fb8           0x8001fb8 <Reset_Handler>
+lr             0xffffffff          -1
+sp             0x200c0000          0x200c0000
+xpsr           0x1000000           16777216
+No breakpoints or watchpoints.
+[Inferior 1 (Remote target) detached]

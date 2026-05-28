@@ -1,4 +1,4 @@
-# Agent Working Rules
+think # Agent Working Rules
 
 This repository uses `docs/` as an Obsidian vault and architectural source of truth.
 

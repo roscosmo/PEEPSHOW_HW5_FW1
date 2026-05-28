@@ -1,0 +1,58 @@
+
+
+STMicroelectronics ST-LINK GDB server. Version 7.7.0
+Copyright (c) 2024, STMicroelectronics. All rights reserved.
+
+Starting server with the following options:
+        Persistent Mode            : Disabled
+        Logging Level              : 31
+        Listen Port Number         : 61234
+        Status Refresh Delay       : 15s
+        Verbose Mode               : Disabled
+        SWD Debug                  : Enabled
+
+COM frequency = 24000 kHz
+Target connection mode: Default
+Reading ROM table for AP 0 @0xe00fefd0
+Hardware watchpoint supported by the target 
+ST-LINK Firmware version : V3J16M8
+Device ID: 0x482
+PC: 0x80074f8
+ST-LINK device status: HALT_MODE
+ST-LINK detects target voltage = 1.80 V
+TrustZone: Inactive
+ST-LINK device status: HALT_MODE
+ST-LINK device initialization OK
+Stm32Device, pollAndNotify running...
+SwvSrv state change: 0 -> 1
+Waiting for connection on port 61235...
+Waiting for debugger connection...
+Waiting for connection on port 61234...
+Accepted connection on port 61234...
+Debugger connected
+Waiting for debugger connection...
+GDB session thread running
+GdbSessionManager, session started: 1
+Waiting for connection on port 61234...
+GDB session, device event: 4
+GDB session terminated: Client connection lost
+GdbSessionManager, session terminated: 1
+GdbSrv, last session terminated, signal dispose
+Stopping port 61234
+Cleanup session: 1
+GDB session disposed: 1
+Received stop for port 61234, not accepting new connections.
+GdbSrv, deInit entry.
+Shutting down...
+GdbSessionManager, deInit entry.
+GdbSessionManager, deInit exit
+SwvSrv deInit entry
+Stopping port 61235
+Received stop for port 61235, not accepting new connections.
+SwvSrv deInit exit
+Stm32Device, closeDevice() entry
+Stm32Device, pollAndNotify stopped
+Stm32Device, closeDevice() exit
+Stm32Device, deInit success
+GdbSrv, deInit exit.
+Exit.

@@ -4,7 +4,7 @@ This note records HW5 power rails, enables, safe defaults, and mode-transition b
 
 | Rail / Enable | Controlled By | Active Polarity | Boot Default | Sleep Behavior | Notes |
 |---|---|---|---|---|---|
-| LCD level translator OE | `PD2` `VLT_LCD` | active-low enable: drive low to enable TXU0104RUTR outputs, drive high to place outputs high-Z | firmware safe default is high / disabled until display owner enables | default low / enabled while display holds image; duty-cycle is experimental | TXU0104RUTR OE, controlled by `thDisplay`; generated init must avoid accidental low-enable unless display policy wants it |
+| LCD level translator OE | `PD2` `VLT_LCD` | active-high enable: drive high to enable TXU0104RUTR outputs, drive low to place outputs high-Z | firmware safe default is low / disabled until display owner enables | default high / enabled while display holds image; duty-cycle is experimental | TXU0104RUTR OE, controlled by `thDisplay`; generated init must avoid accidental high-enable unless display policy wants it |
 | LCD EXTCOMIN / VCOM | `PC13` `LCD_1HZ` / RTC_OUT1 | RTC 1 Hz calibration output | disabled until display policy enables | active while display holds image | requires `VLT_LCD` active so signal reaches panel |
 | Light sensor enable | `PC2` `PHOT_EN` | active high power enable | low / off | low / off in sleep unless bounded sample/stream lease is active | controlled by `thSensor`; requires settle time before ADC sample |
 | Rotary encoder enable | `PB4` `ENC_EN` | active high power enable | low / off | low / off unless interactive mode or `ENC_WAKE_ARMED` requires it | controlled by `thInput` |

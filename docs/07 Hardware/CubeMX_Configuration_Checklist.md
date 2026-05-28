@@ -45,7 +45,7 @@ Verify the generated `.ioc` and code against:
 
 ## Required GPIO Initial-State Checks
 
-- `VLT_LCD` / `PD2`: TXU0104RUTR OE is active low. Generated firmware must default this output high/disabled until `thDisplay` intentionally drives it low/enabled.
+- `VLT_LCD` / `PD2`: TXU0104RUTR OE is active high. Generated firmware should default this output low/disabled until `thDisplay` intentionally drives it high/enabled.
 - `PHOT_EN` / `PC2`: active high. Generated firmware default must be low/off.
 - `ENC_EN` / `PB4`: active high. Generated firmware default must be low/off.
 - `NINA_NRST` / `PC6`: active low. BLE-off policy asserts reset low until `thComm` brings the module online.
@@ -57,7 +57,7 @@ Verify the generated `.ioc` and code against:
 
 - Confirm `NINA_SW1`, `NINA_SW2`, `NINA_DTR`, and `NINA_DSR` remain `GPIO_Analog` high-Z/no-pull defaults after future CubeMX edits; `thComm` reconfigures them only when a validated NINA mode needs output drive.
 - Confirm generated GPIO init order cannot release `NINA_NRST` while `NINA_SW1`/`NINA_SW2` are low or output-driven; `fw1` reference `.ioc` analog defaults avoid this, and `fw0` should preserve the same safe behavior when BLE pins are introduced.
-- Confirm `VLT_LCD` active-low OE initialization drives high/disabled before `thDisplay` starts.
+- Confirm `VLT_LCD` active-high OE initialization drives low/disabled before `thDisplay` starts.
 - Confirm `BTN_BOOT` / BOOT0 electrical behavior and enclosure access cannot cause accidental ROM bootloader entry.
 - OCTOSPI1 performance tuning may be considered later using PLL2R-derived 128/256 MHz options only after conservative bring-up passes.
 

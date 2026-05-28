@@ -1,0 +1,12 @@
+Preset CMake variables:
+
+  CMAKE_BUILD_TYPE="Debug"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="G:/PEEPSHOW firmwares/PEEPSHOW_HW5_FW1/firmware/peepshow_hw5_fw0/cmake/gcc-arm-none-eabi.cmake"
+
+-- The C compiler identification is GNU 12.3.1
+-- The ASM compiler identification is GNU
+-- Found assembler: C:/ST/STM32CubeCLT_1.15.1/GNU-tools-for-STM32/bin/arm-none-eabi-gcc.exe
+-- The CXX compiler identification is GNU 12.3.1
+-- Configuring done (3.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: G:/PEEPSHOW firmwares/PEEPSHOW_HW5_FW1/firmware/peepshow_hw5_fw0/build/Debug

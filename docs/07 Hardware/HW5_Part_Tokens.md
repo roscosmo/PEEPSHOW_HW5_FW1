@@ -6,7 +6,7 @@ Canonical part tokens are used across hardware, Platform, Engine, bring-up, and 
 |---|---|---|---|
 | MCU | `MCU_MAIN` | `STM32U575RIT6` | CubeMX device `STM32U575RITx`, LQFP64 |
 | Display | `DISPLAY_PANEL` | `LS013B7DH05` | Sharp Memory LCD, native 144 x 168 portrait, used as 168 x 144 landscape |
-| Display level translator | `DISPLAY_LEVEL_TRANSLATOR` | `TXU0104RUTR` | OE is active-low; `VLT_LCD` low enables output, high places outputs high-Z |
+| Display level translator | `DISPLAY_LEVEL_TRANSLATOR` | `TXU0104RUTR` | OE is active-high; `VLT_LCD` high enables output, low places outputs high-Z |
 | External flash | `FLASH_EXT` | `AT25SL128A` | external serial NOR on OCTOSPI1 quad path |
 | Speaker amp | `SPEAKER_AMP` | `MAX98357AETE+T` | SAI1/I2S mono speaker path to 1 W 20 mm speaker; `SD_MODE` low shutdown |
 | Buzzer driver | `BUZZER_DRIVER` | `PAM8904EGPR` | piezo BBB path driven by `BUZZ`; auto-shutdown when no DIN signal is present |

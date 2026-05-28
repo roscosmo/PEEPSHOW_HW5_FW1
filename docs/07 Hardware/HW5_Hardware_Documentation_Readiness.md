@@ -63,7 +63,7 @@ This readiness note can confirm that documentation is prepared, but it does not 
 
 - Keep CubeMX GPIO modes for NINA auxiliary pins as `GPIO_Analog` when introduced: `NINA_SW1`, `NINA_SW2`, `NINA_DTR`, and `NINA_DSR` are safe high-Z/no-pull defaults unless intentionally reconfigured by `thComm`.
 - Confirm generated GPIO init order preserves NINA analog defaults before releasing `NINA_NRST`.
-- Confirm generated GPIO init drives active-low `VLT_LCD` high/disabled before display owner policy is ready.
+- Confirm generated GPIO init drives active-high `VLT_LCD` low/disabled before display owner policy is ready.
 - Define DMA buffer memory regions and alignment once memory layout is planned.
 - Assign exact offset/size for the protected external flash fault-log ring region near the end of flash before implementing persistent fault evidence.
 - BLE first bring-up uses interrupt-driven RX/TX static ring buffers; DMA remains deferred until throughput or CPU measurements justify it.

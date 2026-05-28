@@ -75,7 +75,7 @@ CubeMX is input, not authority. If this note conflicts with [[HW5_Pin_Ownership_
 - `PC14` is connected to an external 32.768 kHz MEMS oscillator input, not a watch crystal.
 - `PC12` is display `SPI3_MOSI`.
 - ADC and LPUART interrupts are intentionally not enabled yet; they will be enabled when the light sensor and BLE owner implementations require them.
-- `VLT_LCD` drives TXU0104RUTR active-low OE: low enables level translation, high disables/high-Z.
+- `VLT_LCD` drives TXU0104RUTR active-high OE: high enables level translation, low disables/high-Z.
 - `PHOT_EN` and `ENC_EN` are active-high power enables and should default low/off.
 - `NINA_NRST` is active-low reset and should remain asserted while BLE is off.
 - `NINA_SW1`/`NINA_SW2` are assigned as `GPIO_Analog` high-Z/no-pull safe defaults. `thComm` may reconfigure them only for a documented NINA startup/control mode.
