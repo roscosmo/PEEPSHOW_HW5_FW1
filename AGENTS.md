@@ -75,6 +75,8 @@ The digital twin is implemented after the corresponding hardware behavior has be
 
 Tracealyzer or other trace snapshots may be used as bring-up evidence when the runbook identifies the expected behavior and the artifact is recorded.
 
+During HW5 hardware bring-up, `firmware/peepshow_hw5_fw0/peepshow_hw5_fw0.ioc` is the active phased bring-up target and `firmware/peepshow_hw5_fw1/peepshow_hw5_fw1.ioc` is reference/full-intent only. Follow `docs/02 Bring-up/FW0_Phased_CubeMX_Bring-up_Plan.md` before changing CubeMX or generated firmware scope.
+
 ---
 
 ## Platform Implementation Rules
@@ -234,6 +236,8 @@ Keep edits scoped to the requested layer and subsystem.
 Do not manually edit generated files unless the repository explicitly documents that workflow.
 
 Do not silently change CubeMX, linker, DMA, clock, pin, power, or storage policy from a game/API request.
+
+For bring-up firmware, add CubeMX peripherals and middleware to `fw0` only when the current phase/runbook requires them. Do not start from the full `fw1` middleware configuration for early hardware validation unless the user explicitly changes the bring-up strategy.
 
 If a requested implementation crosses a documented boundary, update the correct contract or ask for clarification before coding.
 

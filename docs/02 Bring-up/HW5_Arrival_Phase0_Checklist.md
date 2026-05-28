@@ -11,6 +11,7 @@ Related:
 - [[Brought_Up_Tracker]]
 - [[Evidence_Artifact_Convention]]
 - [[Pending_Measured_Constants_Register]]
+- [[FW0_Phased_CubeMX_Bring-up_Plan]]
 - [[ADP5360_Power_Bring-up_Runbook]]
 - [[HW5_Hardware_Documentation_Readiness]]
 - [[HW5_Power_Rails]]
@@ -89,7 +90,7 @@ Do not use a real battery as the first unknown power source unless the board des
 
 Before the board is powered:
 
-1. Confirm the active `.ioc` path from [[HW5_Hardware_Documentation_Readiness]].
+1. Confirm the active bring-up `.ioc` path from [[FW0_Phased_CubeMX_Bring-up_Plan]].
 2. Confirm the expected board revision and schematic revision.
 3. Confirm the expected safe GPIO defaults for display level translator, NINA auxiliary pins, PMIC/reset-related pins, and storage/USB ownership.
 4. Prepare the evidence folder path using [[Evidence_Artifact_Convention]].

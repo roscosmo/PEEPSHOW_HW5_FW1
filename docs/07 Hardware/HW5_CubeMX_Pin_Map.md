@@ -1,6 +1,8 @@
 # HW5 CubeMX Pin Map
 
-This note records the current non-virtual pin assignments from `firmware/peepshow_hw5_fw1/peepshow_hw5_fw1.ioc`.
+This note records the current non-virtual pin assignments from the reference/full-intent CubeMX project `firmware/peepshow_hw5_fw1/peepshow_hw5_fw1.ioc`.
+
+During phased hardware bring-up, the active generated target is `fw0` as defined by [[FW0_Phased_CubeMX_Bring-up_Plan]]. The `fw1` map remains the intended full hardware reference until `fw0` catches up or is promoted.
 
 CubeMX is input, not authority. If this note conflicts with [[HW5_Pin_Ownership_Matrix]], [[HW5_Clock_Tree_Contract]], or [[HW5_DMA_Map]], resolve the conflict before firmware work continues.
 
@@ -11,7 +13,7 @@ CubeMX is input, not authority. If this note conflicts with [[HW5_Pin_Ownership_
 | MCU | `STM32U575RITx` |
 | CPN | `STM32U575RIT6` |
 | Package | `LQFP64` |
-| Cube project | `peepshow_hw5_fw1` |
+| Cube project | `peepshow_hw5_fw1` reference/full-intent |
 | Toolchain | `CMake` |
 | Firmware package | `STM32Cube FW_U5 V1.6.0` |
 

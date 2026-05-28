@@ -12,9 +12,15 @@ Reference Game expansion is paused.
 
 Current documentation priority is HW5 hardware, Platform contracts, and bring-up procedure coverage.
 
-Active CubeMX file:
+Active bring-up CubeMX file:
+
+- `firmware/peepshow_hw5_fw0/peepshow_hw5_fw0.ioc`
+
+Reference/full-intent CubeMX file:
 
 - `firmware/peepshow_hw5_fw1/peepshow_hw5_fw1.ioc`
+
+The `fw1` `.ioc` is retained as the full intended target for reference. During hardware bring-up, `fw0` is the active generated firmware line until the phased bring-up scope catches up.
 
 ## Arrival-Day Rule
 
@@ -26,14 +32,15 @@ This readiness note can confirm that documentation is prepared, but it does not 
 
 | Gate | Required Notes | Status | Notes |
 |---|---|---|---|
-| pin authority | [[HW5_CubeMX_Pin_Map]], [[HW5_Pin_Ownership_Matrix]] | Drafted | must stay aligned with `.ioc` and schematic |
+| pin authority | [[HW5_CubeMX_Pin_Map]], [[HW5_Pin_Ownership_Matrix]] | Drafted | must stay aligned with schematic, `fw0` bring-up scope, and `fw1` reference intent |
 | part identity | [[HW5_Part_Tokens]] | Mostly resolved | exact rotary encoder model unknown; documented as TTC green encoder |
-| power and safe defaults | [[HW5_Power_Rails]], [[PMIC_and_Power_Contract]] | Drafted | primary GPIO polarities recorded; NINA auxiliary pins changed to `GPIO_Analog` safe defaults in current `.ioc` |
+| power and safe defaults | [[HW5_Power_Rails]], [[PMIC_and_Power_Contract]] | Drafted | primary GPIO polarities recorded; NINA auxiliary pins changed to `GPIO_Analog` safe defaults in `fw1` reference `.ioc`; preserve equivalent safe behavior when introduced in `fw0` |
 | clocks | [[HW5_Clock_Tree_Contract]], [[CubeMX_Configuration_Checklist]] | Drafted | SAI1 and OCTOSPI1 CubeMX baseline recorded; OCTOSPI performance tuning remains later work |
 | DMA | [[HW5_DMA_Map]] | Drafted | buffer regions/alignment still need final firmware memory plan |
 | wake sources | [[HW5_Wake_Sources]] | Drafted | encoder and sensor wake depth require measured proof |
 | state machines | [[Subsystem_State_Machines]] and subsystem contracts | Drafted | transition tables can be expanded during implementation planning |
 | bring-up evidence path | [[Brought_Up_Tracker]] plus runbooks | In progress | runbook coverage is drafted; measured HW5 evidence is still required |
+| phased CubeMX bring-up | [[FW0_Phased_CubeMX_Bring-up_Plan]] | Drafted | `fw0` active, `fw1` reference only until promotion decision |
 
 ## Bring-Up Runbook Coverage
 
@@ -54,7 +61,7 @@ This readiness note can confirm that documentation is prepared, but it does not 
 
 ## Known Documentation Gaps
 
-- Keep CubeMX GPIO modes for NINA auxiliary pins as `GPIO_Analog`: `NINA_SW1`, `NINA_SW2`, `NINA_DTR`, and `NINA_DSR` are safe high-Z/no-pull defaults unless intentionally reconfigured by `thComm`.
+- Keep CubeMX GPIO modes for NINA auxiliary pins as `GPIO_Analog` when introduced: `NINA_SW1`, `NINA_SW2`, `NINA_DTR`, and `NINA_DSR` are safe high-Z/no-pull defaults unless intentionally reconfigured by `thComm`.
 - Confirm generated GPIO init order preserves NINA analog defaults before releasing `NINA_NRST`.
 - Confirm generated GPIO init drives active-low `VLT_LCD` high/disabled before display owner policy is ready.
 - Define DMA buffer memory regions and alignment once memory layout is planned.
@@ -74,7 +81,7 @@ This readiness note can confirm that documentation is prepared, but it does not 
 
 ## Before CubeMX Generation Or Regeneration Checklist
 
-1. Confirm all hardware docs reference the active `.ioc` path.
+1. Confirm whether the change applies to active bring-up `fw0` or reference/full-intent `fw1`.
 2. Resolve pin ownership conflicts between [[HW5_CubeMX_Pin_Map]] and [[HW5_Pin_Ownership_Matrix]].
 3. Confirm all wake-capable EXTI paths are documented in [[HW5_Wake_Sources]].
 4. Confirm every physical subsystem has a bring-up runbook.

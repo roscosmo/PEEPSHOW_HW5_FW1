@@ -16,7 +16,7 @@ Related:
 This runbook covers:
 
 - `AT25SL128A` device identity over `OCTOSPI1`
-- safe OCTOSPI bring-up clock: current `.ioc` uses `PLL2Q = 64 MHz` kernel with `OCTOSPI1.ClockPrescaler = 8`
+- safe OCTOSPI bring-up clock: the `fw1` reference `.ioc` uses `PLL2Q = 64 MHz` kernel with `OCTOSPI1.ClockPrescaler = 8`; enable this in `fw0` only when Phase 2 storage validation begins
 - JEDEC/device ID readback
 - read/write/erase behavior
 - deep power-down and wake revalidation

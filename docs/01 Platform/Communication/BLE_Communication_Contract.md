@@ -28,7 +28,7 @@ Transport:
 | DTR | `PC7` | `NINA_DTR` | `thComm` |
 | DSR | `PC8` | `NINA_DSR` | `thComm` |
 
-No BLE wake IRQ is assigned in the current `.ioc`, and HW5 has no planned BLE wake use case.
+No BLE wake IRQ is assigned in the `fw1` reference `.ioc`, and HW5 has no planned BLE wake use case.
 
 NINA `RESET_N` is active low. Firmware safe default is reset asserted low until `thComm` intentionally brings the module online.
 
@@ -55,7 +55,7 @@ HW5 policy:
 
 - do not drive `NINA_SW1` or `NINA_SW2` low during module reset release unless intentionally entering a documented NINA startup mode
 - do not use `NINA_DSR` or `NINA_DTR` until direction, polarity, and configured function are documented in the BLE bring-up evidence
-- current `.ioc` assigns NINA auxiliary GPIO to `GPIO_Analog` high-Z/no-pull defaults; preserve this before generated firmware is allowed to release `NINA_NRST`
+- `fw1` reference `.ioc` assigns NINA auxiliary GPIO to `GPIO_Analog` high-Z/no-pull defaults; preserve equivalent safe behavior in `fw0` before generated firmware is allowed to release `NINA_NRST`
 
 ## Ownership
 

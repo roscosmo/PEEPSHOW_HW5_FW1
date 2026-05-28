@@ -8,9 +8,9 @@ This note records the HW5 DMA paths, buffer placement rules, alignment requireme
 | Speaker audio TX | `GPDMA1_CH3`, `GPDMA1_REQUEST_SAI1_A`, memory-to-peripheral, circular enabled | PCM mix buffer, region TBD | source/dest halfword, 16-bit PCM | No active transfer across STOP | `thAudio` |
 | AT25SL128A external flash read | `GPDMA1_CH4`, `GPDMA1_REQUEST_OCTOSPI1`, peripheral-to-memory | storage buffers, region TBD | destination incremented; data exchange configured by CubeMX | No active transfer across STOP | `thStorage` |
 | AT25SL128A external flash program | `GPDMA1_CH5`, `GPDMA1_REQUEST_OCTOSPI1`, memory-to-peripheral | storage buffers, region TBD | source incremented; data exchange configured by CubeMX | No active transfer across STOP | `thStorage` |
-| USB MSC transfer | none assigned in current `.ioc` | N/A | N/A | USB active blocks deep sleep by policy | `thStorage` |
-| Light sensor ADC | none assigned in current `.ioc` | N/A | N/A | sampled while awake | `thSensor` |
-| BLE UART | none assigned in current `.ioc`; first bring-up uses interrupt-driven RX/TX static rings | static comm RX/TX rings, not DMA buffers | byte ring entries; exact ring sizes from BLE knobs | no active transfer across STOP | `thComm` |
+| USB MSC transfer | none assigned in `fw1` reference `.ioc`; unavailable in early `fw0` | N/A | N/A | USB active blocks deep sleep by policy | `thStorage` |
+| Light sensor ADC | none assigned in `fw1` reference `.ioc`; unavailable in early `fw0` | N/A | N/A | sampled while awake | `thSensor` |
+| BLE UART | none assigned in `fw1` reference `.ioc`; first bring-up uses interrupt-driven RX/TX static rings | static comm RX/TX rings, not DMA buffers | byte ring entries; exact ring sizes from BLE knobs | no active transfer across STOP | `thComm` |
 
 Rules:
 

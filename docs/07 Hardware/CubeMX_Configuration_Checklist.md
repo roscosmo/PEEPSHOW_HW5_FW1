@@ -2,6 +2,8 @@
 
 Use this checklist before generating the HW5 firmware base.
 
+During HW5 hardware bring-up, use [[FW0_Phased_CubeMX_Bring-up_Plan]] to decide which features are allowed in the active `fw0` CubeMX project. The full `fw1` CubeMX project is reference/full-intent only until promotion.
+
 ## Before Generation
 
 - [[HW5_Pin_Ownership_Matrix]] is filled enough to assign pins.
@@ -24,7 +26,7 @@ Verify the generated `.ioc` and code against:
 - USB device settings
 - ThreadX/Cube middleware settings
 
-## Current HW5 Checks From `.ioc`
+## Current HW5 Checks From `fw1` Reference `.ioc`
 
 - `BTN_BOOT` label is fixed on `PH3-BOOT0`; BOOT0 can force ROM bootloader before application firmware runs.
 - `PC14` is LSE external clock input from a 32.768 kHz MEMS oscillator, not a crystal.
@@ -54,7 +56,7 @@ Verify the generated `.ioc` and code against:
 ## Current Watch Items
 
 - Confirm `NINA_SW1`, `NINA_SW2`, `NINA_DTR`, and `NINA_DSR` remain `GPIO_Analog` high-Z/no-pull defaults after future CubeMX edits; `thComm` reconfigures them only when a validated NINA mode needs output drive.
-- Confirm generated GPIO init order cannot release `NINA_NRST` while `NINA_SW1`/`NINA_SW2` are low or output-driven; current `.ioc` analog defaults avoid this.
+- Confirm generated GPIO init order cannot release `NINA_NRST` while `NINA_SW1`/`NINA_SW2` are low or output-driven; `fw1` reference `.ioc` analog defaults avoid this, and `fw0` should preserve the same safe behavior when BLE pins are introduced.
 - Confirm `VLT_LCD` active-low OE initialization drives high/disabled before `thDisplay` starts.
 - Confirm `BTN_BOOT` / BOOT0 electrical behavior and enclosure access cannot cause accidental ROM bootloader entry.
 - OCTOSPI1 performance tuning may be considered later using PLL2R-derived 128/256 MHz options only after conservative bring-up passes.

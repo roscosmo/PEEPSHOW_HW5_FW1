@@ -17,7 +17,7 @@ This document defines the initial project setup and the first bring-up sequence 
 
 ## One-Time Project Bootstrap
 
-1. Confirm the active CubeMX project path from [[HW5_Hardware_Documentation_Readiness]].
+1. Confirm the active bring-up CubeMX project path from [[FW0_Phased_CubeMX_Bring-up_Plan]].
 2. Validate pin map and peripheral clock selections against schematic.
 3. Generate or regenerate firmware code into the documented firmware workspace with CMake support enabled.
 4. Keep `/docs` as the Obsidian vault and architecture source of truth.
@@ -48,6 +48,8 @@ The recommended long-term entry point for repeatable workflows is [[Dev_Orchestr
 Manual commands remain valid during bootstrap and when diagnosing the orchestration layer.
 
 Agent-run builds must follow [[Bounded_Build_Flash_Debug_Runbook]].
+
+During hardware bring-up, use `fw0` from [[FW0_Phased_CubeMX_Bring-up_Plan]] unless the user explicitly promotes or replaces the firmware target.
 
 ```powershell
 cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
@@ -102,6 +104,8 @@ Use the phase order from [[Brought_Up_Tracker]]:
 11. Phase 10 - Digital twin parity.
 
 Do not enable deep sleep before power, clocks, owner-thread quiesce, and wake classification prerequisites are documented by the relevant runbooks.
+
+CubeMX feature enablement is phased by [[FW0_Phased_CubeMX_Bring-up_Plan]]. Do not enable full `fw1` middleware merely because the reference `.ioc` contains it.
 
 ---
 
