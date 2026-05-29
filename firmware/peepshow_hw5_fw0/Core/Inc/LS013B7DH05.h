@@ -15,6 +15,9 @@
 #define LINE_WIDTH      (DISPLAY_WIDTH / 8u)           /* 18 bytes */
 #define BUFFER_LENGTH   (DISPLAY_HEIGHT * LINE_WIDTH)  /* 3024 bytes */
 
+/* Validated HW5 LPDMA/SPI3 transport limit: 48-row row-window streams. */
+#define LCD_DMA_MAX_ROWS_PER_TRANSFER 48u
+
 typedef struct {
     SPI_HandleTypeDef *Bus;
 } LS013B7DH05;
@@ -30,13 +33,24 @@ HAL_StatusTypeDef LCD_FlushAll(LS013B7DH05 *MemDisp, const uint8_t *buf);
 HAL_StatusTypeDef LCD_FlushRows(LS013B7DH05 *MemDisp, const uint8_t *buf,
                                 const uint16_t *rows, uint16_t rowCount);
 
-/* DMA chunked flush (LPDMA) */
+/* Single DMA row-window transfer. rowCount must be <= LCD_DMA_MAX_ROWS_PER_TRANSFER. */
 HAL_StatusTypeDef LCD_FlushAll_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf);
 HAL_StatusTypeDef LCD_FlushRows_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
                                     const uint16_t *rows, uint16_t rowCount);
 
+/* Validated blocking present helpers. These split into bounded DMA row windows. */
+HAL_StatusTypeDef LCD_PresentFull_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
+                                      uint32_t timeout_ms);
+HAL_StatusTypeDef LCD_PresentRowRange_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
+                                          uint16_t startRow, uint16_t rowCount,
+                                          uint32_t timeout_ms);
+HAL_StatusTypeDef LCD_PresentRows_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
+                                      const uint16_t *rows, uint16_t rowCount,
+                                      uint32_t timeout_ms);
+
 bool              LCD_FlushDMA_IsDone(void);
 HAL_StatusTypeDef LCD_FlushDMA_WaitWFI(uint32_t timeout_ms);
+HAL_StatusTypeDef LCD_FlushDMA_Wait(uint32_t timeout_ms);
 
 /* Optional DMA completion hooks (ISR context). */
 void LCD_FlushDmaDoneCallback(void);

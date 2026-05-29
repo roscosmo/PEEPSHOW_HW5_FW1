@@ -85,9 +85,9 @@ Populate this table during bring-up. The current values are placeholders until m
 
 | Step | Input | Expected result | Measured result | Status |
 | --- | --- | --- | --- | --- |
-| idle level scan | all released | A/B/L/R/BOOT low; Start high | TBD | open |
-| A/B/L/R press | each button individually | active-high press event, release event, debounce evidence | TBD | open |
-| Start press | short press | active-low press event, release event, debounce evidence | TBD | open |
+| idle level scan | all released | A/B/L/R/BOOT low; Start high | `fw0` raw probe booted with `idle_mask=0x0` and `current_mask=0x0`, meaning no active buttons with Start active-low and A/B/L/R active-high polarity | pass |
+| A/B/L/R press | each button individually | active-high press event, release event, debounce evidence | `fw0` raw EXTI probe recorded A `2` presses / `2` releases, B `3` / `3`, L `2` / `2`, R `2` / `2`; all returned to `current_mask=0x0` | pass |
+| Start press | short press | active-low press event, release event, debounce evidence | `fw0` raw EXTI probe recorded Start `3` presses / `3` releases; all returned to `current_mask=0x0` | pass |
 | BOOT press after app boot | short press | system-only maintenance event, not game input | TBD | open |
 | BOOT held during reset | early hold | ROM bootloader entry; no app-level event claimed | TBD | open |
 | long press | each normal input where enabled | held-duration event at configured threshold | TBD | open |

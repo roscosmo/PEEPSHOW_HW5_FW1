@@ -1,0 +1,5 @@
+Change Dir: 'G:/PEEPSHOW firmwares/PEEPSHOW_HW5_FW1/firmware/peepshow_hw5_fw0/build/Debug'
+
+Run Build Command(s): C:/Users/Rosco/AppData/Local/stm32cube/bundles/ninja/1.13.1+st.1/bin/ninja.exe -v
+ninja: no work to do.
+

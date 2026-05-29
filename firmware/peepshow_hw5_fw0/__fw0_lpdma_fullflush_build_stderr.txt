@@ -1,0 +1,5 @@
+CMake Warning (dev) at CMakeLists.txt:31 (enable_language):
+  project() should be called prior to this enable_language() call.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+Build type: Debug

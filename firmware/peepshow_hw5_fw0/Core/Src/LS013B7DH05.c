@@ -37,7 +37,7 @@
  */
 #define TXBUF_MAX (1u + (DISPLAY_HEIGHT * (LINE_WIDTH + 2u)) + 1u)
 
-/* Put txBuf in SRAM4 for LPDMA */
+/* Put txBuf in SRAM4 for the validated LPDMA display path. */
 #if defined(__GNUC__)
   #define SRAM4_BUF_ATTR __attribute__((section(".sram4"))) __attribute__((aligned(4)))
 #elif defined(__ICCARM__)
@@ -181,7 +181,7 @@ HAL_StatusTypeDef LCD_FlushRows(LS013B7DH05 *MemDisp, const uint8_t *buf,
     return HAL_SPI_Transmit(MemDisp->Bus, txBuf, len, SPI_TIMEOUT_MS);
 }
 
-/* --------------------------- DMA chunk chaining ---------------------------- */
+/* --------------------------- DMA row-window transfer ----------------------- */
 typedef struct {
     LS013B7DH05        *dev;
     const uint8_t      *p;
@@ -227,6 +227,15 @@ static HAL_StatusTypeDef lcd_dma_start(LS013B7DH05 *dev, const uint8_t *buf, uin
     return HAL_OK;
 }
 
+static HAL_StatusTypeDef lcd_dma_wait(uint32_t timeout_ms)
+{
+    uint32_t t0 = HAL_GetTick();
+    while (!g_dma_done) {
+        if ((HAL_GetTick() - t0) > timeout_ms) return HAL_TIMEOUT;
+    }
+    return g_chain.last;
+}
+
 /* NOTE: These callbacks are still defined here for drop-in compatibility.
  * If you later have multiple SPI DMA users, move the HAL callbacks to a central
  * file and dispatch into this module via thin wrappers. */
@@ -269,25 +278,91 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 
 HAL_StatusTypeDef LCD_FlushAll_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf)
 {
-    if (!MemDisp || !buf) return HAL_ERROR;
-
-    uint16_t len = 0u;
-    HAL_StatusTypeDef st = BuildWriteBurstAll(buf, &len);
-    if (st != HAL_OK) return st;
-
-    return lcd_dma_start(MemDisp, txBuf, len);
+    return LCD_PresentFull_DMA(MemDisp, buf, SPI_TIMEOUT_MS);
 }
 
 HAL_StatusTypeDef LCD_FlushRows_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
                                     const uint16_t *rows, uint16_t rowCount)
 {
     if (!MemDisp || !buf) return HAL_ERROR;
+    if ((rowCount == 0u) || (rowCount > LCD_DMA_MAX_ROWS_PER_TRANSFER)) return HAL_ERROR;
 
     uint16_t len = 0;
     HAL_StatusTypeDef st = BuildWriteBurst(buf, rows, rowCount, &len);
     if (st != HAL_OK) return st;
 
     return lcd_dma_start(MemDisp, txBuf, len);
+}
+
+HAL_StatusTypeDef LCD_PresentFull_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
+                                      uint32_t timeout_ms)
+{
+    return LCD_PresentRowRange_DMA(MemDisp, buf, 1u, DISPLAY_HEIGHT, timeout_ms);
+}
+
+HAL_StatusTypeDef LCD_PresentRowRange_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
+                                          uint16_t startRow, uint16_t rowCount,
+                                          uint32_t timeout_ms)
+{
+    if (!MemDisp || !buf) return HAL_ERROR;
+    if ((startRow == 0u) || (rowCount == 0u)) return HAL_ERROR;
+
+    uint32_t finalRow = (uint32_t)startRow + rowCount - 1u;
+    if (finalRow > DISPLAY_HEIGHT) return HAL_ERROR;
+
+    uint16_t rows[LCD_DMA_MAX_ROWS_PER_TRANSFER];
+    uint32_t nextRow = startRow;
+
+    while (nextRow <= finalRow) {
+        uint32_t remaining = finalRow - nextRow + 1u;
+        uint16_t chunkRows = (remaining > LCD_DMA_MAX_ROWS_PER_TRANSFER)
+                             ? LCD_DMA_MAX_ROWS_PER_TRANSFER
+                             : (uint16_t)remaining;
+
+        for (uint16_t i = 0u; i < chunkRows; i++) {
+            rows[i] = (uint16_t)(nextRow + i);
+        }
+
+        HAL_StatusTypeDef st = LCD_FlushRows_DMA(MemDisp, buf, rows, chunkRows);
+        if (st != HAL_OK) return st;
+
+        st = lcd_dma_wait(timeout_ms);
+        if (st != HAL_OK) return st;
+
+        nextRow += chunkRows;
+    }
+
+    return HAL_OK;
+}
+
+HAL_StatusTypeDef LCD_PresentRows_DMA(LS013B7DH05 *MemDisp, const uint8_t *buf,
+                                      const uint16_t *rows, uint16_t rowCount,
+                                      uint32_t timeout_ms)
+{
+    if (!MemDisp || !buf || !rows || (rowCount == 0u)) return HAL_ERROR;
+
+    uint16_t offset = 0u;
+    while (offset < rowCount) {
+        uint16_t remaining = (uint16_t)(rowCount - offset);
+        uint16_t chunkRows = (remaining > LCD_DMA_MAX_ROWS_PER_TRANSFER)
+                             ? LCD_DMA_MAX_ROWS_PER_TRANSFER
+                             : remaining;
+
+        HAL_StatusTypeDef st = LCD_FlushRows_DMA(MemDisp, buf, &rows[offset], chunkRows);
+        if (st != HAL_OK) return st;
+
+        st = lcd_dma_wait(timeout_ms);
+        if (st != HAL_OK) return st;
+
+        offset = (uint16_t)(offset + chunkRows);
+    }
+
+    return HAL_OK;
+}
+
+HAL_StatusTypeDef LCD_FlushDMA_Wait(uint32_t timeout_ms)
+{
+    return lcd_dma_wait(timeout_ms);
 }
 
 HAL_StatusTypeDef LCD_FlushDMA_WaitWFI(uint32_t timeout_ms)
@@ -297,5 +372,5 @@ HAL_StatusTypeDef LCD_FlushDMA_WaitWFI(uint32_t timeout_ms)
         __WFI();
         if ((HAL_GetTick() - t0) > timeout_ms) return HAL_TIMEOUT;
     }
-    return HAL_OK;
+    return g_chain.last;
 }

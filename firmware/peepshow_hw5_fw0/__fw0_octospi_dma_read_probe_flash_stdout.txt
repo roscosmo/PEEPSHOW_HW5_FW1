@@ -1,0 +1,9 @@
+      -------------------------------------------------------------------
+                       STM32CubeProgrammer v2.16.0                  
+      -------------------------------------------------------------------
+
+ST-LINK SN  : 003100403433510337363934
+ST-LINK FW  : V3J16M8
+Board       : STLINK-V3MINIE
+Voltage     : 0.00V
+Error: No STM32 target found! If your product embeds Debug Authentication, please perform a discovery using Debug Authentication

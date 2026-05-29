@@ -86,18 +86,18 @@ This proof shows the automation pattern can complete. It does not prove HW5 firm
 
 Flash must use the project ELF produced by the active Debug preset.
 
-The HW4-proven ELF path was:
+The active HW5 fw0 ELF path is:
 
 ```text
-build/Debug/PeepShowV0.elf
+firmware/peepshow_hw5_fw0/build/Debug/peepshow_hw5_fw0.elf
 ```
 
-If HW5 uses a different output name or build directory, update this runbook before enabling agent flash automation.
+The HW4-proven ELF path was `build/Debug/PeepShowV0.elf`; do not use that path for HW5 fw0.
 
 Approved flash command shape:
 
 ```powershell
-STM32_Programmer_CLI.exe -c port=SWD freq=4000 -w build/Debug/PeepShowV0.elf -v -rst
+STM32_Programmer_CLI.exe -c port=SWD freq=4000 -w firmware/peepshow_hw5_fw0/build/Debug/peepshow_hw5_fw0.elf -v -rst
 ```
 
 Rules:

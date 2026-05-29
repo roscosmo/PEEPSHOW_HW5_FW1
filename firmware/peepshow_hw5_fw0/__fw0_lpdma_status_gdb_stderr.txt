@@ -1,0 +1,4 @@
+Excess command line arguments ignored. (firmwares\PEEPSHOW_HW5_FW1\firmware\peepshow_hw5_fw0\build\Debug\peepshow_hw5_fw0.elf)
+firmwares\PEEPSHOW_HW5_FW1\firmware\peepshow_hw5_fw0\__fw0_lpdma_status_check.gdb: No such file or directory.
+G:\PEEPSHOW: No such file or directory.
+warning: G:\PEEPSHOW: No such file or directory

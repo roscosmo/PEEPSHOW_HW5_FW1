@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_LPTIM_MspPostInit(LPTIM_HandleTypeDef *hlptim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -57,8 +59,29 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define PHOT_EN_Pin GPIO_PIN_2
+#define PHOT_EN_GPIO_Port GPIOC
+#define BTN_START_Pin GPIO_PIN_4
+#define BTN_START_GPIO_Port GPIOA
+#define BTN_START_EXTI_IRQn EXTI4_IRQn
+#define BUZZ_Pin GPIO_PIN_2
+#define BUZZ_GPIO_Port GPIOB
+#define SD_MODE_Pin GPIO_PIN_9
+#define SD_MODE_GPIO_Port GPIOC
 #define VLT_LCD_Pin GPIO_PIN_2
 #define VLT_LCD_GPIO_Port GPIOD
+#define BTN_A_Pin GPIO_PIN_5
+#define BTN_A_GPIO_Port GPIOB
+#define BTN_A_EXTI_IRQn EXTI5_IRQn
+#define BTN_B_Pin GPIO_PIN_6
+#define BTN_B_GPIO_Port GPIOB
+#define BTN_B_EXTI_IRQn EXTI6_IRQn
+#define BTN_L_Pin GPIO_PIN_7
+#define BTN_L_GPIO_Port GPIOB
+#define BTN_L_EXTI_IRQn EXTI7_IRQn
+#define BTN_R_Pin GPIO_PIN_8
+#define BTN_R_GPIO_Port GPIOB
+#define BTN_R_EXTI_IRQn EXTI8_IRQn
 
 /* USER CODE BEGIN Private defines */
 

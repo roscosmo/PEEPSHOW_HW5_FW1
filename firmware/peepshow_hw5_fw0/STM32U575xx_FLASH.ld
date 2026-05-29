@@ -175,6 +175,14 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
+  .sram4 (NOLOAD) :
+  {
+    . = ALIGN(8);
+    *(.sram4)
+    *(.sram4*)
+    . = ALIGN(8);
+  } >SRAM4
+
   /* Remove information from the compiler libraries */
   /DISCARD/ :
   {

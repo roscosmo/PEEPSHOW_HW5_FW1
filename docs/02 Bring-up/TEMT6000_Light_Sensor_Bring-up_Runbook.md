@@ -29,9 +29,10 @@ This runbook covers:
 
 Current `.ioc` baseline:
 
-- `PC2` / `PHOT_EN` is `LPGPIO_Output`
+- `PC2` / `PHOT_EN` is regular `GPIO_Output`, push-pull, default low
 - `PC3` / `PHOT_ADC` is `ADC1_IN4`
 - `ADC1.NbrOfConversion = 1`
+- `ADC1_IN4` regular conversion uses `ADC_SAMPLETIME_814CYCLES`
 - ADC interrupt is not enabled for first bring-up
 - ADC DMA is not enabled for first bring-up
 - no hardware light-threshold wake pin exists
@@ -74,13 +75,15 @@ Record exact configuration and measured values here once HW5 is available.
 | 1 | safe default check | `PC2` / `PHOT_EN` | low | N/A | sensor circuit off | record ADC off-state if useful |
 | 2 | ADC baseline read | `ADC1_IN4` | polled conversion | N/A | bounded value | expected value depends on circuit |
 | 3 | sensor enable | `PC2` / `PHOT_EN` | high | measured settle | sensor circuit on | settle becomes `KNOB_SENSOR_LIGHT_SETTLE_MS` |
-| 4 | dark sample | `ADC1_IN4` | sample burst | after settle | low/dark ADC value | cover sensor physically |
-| 5 | room sample | `ADC1_IN4` | sample burst | after settle | mid-range ADC value | normal indoor condition |
-| 6 | bright sample | `ADC1_IN4` | sample burst | after settle | high ADC value without unsafe exposure | avoid overdriving assumptions |
+| 4 | dark sample | `ADC1_IN4` | sample burst | after settle | high/dark ADC value | cover sensor physically |
+| 5 | room sample | `ADC1_IN4` | sample burst | after settle | mid/high ADC value | normal indoor condition |
+| 6 | bright sample | `ADC1_IN4` | sample burst | after settle | low ADC value without unsafe exposure | avoid overdriving assumptions |
 | 7 | one-shot validation | state machine | enable/sample/off | bounded | snapshot valid | raw ADC diagnostics only |
 | 8 | periodic validation | state machine | low-rate cadence | configured period | powers down between bursts | used by system/display policy |
 | 9 | streaming validation | state machine | requested sample rate | bounded lease | responsive normalized value | expires and powers off |
 | 10 | fault validation | ADC/sample policy | stuck/rail/impossible calibration if practical | N/A | `LIGHT_ERROR` or invalid snapshot | non-critical fault |
+
+Measured HW5 note: the Phase 4 `fw0` polled probe showed inverse polarity for this circuit. Brighter light drives the ADC count lower.
 
 ---
 
@@ -88,9 +91,9 @@ Record exact configuration and measured values here once HW5 is available.
 
 Record calibration decisions here before implementation freeze:
 
-- dark/covered ADC value
-- expected indoor ADC range
-- bright-safe ADC value
+- dark/covered ADC value: covered sample observed around `0x3F9F..0x3FAB`
+- expected indoor ADC range: ambient sample observed around `0x38AF..0x3995`
+- bright-safe ADC value: direct light sample observed down to `0x0011`
 - raw ADC value treated as saturated
 - raw ADC value treated as sensor/circuit fault
 - mapping used for `normalized_0_100`
