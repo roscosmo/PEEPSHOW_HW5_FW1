@@ -109,7 +109,7 @@ A pending measured constant becomes authoritative only when:
 | PMC-STORAGE-005 | save write budget | Save/Storage | [[Package_Save_Settings_API_Contract]], [[Target_Profile_Schema_Contract]] | storage wear/policy review | Pending | package-facing limit |
 | PMC-USB-001 | MSC mount/reclaim timing | USB/Storage | [[Storage_and_Installer_Contract]], [[USB_MSC_Bring-up_and_Recovery_Runbook]] | USB MSC runbook | Pending | host ownership handoff |
 | PMC-USB-002 | CDC packet size/rate limits | USB/Dev Tools | [[USB_Development_Mode_Contract]], [[Dev_Orchestration_CLI_Contract]] | CDC dev-mode tests | Pending | developer personality only |
-| PMC-COMM-001 | NINA reset/boot timing | Communication | [[BLE_Communication_Contract]] | [[NINA_B112_BLE_Bring-up_Runbook]] | Pending | keep aux pins safe until comm owner controls them |
+| PMC-COMM-001 | NINA reset/boot timing | Communication | [[BLE_Communication_Contract]] | [[NINA_B112_BLE_Bring-up_Runbook]] | Partial | preliminary reset release and AT response validated; exact boot-ready timing/current and quiesce behavior still pending |
 | PMC-COMM-002 | BLE UART ring buffer sizing | Communication/Memory | [[BLE_Communication_Contract]], [[Memory_and_Budgeting_Contract]] | BLE runbook | Pending | interrupt-driven v1 baseline |
 | PMC-COMM-003 | BLE payload and message-rate limits | Communication/Engine | [[Communication_API_Contract]], [[Target_Profile_Schema_Contract]] | BLE/session tests | Pending | package-facing abstract limits |
 | PMC-COMM-004 | BLE session timeout/reconnect behavior | Communication | [[Communication_API_Contract]] | BLE runbook | Pending | package sees session events, not NINA faults |

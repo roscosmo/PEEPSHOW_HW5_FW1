@@ -70,8 +70,8 @@ Record exact transactions here once measured.
 
 | Step | Operation | Register / Address | Value | Delay | Expected Readback | Notes |
 |---|---|---|---|---|---|---|
-| 1 | wake/probe | `0x18` | I2C address transaction | up to 25 ms after first NACK from deep power-down | ACK | first transaction may wake device from deep power-down |
-| 2 | identity read | `WHO_AM_I` / `0x0F` | read | TBD | `0x47` | confirms LIS2DUX12 identity |
+| 1 | wake/probe | `0x18` | I2C address transaction | up to 25 ms after first NACK from deep power-down | ACK | HW5 read-only probe passed: `0x18` ACKed and alternate `0x19` NACKed |
+| 2 | identity read | `WHO_AM_I` / `0x0F` | read | TBD | `0x47` | HW5 read-only probe passed: driver and raw reads returned `0x47`; raw `STATUS=0x02`, `CTRL1=0x10`, `CTRL4=0x00`, `MD1_CFG=0x00` |
 | 3 | enable embedded functions | `CTRL4` | `0x10` | TBD | TBD | enables embedded-function block |
 | 4 | enter embedded register page | `FUNC_CFG_ACCESS` | set `EMB_FUNC_REG_ACCESS = 1` | TBD | write-only while enabled | access embedded-function registers |
 | 5 | select advanced write mode | `PAGE_RW` | `0x40` | TBD | TBD | select write operation mode |

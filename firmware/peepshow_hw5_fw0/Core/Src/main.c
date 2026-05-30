@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "ADP5360.h"
 #include "LS013B7DH05.h"
+#include "LIS2DUX12.h"
 #include "ps_display_renderer.h"
 
 /* USER CODE END Includes */
@@ -271,6 +272,108 @@ typedef struct
   uint8_t complete;
 } PsPhase5LightProbe;
 
+typedef struct
+{
+  uint32_t magic;
+  uint32_t phase;
+  uint32_t tick_start;
+  uint32_t tick_end;
+  uint8_t expected_public_addr_7bit;
+  uint8_t expected_hal_addr_shifted;
+  uint8_t alt_public_addr_7bit;
+  uint8_t alt_hal_addr_shifted;
+  uint8_t ready_expected_status;
+  uint8_t ready_alt_status;
+  uint8_t driver_whoami_status;
+  uint8_t raw_whoami_status;
+  uint8_t raw_status_status;
+  uint8_t raw_ctrl1_status;
+  uint8_t raw_ctrl4_status;
+  uint8_t raw_md1_status;
+  uint8_t whoami;
+  uint8_t raw_whoami;
+  uint8_t raw_status;
+  uint8_t raw_ctrl1;
+  uint8_t raw_ctrl4;
+  uint8_t raw_md1_cfg;
+  uint32_t ready_expected_error;
+  uint32_t ready_alt_error;
+  uint32_t i2c_error_after;
+  uint8_t complete;
+} PsPhase4ImuProbe;
+
+typedef struct
+{
+  uint32_t magic;
+  uint32_t phase;
+  uint32_t tick_start;
+  uint32_t tick_end;
+  uint8_t scanned_public_addr_7bit[4];
+  uint8_t scanned_hal_addr_shifted[4];
+  uint8_t ready_status[4];
+  uint32_t ready_error[4];
+  uint32_t full_scan_count;
+  uint8_t full_scan_hit_bitmap[16];
+  uint8_t detected_public_addr_7bit;
+  uint8_t detected_hal_addr_shifted;
+  uint8_t read_device_id_status;
+  uint8_t read_manufacturer_lsb_status;
+  uint8_t read_manufacturer_msb_status;
+  uint8_t read_conv_status_status;
+  uint8_t read_device_status_status;
+  uint8_t device_id;
+  uint8_t manufacturer_lsb;
+  uint8_t manufacturer_msb;
+  uint8_t conv_status;
+  uint8_t device_status;
+  uint32_t i2c_error_after;
+  uint8_t complete;
+} PsPhase4TmagProbe;
+
+typedef struct
+{
+  uint32_t magic;
+  uint32_t phase;
+  uint32_t tick_start;
+  uint32_t tick_release;
+  uint32_t tick_end;
+  uint32_t lpuart_kernel_hz;
+  uint32_t gpioc_moder_before;
+  uint32_t gpioc_pupdr_before;
+  uint32_t gpioc_idr_before;
+  uint32_t gpioc_odr_before;
+  uint32_t gpioc_idr_after_release;
+  uint32_t gpioc_odr_after_release;
+  uint32_t gpioc_idr_after_boot_wait;
+  uint32_t uart_state_after;
+  uint32_t uart_error_after;
+  uint32_t active_baud_after;
+  uint16_t boot_rx_len;
+  uint16_t command_rx_len[12];
+  uint16_t phone_rx_len;
+  uint16_t phone_data_rx_len;
+  uint16_t phone_echo_tx_count;
+  uint32_t phone_detect_tick;
+  uint8_t phone_detected;
+  uint8_t phone_sps_detected;
+  uint8_t data_mode_tx_status;
+  uint8_t hello_tx_status;
+  uint8_t nrst_before;
+  uint8_t nrst_after_release;
+  uint8_t nrst_after_boot_wait;
+  uint8_t nrst_after_final_reset;
+  uint8_t sw1_level_before;
+  uint8_t sw2_level_before;
+  uint8_t dtr_level_before;
+  uint8_t dsr_level_before;
+  uint8_t command_tx_status[12];
+  uint8_t boot_rx[96];
+  uint8_t command_rx[12][96];
+  uint8_t phone_rx[512];
+  uint8_t phone_data_rx[512];
+  uint8_t complete;
+} PsPhase7NinaProbe;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -297,6 +400,36 @@ typedef struct
 #define PS_PHASE4_BUTTON_PHASE        (0x00004000UL)
 #define PS_PHASE5_LIGHT_MAGIC         (0x50354C54UL)
 #define PS_PHASE5_LIGHT_PHASE         (0x00005000UL)
+#define PS_PHASE4_IMU_MAGIC           (0x5034494DUL)
+#define PS_PHASE4_IMU_PHASE           (0x00004100UL)
+#define PS_PHASE4_TMAG_MAGIC          (0x5034544DUL)
+#define PS_PHASE4_TMAG_PHASE          (0x00004200UL)
+#define PS_PHASE7_NINA_MAGIC          (0x50374E4EUL)
+#define PS_PHASE7_NINA_PHASE          (0x00007000UL)
+#define PS_LIS2DUX12_PUBLIC_ADDR_7BIT (0x18U)
+#define PS_LIS2DUX12_ALT_ADDR_7BIT    (0x19U)
+#define PS_LIS2DUX12_HAL_ADDR_SHIFTED (PS_LIS2DUX12_PUBLIC_ADDR_7BIT << 1)
+#define PS_LIS2DUX12_ALT_HAL_SHIFTED  (PS_LIS2DUX12_ALT_ADDR_7BIT << 1)
+#define PS_LIS2DUX12_I2C_TIMEOUT_MS   (25U)
+#define PS_TMAG3001_FIRST_ADDR_7BIT   (0x34U)
+#define PS_TMAG3001_SCAN_COUNT        (4U)
+#define PS_TMAG3001_I2C_TIMEOUT_MS    (25U)
+#define PS_TMAG3001_REG_DEVICE_ID     (0x0DU)
+#define PS_TMAG3001_REG_MFR_ID_LSB    (0x0EU)
+#define PS_TMAG3001_REG_MFR_ID_MSB    (0x0FU)
+#define PS_TMAG3001_REG_CONV_STATUS   (0x18U)
+#define PS_TMAG3001_REG_DEVICE_STATUS (0x1CU)
+#define PS_I2C_SCAN_FIRST_ADDR_7BIT   (0x08U)
+#define PS_I2C_SCAN_LAST_ADDR_7BIT    (0x77U)
+#define PS_NINA_RESET_ASSERT_MS       (20U)
+#define PS_NINA_BOOT_WAIT_MS          (750U)
+#define PS_NINA_RX_WINDOW_MS          (500U)
+#define PS_NINA_UART_BYTE_TIMEOUT_MS  (10U)
+#define PS_NINA_TX_TIMEOUT_MS         (250U)
+#define PS_NINA_DISCOVERY_COMMAND_COUNT (12U)
+#define PS_NINA_DISCOVERY_RX_BYTES    (96U)
+#define PS_NINA_PHONE_CONNECT_WINDOW_MS (120000U)
+#define PS_NINA_PHONE_DATA_WINDOW_MS  (120000U)
 #define PS_BUTTON_MASK_START          (1UL << 0)
 #define PS_BUTTON_MASK_A              (1UL << 1)
 #define PS_BUTTON_MASK_B              (1UL << 2)
@@ -359,6 +492,8 @@ I2C_HandleTypeDef hi2c3;
 
 LPTIM_HandleTypeDef hlptim1;
 
+UART_HandleTypeDef hlpuart1;
+
 OSPI_HandleTypeDef hospi1;
 DMA_HandleTypeDef handle_GPDMA1_Channel5;
 DMA_HandleTypeDef handle_GPDMA1_Channel4;
@@ -382,6 +517,9 @@ volatile PsPhase2StorageProbe g_ps_phase2_storage_probe;
 volatile PsPhase3AudioProbe g_ps_phase3_audio_probe;
 volatile PsPhase4ButtonProbe g_ps_phase4_button_probe;
 volatile PsPhase5LightProbe g_ps_phase5_light_probe;
+volatile PsPhase4ImuProbe g_ps_phase4_imu_probe;
+volatile PsPhase4TmagProbe g_ps_phase4_tmag_probe;
+volatile PsPhase7NinaProbe g_ps_phase7_nina_probe;
 static volatile uint8_t g_ps_ospi_rx_dma_done;
 static volatile uint8_t g_ps_ospi_tx_dma_done;
 static volatile uint8_t g_ps_ospi_dma_error;
@@ -405,6 +543,7 @@ static void MX_SPI3_Init(void);
 static void MX_LPTIM1_Init(void);
 static void MX_SAI1_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_LPUART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 static void PS_Phase0B_RunPmicProbe(void);
 static uint16_t PS_Phase0B_DecodeBuckTargetMv(uint8_t raw);
@@ -420,6 +559,19 @@ static void PS_Phase4_RecordButtonEdge(uint16_t GPIO_Pin);
 static void PS_Phase5_InitLightProbe(void);
 static void PS_Phase5_LightProbeStep(void);
 static HAL_StatusTypeDef PS_Phase5_ReadLightSample(uint16_t *sample);
+static void PS_Phase4_RunImuIdentityProbe(void);
+static int32_t PS_LIS2DUX12_ReadReg(void *handle, uint8_t reg, uint8_t *data, uint16_t len);
+static int32_t PS_LIS2DUX12_WriteReg(void *handle, uint8_t reg, const uint8_t *data, uint16_t len);
+static HAL_StatusTypeDef PS_LIS2DUX12_ReadRaw(uint8_t reg, uint8_t *data);
+static void PS_Phase4_RunTmagIdentityProbe(void);
+static HAL_StatusTypeDef PS_TMAG3001_ReadRaw(uint8_t address, uint8_t reg, uint8_t *data);
+static void PS_Phase7_RunNinaProbe(void);
+static void PS_Phase7_NinaCommandProbe(uint32_t index, const uint8_t *command, uint16_t length);
+static uint16_t PS_Phase7_NinaReceiveWindow(uint8_t *buffer, uint16_t capacity, uint32_t window_ms);
+static uint16_t PS_Phase7_NinaReceiveUntilPhoneSps(uint8_t *buffer, uint16_t capacity, uint32_t window_ms);
+static uint8_t PS_Phase7_CommandBuffersContain(const char *needle);
+static uint16_t PS_Phase7_NinaReceiveEchoWindow(uint8_t *buffer, uint16_t capacity, uint32_t window_ms);
+static uint8_t PS_Phase7_BufferContains(const uint8_t *buffer, uint16_t count, const char *needle);
 static void PS_Phase3_PrepareSpeakerBuffer(uint32_t waveform, int16_t amplitude, uint32_t frequency_hz);
 static HAL_StatusTypeDef PS_Phase3_RunSpeakerSegment(volatile PsPhase3AudioProbe *probe,
                                                      uint32_t segment_index,
@@ -485,6 +637,7 @@ int main(void)
   MX_LPTIM1_Init();
   MX_SAI1_Init();
   MX_ADC1_Init();
+  MX_LPUART1_UART_Init();
   /* USER CODE BEGIN 2 */
   PS_Phase0B_RunPmicProbe();
   PS_Phase0_RecordResetClockProbe();
@@ -492,6 +645,9 @@ int main(void)
   PS_Phase2_RunStorageProbe();
   PS_Phase4_InitButtonProbe();
   PS_Phase5_InitLightProbe();
+  PS_Phase4_RunImuIdentityProbe();
+  PS_Phase4_RunTmagIdentityProbe();
+  PS_Phase7_RunNinaProbe();
 
   /* USER CODE END 2 */
 
@@ -837,6 +993,53 @@ static void MX_LPTIM1_Init(void)
 }
 
 /**
+  * @brief LPUART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_LPUART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN LPUART1_Init 0 */
+
+  /* USER CODE END LPUART1_Init 0 */
+
+  /* USER CODE BEGIN LPUART1_Init 1 */
+
+  /* USER CODE END LPUART1_Init 1 */
+  hlpuart1.Instance = LPUART1;
+  hlpuart1.Init.BaudRate = 115200;
+  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
+  hlpuart1.Init.StopBits = UART_STOPBITS_1;
+  hlpuart1.Init.Parity = UART_PARITY_NONE;
+  hlpuart1.Init.Mode = UART_MODE_TX_RX;
+  hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
+  hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  hlpuart1.FifoMode = UART_FIFOMODE_DISABLE;
+  if (HAL_UART_Init(&hlpuart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&hlpuart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&hlpuart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&hlpuart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN LPUART1_Init 2 */
+
+  /* USER CODE END LPUART1_Init 2 */
+
+}
+
+/**
   * @brief OCTOSPI1 Initialization Function
   * @param None
   * @retval None
@@ -1061,13 +1264,13 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, PHOT_EN_Pin|SD_MODE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, PHOT_EN_Pin|NINA_NRST_Pin|SD_MODE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(VLT_LCD_GPIO_Port, VLT_LCD_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : PHOT_EN_Pin SD_MODE_Pin */
-  GPIO_InitStruct.Pin = PHOT_EN_Pin|SD_MODE_Pin;
+  /*Configure GPIO pins : PHOT_EN_Pin NINA_NRST_Pin SD_MODE_Pin */
+  GPIO_InitStruct.Pin = PHOT_EN_Pin|NINA_NRST_Pin|SD_MODE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1078,6 +1281,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BTN_START_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : NINA_SW1_Pin NINA_SW2_Pin NINA_DTR_Pin NINA_DSR_Pin */
+  GPIO_InitStruct.Pin = NINA_SW1_Pin|NINA_SW2_Pin|NINA_DTR_Pin|NINA_DSR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : VLT_LCD_Pin */
   GPIO_InitStruct.Pin = VLT_LCD_Pin;
@@ -2001,6 +2210,460 @@ static HAL_StatusTypeDef PS_Phase5_ReadLightSample(uint16_t *sample)
 
   probe->last_stop_status = (uint8_t)HAL_ADC_Stop(&hadc1);
   return status;
+}
+
+static void PS_Phase4_RunImuIdentityProbe(void)
+{
+  volatile PsPhase4ImuProbe *probe = &g_ps_phase4_imu_probe;
+  stmdev_ctx_t ctx = {0};
+  uint8_t value = 0U;
+
+  probe->magic = PS_PHASE4_IMU_MAGIC;
+  probe->phase = PS_PHASE4_IMU_PHASE;
+  probe->tick_start = HAL_GetTick();
+  probe->expected_public_addr_7bit = PS_LIS2DUX12_PUBLIC_ADDR_7BIT;
+  probe->expected_hal_addr_shifted = PS_LIS2DUX12_HAL_ADDR_SHIFTED;
+  probe->alt_public_addr_7bit = PS_LIS2DUX12_ALT_ADDR_7BIT;
+  probe->alt_hal_addr_shifted = PS_LIS2DUX12_ALT_HAL_SHIFTED;
+
+  probe->ready_expected_status = (uint8_t)HAL_I2C_IsDeviceReady(&hi2c3,
+                                                                PS_LIS2DUX12_HAL_ADDR_SHIFTED,
+                                                                2U,
+                                                                PS_LIS2DUX12_I2C_TIMEOUT_MS);
+  probe->ready_expected_error = HAL_I2C_GetError(&hi2c3);
+  if (probe->ready_expected_status != (uint8_t)HAL_OK)
+  {
+    HAL_Delay(25U);
+    probe->ready_expected_status = (uint8_t)HAL_I2C_IsDeviceReady(&hi2c3,
+                                                                  PS_LIS2DUX12_HAL_ADDR_SHIFTED,
+                                                                  2U,
+                                                                  PS_LIS2DUX12_I2C_TIMEOUT_MS);
+    probe->ready_expected_error = HAL_I2C_GetError(&hi2c3);
+  }
+
+  probe->ready_alt_status = (uint8_t)HAL_I2C_IsDeviceReady(&hi2c3,
+                                                           PS_LIS2DUX12_ALT_HAL_SHIFTED,
+                                                           1U,
+                                                           PS_LIS2DUX12_I2C_TIMEOUT_MS);
+  probe->ready_alt_error = HAL_I2C_GetError(&hi2c3);
+
+  ctx.read_reg = PS_LIS2DUX12_ReadReg;
+  ctx.write_reg = PS_LIS2DUX12_WriteReg;
+  ctx.handle = (void *)(uintptr_t)PS_LIS2DUX12_HAL_ADDR_SHIFTED;
+
+  probe->driver_whoami_status = (uint8_t)lis2dux12_device_id_get(&ctx, &value);
+  probe->whoami = value;
+  value = 0U;
+  probe->raw_whoami_status = (uint8_t)PS_LIS2DUX12_ReadRaw(LIS2DUX12_WHO_AM_I, &value);
+  probe->raw_whoami = value;
+  value = 0U;
+  probe->raw_status_status = (uint8_t)PS_LIS2DUX12_ReadRaw(LIS2DUX12_STATUS, &value);
+  probe->raw_status = value;
+  value = 0U;
+  probe->raw_ctrl1_status = (uint8_t)PS_LIS2DUX12_ReadRaw(LIS2DUX12_CTRL1, &value);
+  probe->raw_ctrl1 = value;
+  value = 0U;
+  probe->raw_ctrl4_status = (uint8_t)PS_LIS2DUX12_ReadRaw(LIS2DUX12_CTRL4, &value);
+  probe->raw_ctrl4 = value;
+  value = 0U;
+  probe->raw_md1_status = (uint8_t)PS_LIS2DUX12_ReadRaw(LIS2DUX12_MD1_CFG, &value);
+  probe->raw_md1_cfg = value;
+  probe->i2c_error_after = HAL_I2C_GetError(&hi2c3);
+  probe->tick_end = HAL_GetTick();
+  probe->complete = 1U;
+}
+
+static int32_t PS_LIS2DUX12_ReadReg(void *handle, uint8_t reg, uint8_t *data, uint16_t len)
+{
+  const uint16_t address = (uint16_t)(uintptr_t)handle;
+
+  if (HAL_I2C_Mem_Read(&hi2c3,
+                       address,
+                       reg,
+                       I2C_MEMADD_SIZE_8BIT,
+                       data,
+                       len,
+                       PS_LIS2DUX12_I2C_TIMEOUT_MS) == HAL_OK)
+  {
+    return 0;
+  }
+
+  return -1;
+}
+
+static int32_t PS_LIS2DUX12_WriteReg(void *handle, uint8_t reg, const uint8_t *data, uint16_t len)
+{
+  (void)handle;
+  (void)reg;
+  (void)data;
+  (void)len;
+
+  return -1;
+}
+
+static HAL_StatusTypeDef PS_LIS2DUX12_ReadRaw(uint8_t reg, uint8_t *data)
+{
+  return HAL_I2C_Mem_Read(&hi2c3,
+                          PS_LIS2DUX12_HAL_ADDR_SHIFTED,
+                          reg,
+                          I2C_MEMADD_SIZE_8BIT,
+                          data,
+                          1U,
+                          PS_LIS2DUX12_I2C_TIMEOUT_MS);
+}
+
+static void PS_Phase4_RunTmagIdentityProbe(void)
+{
+  volatile PsPhase4TmagProbe *probe = &g_ps_phase4_tmag_probe;
+  uint8_t value = 0U;
+
+  probe->magic = PS_PHASE4_TMAG_MAGIC;
+  probe->phase = PS_PHASE4_TMAG_PHASE;
+  probe->tick_start = HAL_GetTick();
+
+  for (uint32_t addr = PS_I2C_SCAN_FIRST_ADDR_7BIT; addr <= PS_I2C_SCAN_LAST_ADDR_7BIT; addr++)
+  {
+    if (HAL_I2C_IsDeviceReady(&hi2c3,
+                              (uint16_t)(addr << 1),
+                              1U,
+                              PS_TMAG3001_I2C_TIMEOUT_MS) == HAL_OK)
+    {
+      probe->full_scan_hit_bitmap[addr >> 3] |= (uint8_t)(1U << (addr & 0x07U));
+      probe->full_scan_count++;
+    }
+  }
+
+  for (uint32_t i = 0U; i < PS_TMAG3001_SCAN_COUNT; i++)
+  {
+    const uint8_t public_addr = (uint8_t)(PS_TMAG3001_FIRST_ADDR_7BIT + i);
+    const uint8_t hal_addr = (uint8_t)(public_addr << 1);
+
+    probe->scanned_public_addr_7bit[i] = public_addr;
+    probe->scanned_hal_addr_shifted[i] = hal_addr;
+    probe->ready_status[i] = (uint8_t)HAL_I2C_IsDeviceReady(&hi2c3,
+                                                            hal_addr,
+                                                            1U,
+                                                            PS_TMAG3001_I2C_TIMEOUT_MS);
+    probe->ready_error[i] = HAL_I2C_GetError(&hi2c3);
+
+    if ((probe->ready_status[i] == (uint8_t)HAL_OK) && (probe->detected_public_addr_7bit == 0U))
+    {
+      probe->detected_public_addr_7bit = public_addr;
+      probe->detected_hal_addr_shifted = hal_addr;
+    }
+  }
+
+  if (probe->detected_public_addr_7bit != 0U)
+  {
+    value = 0U;
+    probe->read_device_id_status = (uint8_t)PS_TMAG3001_ReadRaw(probe->detected_hal_addr_shifted,
+                                                                PS_TMAG3001_REG_DEVICE_ID,
+                                                                &value);
+    probe->device_id = value;
+    value = 0U;
+    probe->read_manufacturer_lsb_status = (uint8_t)PS_TMAG3001_ReadRaw(probe->detected_hal_addr_shifted,
+                                                                       PS_TMAG3001_REG_MFR_ID_LSB,
+                                                                       &value);
+    probe->manufacturer_lsb = value;
+    value = 0U;
+    probe->read_manufacturer_msb_status = (uint8_t)PS_TMAG3001_ReadRaw(probe->detected_hal_addr_shifted,
+                                                                       PS_TMAG3001_REG_MFR_ID_MSB,
+                                                                       &value);
+    probe->manufacturer_msb = value;
+    value = 0U;
+    probe->read_conv_status_status = (uint8_t)PS_TMAG3001_ReadRaw(probe->detected_hal_addr_shifted,
+                                                                  PS_TMAG3001_REG_CONV_STATUS,
+                                                                  &value);
+    probe->conv_status = value;
+    value = 0U;
+    probe->read_device_status_status = (uint8_t)PS_TMAG3001_ReadRaw(probe->detected_hal_addr_shifted,
+                                                                    PS_TMAG3001_REG_DEVICE_STATUS,
+                                                                    &value);
+    probe->device_status = value;
+  }
+
+  probe->i2c_error_after = HAL_I2C_GetError(&hi2c3);
+  probe->tick_end = HAL_GetTick();
+  probe->complete = 1U;
+}
+
+static HAL_StatusTypeDef PS_TMAG3001_ReadRaw(uint8_t address, uint8_t reg, uint8_t *data)
+{
+  return HAL_I2C_Mem_Read(&hi2c3,
+                          address,
+                          reg,
+                          I2C_MEMADD_SIZE_8BIT,
+                          data,
+                          1U,
+                          PS_TMAG3001_I2C_TIMEOUT_MS);
+}
+
+static void PS_Phase7_RunNinaProbe(void)
+{
+  volatile PsPhase7NinaProbe *probe = &g_ps_phase7_nina_probe;
+  static const uint8_t command_0[] = "AT\r\n";
+  static const uint8_t command_1[] = "ATI0\r\n";
+  static const uint8_t command_2[] = "ATI9\r\n";
+  static const uint8_t command_3[] = "ATI10\r\n";
+  static const uint8_t command_4[] = "AT+CGMI\r\n";
+  static const uint8_t command_5[] = "AT+CGMM\r\n";
+  static const uint8_t command_6[] = "AT+CGMR\r\n";
+  static const uint8_t command_7[] = "AT+CGSN\r\n";
+  static const uint8_t command_8[] = "AT+GMI\r\n";
+  static const uint8_t command_9[] = "AT+GMM\r\n";
+  static const uint8_t command_10[] = "AT+GMR\r\n";
+  static const uint8_t command_11[] = "AT+GSN\r\n";
+  static const uint8_t phone_query_0[] = "AT+UBTLN?\r\n";
+  static const uint8_t phone_query_1[] = "AT+UBTLE?\r\n";
+  static const uint8_t phone_query_2[] = "AT+UBTDM?\r\n";
+  static const uint8_t phone_query_3[] = "AT+UBTCM?\r\n";
+  static const uint8_t phone_query_4[] = "AT+UBTPM?\r\n";
+  static const uint8_t phone_query_5[] = "AT+UBTSM?\r\n";
+  static const uint8_t phone_query_6[] = "AT+UDSC=0\r\n";
+  static const uint8_t phone_query_7[] = "AT+UDSF=0\r\n";
+  static const uint8_t phone_query_8[] = "AT+UBTDM=3\r\n";
+  static const uint8_t phone_query_9[] = "AT+UBTCM=2\r\n";
+  static const uint8_t data_mode_cmd[] = "ATO1\r\n";
+  static const uint8_t hello[] = "\r\npeepshow nina sps hello\r\ntype text and press send\r\n";
+
+  probe->magic = PS_PHASE7_NINA_MAGIC;
+  probe->phase = PS_PHASE7_NINA_PHASE;
+  probe->tick_start = HAL_GetTick();
+  probe->lpuart_kernel_hz = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_LPUART1);
+  probe->gpioc_moder_before = GPIOC->MODER;
+  probe->gpioc_pupdr_before = GPIOC->PUPDR;
+  probe->gpioc_idr_before = GPIOC->IDR;
+  probe->gpioc_odr_before = GPIOC->ODR;
+  probe->nrst_before = (uint8_t)HAL_GPIO_ReadPin(NINA_NRST_GPIO_Port, NINA_NRST_Pin);
+  probe->sw1_level_before = (uint8_t)HAL_GPIO_ReadPin(NINA_SW1_GPIO_Port, NINA_SW1_Pin);
+  probe->sw2_level_before = (uint8_t)HAL_GPIO_ReadPin(NINA_SW2_GPIO_Port, NINA_SW2_Pin);
+  probe->dtr_level_before = (uint8_t)HAL_GPIO_ReadPin(NINA_DTR_GPIO_Port, NINA_DTR_Pin);
+  probe->dsr_level_before = (uint8_t)HAL_GPIO_ReadPin(NINA_DSR_GPIO_Port, NINA_DSR_Pin);
+
+  HAL_GPIO_WritePin(NINA_NRST_GPIO_Port, NINA_NRST_Pin, GPIO_PIN_RESET);
+  HAL_Delay(PS_NINA_RESET_ASSERT_MS);
+  HAL_GPIO_WritePin(NINA_NRST_GPIO_Port, NINA_NRST_Pin, GPIO_PIN_SET);
+  probe->tick_release = HAL_GetTick();
+  probe->nrst_after_release = (uint8_t)HAL_GPIO_ReadPin(NINA_NRST_GPIO_Port, NINA_NRST_Pin);
+  probe->gpioc_idr_after_release = GPIOC->IDR;
+  probe->gpioc_odr_after_release = GPIOC->ODR;
+
+  HAL_Delay(PS_NINA_BOOT_WAIT_MS);
+  probe->nrst_after_boot_wait = (uint8_t)HAL_GPIO_ReadPin(NINA_NRST_GPIO_Port, NINA_NRST_Pin);
+  probe->gpioc_idr_after_boot_wait = GPIOC->IDR;
+
+  probe->boot_rx_len = PS_Phase7_NinaReceiveWindow((uint8_t *)probe->boot_rx,
+                                                   sizeof(probe->boot_rx),
+                                                   PS_NINA_RX_WINDOW_MS);
+
+  PS_Phase7_NinaCommandProbe(0U, command_0, (uint16_t)(sizeof(command_0) - 1U));
+  PS_Phase7_NinaCommandProbe(1U, command_1, (uint16_t)(sizeof(command_1) - 1U));
+  PS_Phase7_NinaCommandProbe(2U, command_2, (uint16_t)(sizeof(command_2) - 1U));
+  PS_Phase7_NinaCommandProbe(3U, command_3, (uint16_t)(sizeof(command_3) - 1U));
+  PS_Phase7_NinaCommandProbe(4U, command_4, (uint16_t)(sizeof(command_4) - 1U));
+  PS_Phase7_NinaCommandProbe(5U, command_5, (uint16_t)(sizeof(command_5) - 1U));
+  PS_Phase7_NinaCommandProbe(6U, command_6, (uint16_t)(sizeof(command_6) - 1U));
+  PS_Phase7_NinaCommandProbe(7U, command_7, (uint16_t)(sizeof(command_7) - 1U));
+  PS_Phase7_NinaCommandProbe(8U, command_8, (uint16_t)(sizeof(command_8) - 1U));
+  PS_Phase7_NinaCommandProbe(9U, command_9, (uint16_t)(sizeof(command_9) - 1U));
+  PS_Phase7_NinaCommandProbe(10U, command_10, (uint16_t)(sizeof(command_10) - 1U));
+  PS_Phase7_NinaCommandProbe(11U, command_11, (uint16_t)(sizeof(command_11) - 1U));
+  PS_Phase7_NinaCommandProbe(0U, phone_query_0, (uint16_t)(sizeof(phone_query_0) - 1U));
+  PS_Phase7_NinaCommandProbe(1U, phone_query_1, (uint16_t)(sizeof(phone_query_1) - 1U));
+  PS_Phase7_NinaCommandProbe(2U, phone_query_2, (uint16_t)(sizeof(phone_query_2) - 1U));
+  PS_Phase7_NinaCommandProbe(3U, phone_query_3, (uint16_t)(sizeof(phone_query_3) - 1U));
+  PS_Phase7_NinaCommandProbe(4U, phone_query_4, (uint16_t)(sizeof(phone_query_4) - 1U));
+  PS_Phase7_NinaCommandProbe(5U, phone_query_5, (uint16_t)(sizeof(phone_query_5) - 1U));
+  PS_Phase7_NinaCommandProbe(6U, phone_query_6, (uint16_t)(sizeof(phone_query_6) - 1U));
+  PS_Phase7_NinaCommandProbe(7U, phone_query_7, (uint16_t)(sizeof(phone_query_7) - 1U));
+  PS_Phase7_NinaCommandProbe(8U, phone_query_8, (uint16_t)(sizeof(phone_query_8) - 1U));
+  PS_Phase7_NinaCommandProbe(9U, phone_query_9, (uint16_t)(sizeof(phone_query_9) - 1U));
+  probe->phone_detected = PS_Phase7_CommandBuffersContain("+UUBTACLC:");
+  probe->phone_sps_detected = PS_Phase7_CommandBuffersContain("+UUDPC:");
+  if (probe->phone_sps_detected == 0U)
+  {
+    probe->phone_rx_len = PS_Phase7_NinaReceiveUntilPhoneSps((uint8_t *)probe->phone_rx,
+                                                             sizeof(probe->phone_rx),
+                                                             PS_NINA_PHONE_CONNECT_WINDOW_MS);
+    if (PS_Phase7_BufferContains((const uint8_t *)probe->phone_rx,
+                                 probe->phone_rx_len,
+                                 "+UUBTACLC:") != 0U)
+    {
+      probe->phone_detected = 1U;
+    }
+    if (PS_Phase7_BufferContains((const uint8_t *)probe->phone_rx,
+                                 probe->phone_rx_len,
+                                 "+UUDPC:") != 0U)
+    {
+      probe->phone_sps_detected = 1U;
+    }
+  }
+  if (probe->phone_sps_detected != 0U)
+  {
+    probe->data_mode_tx_status = (uint8_t)HAL_UART_Transmit(&hlpuart1,
+                                                            data_mode_cmd,
+                                                            (uint16_t)(sizeof(data_mode_cmd) - 1U),
+                                                            PS_NINA_TX_TIMEOUT_MS);
+    (void)PS_Phase7_NinaReceiveWindow((uint8_t *)probe->phone_rx,
+                                      sizeof(probe->phone_rx),
+                                      1000U);
+    probe->hello_tx_status = (uint8_t)HAL_UART_Transmit(&hlpuart1,
+                                                        hello,
+                                                        (uint16_t)(sizeof(hello) - 1U),
+                                                        PS_NINA_TX_TIMEOUT_MS);
+    probe->phone_data_rx_len = PS_Phase7_NinaReceiveEchoWindow((uint8_t *)probe->phone_data_rx,
+                                                               sizeof(probe->phone_data_rx),
+                                                               PS_NINA_PHONE_DATA_WINDOW_MS);
+  }
+
+  probe->active_baud_after = hlpuart1.Init.BaudRate;
+  probe->uart_state_after = (uint32_t)HAL_UART_GetState(&hlpuart1);
+  probe->uart_error_after = HAL_UART_GetError(&hlpuart1);
+  HAL_GPIO_WritePin(NINA_NRST_GPIO_Port, NINA_NRST_Pin, GPIO_PIN_RESET);
+  HAL_Delay(PS_NINA_RESET_ASSERT_MS);
+  probe->nrst_after_final_reset = (uint8_t)HAL_GPIO_ReadPin(NINA_NRST_GPIO_Port, NINA_NRST_Pin);
+  probe->tick_end = HAL_GetTick();
+  probe->complete = 1U;
+}
+
+static void PS_Phase7_NinaCommandProbe(uint32_t index, const uint8_t *command, uint16_t length)
+{
+  volatile PsPhase7NinaProbe *probe = &g_ps_phase7_nina_probe;
+
+  if (index >= PS_NINA_DISCOVERY_COMMAND_COUNT)
+  {
+    return;
+  }
+
+  (void)PS_Phase7_NinaReceiveWindow((uint8_t *)probe->command_rx[index],
+                                    PS_NINA_DISCOVERY_RX_BYTES,
+                                    50U);
+  probe->command_tx_status[index] = (uint8_t)HAL_UART_Transmit(&hlpuart1,
+                                                               command,
+                                                               length,
+                                                               PS_NINA_TX_TIMEOUT_MS);
+  probe->command_rx_len[index] =
+    PS_Phase7_NinaReceiveWindow((uint8_t *)probe->command_rx[index],
+                                PS_NINA_DISCOVERY_RX_BYTES,
+                                PS_NINA_RX_WINDOW_MS);
+}
+
+static uint16_t PS_Phase7_NinaReceiveWindow(uint8_t *buffer, uint16_t capacity, uint32_t window_ms)
+{
+  uint16_t count = 0U;
+  uint32_t start = HAL_GetTick();
+
+  while (((HAL_GetTick() - start) < window_ms) && (count < capacity))
+  {
+    uint8_t byte = 0U;
+    if (HAL_UART_Receive(&hlpuart1, &byte, 1U, PS_NINA_UART_BYTE_TIMEOUT_MS) == HAL_OK)
+    {
+      buffer[count] = byte;
+      count++;
+    }
+  }
+
+  return count;
+}
+
+static uint16_t PS_Phase7_NinaReceiveUntilPhoneSps(uint8_t *buffer, uint16_t capacity, uint32_t window_ms)
+{
+  uint16_t count = 0U;
+  uint32_t start = HAL_GetTick();
+  volatile PsPhase7NinaProbe *probe = &g_ps_phase7_nina_probe;
+
+  while (((HAL_GetTick() - start) < window_ms) && (count < capacity))
+  {
+    uint8_t byte = 0U;
+    if (HAL_UART_Receive(&hlpuart1, &byte, 1U, PS_NINA_UART_BYTE_TIMEOUT_MS) == HAL_OK)
+    {
+      buffer[count] = byte;
+      count++;
+      probe->phone_rx_len = count;
+      if (PS_Phase7_BufferContains(buffer, count, "+UUDPC:") != 0U)
+      {
+        probe->phone_detect_tick = HAL_GetTick();
+        break;
+      }
+    }
+  }
+
+  return count;
+}
+
+static uint8_t PS_Phase7_CommandBuffersContain(const char *needle)
+{
+  volatile PsPhase7NinaProbe *probe = &g_ps_phase7_nina_probe;
+
+  for (uint32_t i = 0U; i < PS_NINA_DISCOVERY_COMMAND_COUNT; i++)
+  {
+    if (PS_Phase7_BufferContains((const uint8_t *)probe->command_rx[i],
+                                 probe->command_rx_len[i],
+                                 needle) != 0U)
+    {
+      return 1U;
+    }
+  }
+
+  return 0U;
+}
+
+static uint16_t PS_Phase7_NinaReceiveEchoWindow(uint8_t *buffer, uint16_t capacity, uint32_t window_ms)
+{
+  uint16_t count = 0U;
+  uint32_t start = HAL_GetTick();
+  volatile PsPhase7NinaProbe *probe = &g_ps_phase7_nina_probe;
+
+  while (((HAL_GetTick() - start) < window_ms) && (count < capacity))
+  {
+    uint8_t byte = 0U;
+    if (HAL_UART_Receive(&hlpuart1, &byte, 1U, PS_NINA_UART_BYTE_TIMEOUT_MS) == HAL_OK)
+    {
+      buffer[count] = byte;
+      count++;
+      probe->phone_data_rx_len = count;
+      if (HAL_UART_Transmit(&hlpuart1, &byte, 1U, PS_NINA_TX_TIMEOUT_MS) == HAL_OK)
+      {
+        probe->phone_echo_tx_count++;
+      }
+    }
+  }
+
+  return count;
+}
+
+static uint8_t PS_Phase7_BufferContains(const uint8_t *buffer, uint16_t count, const char *needle)
+{
+  uint16_t needle_len = 0U;
+
+  while (needle[needle_len] != '\0')
+  {
+    needle_len++;
+  }
+
+  if ((needle_len == 0U) || (count < needle_len))
+  {
+    return 0U;
+  }
+
+  for (uint16_t i = 0U; i <= (uint16_t)(count - needle_len); i++)
+  {
+    uint8_t match = 1U;
+    for (uint16_t j = 0U; j < needle_len; j++)
+    {
+      if (buffer[i + j] != (uint8_t)needle[j])
+      {
+        match = 0U;
+        break;
+      }
+    }
+    if (match != 0U)
+    {
+      return 1U;
+    }
+  }
+
+  return 0U;
 }
 
 static void __attribute__((unused)) PS_Phase3_RunAudioProbe(void)

@@ -66,6 +66,18 @@ Record exact behavior once measured.
 
 ---
 
+## Measured HW5 Notes
+
+- 2026-05-30: preliminary `fw0` proof validated NINA reset release and `LPUART1` command response. `NINA_NRST` read low immediately after firmware drove `PC6` high, then read high after the boot wait.
+- 2026-05-30: generated `9600` baud baseline transmitted without HAL error but produced no AT response. Runtime switch to `115200` produced an `AT` echo and `OK` response: `41 54 0d 0a 0d 0a 4f 4b 0d 0a`.
+- 2026-05-30: after regenerating with `LPUART1.BaudRate=115200`, clean proof captured boot banner `+STARTUP`, `AT` echo plus `OK`, `ATI` echo plus `ERROR`, and final firmware reset assertion low. Treat `ATI` as unsupported in the current module/profile state until the correct u-connectXpress version/profile query command is validated.
+- 2026-05-30: bounded identity discovery validated the general u-connectXpress identity commands. Measured identity is `NINA-B112-04B-00`, firmware `5.0.0-011`, build/profile `NINA-B11X-5.0.0-011-0-g1aaa693`, manufacturer `u-blox`, model family `NINA-B1`, serial `0141431523137804`, and `ATI10` value `B5BC4AA6C339F8EA`.
+- 2026-05-30: Android `Serial Bluetooth Terminal` connected to the NINA SPS path and displayed firmware-sent text `peepshow nina sps hello`. Readback captured `+UUBTACLC` and `+UUDPC`, with `phone_sps_detected=1`, `data_mode_tx_status=0`, and `hello_tx_status=0`. User typed `hello nina`, but `phone_data_rx_len` and `phone_echo_tx_count` remained `0`; phone-to-board payload receive remains pending.
+- 2026-05-30: u-blox documents `+UDSF` bit 1 for data-in-AT-command-mode, but NINA-B1 support starts at SW7.0.0. This board's module reports SW5.0.0, so inbound phone payload proof should use transparent data mode and a phone app/characteristic path that writes to the SPS RX/write characteristic.
+- Continued NINA bring-up should keep `LPUART1.BaudRate=115200` unless later evidence proves another persistent module configuration.
+
+---
+
 ## Evidence
 
 Every successful validation must link evidence from [[Brought_Up_Tracker]].

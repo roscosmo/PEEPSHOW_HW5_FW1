@@ -50,6 +50,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/ADP5360.c
     Core/Src/LS013B7DH05.c
+    Core/Src/LIS2DUX12.c
     Core/Src/ps_display_renderer.c
 )
 
